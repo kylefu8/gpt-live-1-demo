@@ -1,5 +1,14 @@
 # Release notes / 发布说明
 
+## v0.3.0 / 可配置联网搜索
+
+- Add independent Tavily search alongside backend-hosted search, with server-only credentials.
+- Add real search probes requiring source evidence; successful chat is no longer treated as proof of search capability.
+- Expose search setup and diagnostics in both languages and apply saved wizard preferences after redirect.
+- 新增 Tavily 独立搜索，可与后端内置搜索切换，密钥只保存在服务端。
+- 新增返回实际来源的搜索测试，区分问答连通性与搜索能力。
+- 配置向导和对话页提供中英文搜索配置与测试，修复旧浏览器偏好覆盖向导设置。
+
 ## v0.2.1 / 作者与项目链接
 
 - Add author credit and a GitHub repository link to the conversation and setup pages, in both interface languages. The link opens in a new tab.

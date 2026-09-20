@@ -12,7 +12,7 @@
 
 ## Windows 发行包
 
-公开的 `v0.2.1` Windows x64 发行包已包含官方 Node.js 24 运行时。
+公开的 `v0.3.0` Windows x64 发行包已包含官方 Node.js 24 运行时。
 
 1. 从 [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest) 下载完整 ZIP。
 2. 解压时不要拆开 `Start.cmd`、`runtime` 和 `app`。

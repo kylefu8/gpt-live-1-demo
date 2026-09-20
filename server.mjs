@@ -10,7 +10,7 @@ import {fastTimeAnswer} from './fast-time.mjs';
 import {SpeechDelivery} from './delivery.mjs';
 import {createSettingsStore,mergeSettings,publicSettings,passwordHash} from './settings-store.mjs';
 import {createAuth} from './auth.mjs';
-import {probeVoice,probeBackend,voiceHeaders,backendConnection,friendlyApiError} from './connections.mjs';
+import {probeVoice,probeBackend,probeSearch,voiceHeaders,backendConnection,friendlyApiError} from './connections.mjs';
 import {requestLanguage,localizeResponse,translateMessage,backendPhase} from './ui-messages.mjs';
 
 export async function startServer(options={}){
@@ -29,17 +29,20 @@ export async function startServer(options={}){
   }
   const store=await createSettingsStore(options.dataDir);
   const auth=createAuth({mode,store,setupToken:options.setupToken||process.env.SETUP_TOKEN});
-  const probes={voice:options.probes?.voice||probeVoice,backend:options.probes?.backend||probeBackend};
+  const probes={voice:options.probes?.voice||probeVoice,backend:options.probes?.backend||probeBackend,search:options.probes?.search||probeSearch};
   const verified=new Map();
   const sessions=new Map(),recentStatuses=new Map();
   let creating=false;
   function safeMessage(message){
     let value=String(message||'');const current=store.get();
-    for(const secret of [current.voice.apiKey,current.backend.apiKey,auth.initialToken])if(secret)value=value.split(secret).join('[REDACTED]');
+    for(const secret of [current.voice.apiKey,current.backend.apiKey,current.search?.apiKey,auth.initialToken])if(secret)value=value.split(secret).join('[REDACTED]');
     return value.replace(/https?:\/\/\S+/g,'[service address]').slice(0,400);
   }
   const fingerprint=(kind,settings)=>createHash('sha256').update(JSON.stringify(kind==='voice'?settings.voice:{backend:settings.backend,reasoning:settings.preferences.reasoningEffort})).digest('hex');
   async function verify(kind,settings){
+    if(kind==='search'){
+      try{return await probes.search(settings);}catch(error){throw new Error(friendlyApiError(error,{kind}));}
+    }
     const id=fingerprint(kind,settings);if(verified.get(id)>Date.now())return {ok:true,message:'连接验证通过'};
     try{const result=await probes[kind](kind==='voice'?settings.voice:settings);verified.set(id,Date.now()+5*60000);if(verified.size>32)verified.delete(verified.keys().next().value);return result;}
     catch(error){throw new Error(friendlyApiError(error,{kind}));}
@@ -186,13 +189,19 @@ async function attach(id,config,backend,voice){
         const normalized=validateConfig(candidate.preferences,candidate);
         candidate.preferences=Object.fromEntries(Object.keys(candidate.preferences).filter(k=>!['backendProvider','backendModel','backendReady'].includes(k)).map(k=>[k,normalized[k]]).filter(([,v])=>v!==undefined));
         if(path==='/api/settings/test'){
-          if(!['voice','backend'].includes(input.kind))return reply(res,400,{error:'请选择要测试的连接'});
+          if(!['voice','backend','search'].includes(input.kind))return reply(res,400,{error:'请选择要测试的连接'});
           return reply(res,200,await verify(input.kind,candidate));
         }
         if(mode==='remote'&&!candidate.admin)candidate.admin=passwordHash(input.adminPassword);
         else if(input.adminPassword)candidate.admin=passwordHash(input.adminPassword);
         await verify('voice',candidate);if(candidate.backend.enabled)await verify('backend',candidate);
         await store.save(candidate);return reply(res,200,{ok:true,message:'配置已保存，可以开始体验'});
+      }
+      if(req.method==='POST'&&path==='/api/search/test'){
+        if(!String(req.headers['content-type']).startsWith('application/json'))return reply(res,415,{error:'需要 JSON 请求'});
+        if(sessions.size||creating)return reply(res,409,{error:'请先断开当前语音会话，再修改连接设置'});
+        await body(req);
+        return reply(res,200,await verify('search',store.get()));
       }
       const statusMatch=path.match(/^\/api\/session\/([A-Za-z0-9_-]+)\/status$/);
       if(req.method==='GET'&&statusMatch){const record=sessions.get(statusMatch[1]);return reply(res,record||recentStatuses.has(statusMatch[1])?200:404,record?statusOf(record):recentStatuses.get(statusMatch[1])||{error:'会话已结束'});}

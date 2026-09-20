@@ -1242,6 +1242,11 @@
                     <input id="webSearchCheckbox" type="checkbox" disabled>
                     <span id="webSearchLabel" data-i18n="main.settings.webSearchAllowed">允许后端查询公开信息</span>
                   </label>
+                  <div class="settings-meta" id="webSearchProviderLabel"></div>
+                  <button class="button secondary tiny" id="testWebSearchButton" type="button" disabled data-i18n="main.settings.webSearchTest">测试联网查询</button>
+                  <div class="settings-meta" id="webSearchTestStatus" role="status" aria-live="polite"></div>
+                  <div class="settings-meta" data-i18n="main.settings.webSearchTestHint">测试会发起一次真实联网请求，可能消耗查询服务额度。</div>
+                  <ul id="webSearchTestSources" style="margin:8px 0 0;padding-left:20px;overflow-wrap:anywhere" hidden></ul>
                 </div>
                 <div class="settings-field">
                   <label for="maxOutputTokensInput" data-i18n="main.settings.maxOutputTokens">后端输出上限</label>
@@ -1327,6 +1332,10 @@
       const cityInput = $("#cityInput");
       const webSearchCheckbox = $("#webSearchCheckbox");
       const webSearchLabel = $("#webSearchLabel");
+      const webSearchProviderLabel = $("#webSearchProviderLabel");
+      const testWebSearchButton = $("#testWebSearchButton");
+      const webSearchTestStatus = $("#webSearchTestStatus");
+      const webSearchTestSources = $("#webSearchTestSources");
       const maxOutputTokensInput = $("#maxOutputTokensInput");
       const reasoningEffortSelect = $("#reasoningEffortSelect");
       const sessionMinutesInput = $("#sessionMinutesInput");
@@ -1346,6 +1355,8 @@
         if (configCatalog && sessionConfig) {
           webSearchLabel.textContent = configCatalog.webSearchAvailable ? t("main.settings.webSearchAllowed") : t("main.settings.webSearchUnavailable");
         }
+        if (webSearchProviderLabel) webSearchProviderLabel.textContent = searchProviderLabel();
+        renderWebSearchTestStatus();
         if (configStatusMessage) setConfigStatus(window.AppI18n.error(configStatusMessage), configStatusTone, configStatusRetry);
         for (const option of voiceSelect.options) option.textContent = window.AppI18n.error(option.textContent);
         for (const option of microphoneSelect.options) {
@@ -1410,6 +1421,7 @@
       let configReady = false;
       let configLoadInFlight = null;
       let configStatusMessage = "", configStatusTone = "", configStatusRetry = false;
+      let webSearchTestMessage = "", webSearchTestTone = "", webSearchTestStatusKey = "", webSearchTestInFlight = false;
       let backendStatusDescriptor = { key: "main.backend.idle", params: {}, tone: "" };
       let phaseMessageOverride = null;
       let microphoneMeterKey = "main.microphone.notCaptured";
@@ -1495,6 +1507,81 @@
         };
       }
 
+      function searchProviderLabel() {
+        if (!configCatalog) return "";
+        const provider = configCatalog.searchProvider === "tavily" ? "tavily" : "native";
+        const label = t(provider === "tavily" ? "main.settings.webSearchProviderTavily" : "main.settings.webSearchProviderNative");
+        const keyState = provider === "tavily"
+          ? (configCatalog.searchKeyConfigured ? t("main.settings.webSearchKeyConfigured") : t("main.settings.webSearchKeyMissing"))
+          : "";
+        return t("main.settings.webSearchProvider", { provider: label }) + (keyState ? " · " + keyState : "");
+      }
+
+      function renderWebSearchTestStatus() {
+        if (!webSearchTestStatus) return;
+        webSearchTestStatus.textContent = webSearchTestStatusKey
+          ? t(webSearchTestStatusKey)
+          : (webSearchTestMessage ? window.AppI18n.error(webSearchTestMessage) : "");
+        webSearchTestStatus.dataset.tone = webSearchTestTone || "";
+      }
+
+      function renderWebSearchSources(values) {
+        if (!webSearchTestSources) return;
+        webSearchTestSources.replaceChildren();
+        const sources = Array.isArray(values) ? values : [];
+        sources.slice(-8).forEach((source) => {
+          try {
+            const url = new URL(source && source.url);
+            if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return;
+            const item = document.createElement("li");
+            const link = document.createElement("a");
+            link.href = url.href;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.style.color = "#71e0c0";
+            link.textContent = String(source.title || url.hostname).slice(0, 180);
+            item.append(link);
+            webSearchTestSources.append(item);
+          } catch (_) { /* Ignore malformed source URLs. */ }
+        });
+        webSearchTestSources.hidden = !webSearchTestSources.childNodes.length;
+      }
+
+      function setWebSearchTestStatus(message, tone, key) {
+        webSearchTestMessage = String(message || "");
+        webSearchTestTone = tone || "";
+        webSearchTestStatusKey = key || "";
+        renderWebSearchTestStatus();
+      }
+
+      async function testWebSearch() {
+        if (!configReady || !configCatalog || configCatalog.backendReady === false || currentAttempt || microphoneTest || webSearchTestInFlight) return;
+        webSearchTestInFlight = true;
+        updateConfigControls();
+        renderWebSearchSources([]);
+        setWebSearchTestStatus("", "working", "main.settings.webSearchTesting");
+        try {
+          const response = await window.AppI18n.apiFetch("/api/search/test", {
+            method: "POST",
+            headers: { "Accept": "application/json", "Content-Type": "application/json" },
+            body: JSON.stringify({})
+          });
+          let payload = {};
+          try { payload = await response.json(); } catch (_) { /* Empty response. */ }
+          if (!response.ok || !payload || payload.ok === false) {
+            const detail = payload && (payload.error || payload.message);
+            throw new Error(typeof detail === "string" ? window.AppI18n.error(detail) : t("main.settings.webSearchTestFailed"));
+          }
+          renderWebSearchSources(payload.sources);
+          setWebSearchTestStatus(payload.message || "", "success", payload.message ? "" : "main.settings.webSearchTestSuccess");
+        } catch (error) {
+          setWebSearchTestStatus(error && error.message ? error.message : t("main.settings.webSearchTestFailed"), "error", "");
+        } finally {
+          webSearchTestInFlight = false;
+          updateConfigControls();
+        }
+      }
+
       function persistConfig(config) {
         if (!config || typeof config !== "object") return;
         const safe = normalizeConfig(config, configDefaults({}));
@@ -1541,6 +1628,7 @@
         sessionMinutesInput.value = String(sessionConfig.sessionMinutes);
         updateUsageNote(sessionConfig.sessionMinutes);
         webSearchLabel.textContent = configCatalog && configCatalog.webSearchAvailable ? t("main.settings.webSearchAllowed") : t("main.settings.webSearchUnavailable");
+        if (webSearchProviderLabel) webSearchProviderLabel.textContent = searchProviderLabel();
         if (configStatus && configCatalog && configCatalog.backendReady === false) {
           configStatus.textContent = t("main.settings.voiceReadyNoBackend");
         }
@@ -1576,6 +1664,7 @@
         const controls = [voiceSelect, languageSelect, instructionsInput, timeZoneInput, cityInput, webSearchCheckbox, maxOutputTokensInput, reasoningEffortSelect, sessionMinutesInput];
         controls.forEach((control) => { if (control) control.disabled = !configReady || locked; });
         if (webSearchCheckbox) webSearchCheckbox.disabled = !configReady || locked || !(configCatalog && configCatalog.webSearchAvailable);
+        if (testWebSearchButton) testWebSearchButton.disabled = !configReady || locked || Boolean(currentAttempt || microphoneTest) || webSearchTestInFlight || !(configCatalog && configCatalog.backendReady !== false);
         if (connectButton) connectButton.disabled = locked || !configReady;
       }
 
@@ -1609,7 +1698,9 @@
               voices: serverOptionList(payload.voices),
               webSearchAvailable: Boolean(payload.webSearchAvailable),
               backendReady: payload.backendReady !== false,
-              backendModel: textValue(payload.defaults && payload.defaults.backendModel, "", 120)
+              backendModel: textValue(payload.defaults && payload.defaults.backendModel, "", 120),
+              searchProvider: payload.searchProvider === "tavily" ? "tavily" : "native",
+              searchKeyConfigured: payload.searchKeyConfigured === true
             };
             const stored = readStoredConfig();
             sessionConfig = normalizeConfig(Object.assign({}, defaults, stored), defaults);
@@ -1668,6 +1759,7 @@
         microphoneSelect.disabled = active || !navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices !== "function";
         testMicrophoneButton.disabled = active || !navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== "function";
         stopMicrophoneTestButton.disabled = !microphoneTest;
+        updateConfigControls();
       }
 
       async function refreshMicrophoneList(options) {
@@ -2818,6 +2910,7 @@
       testMicrophoneButton.addEventListener("click", () => { void testMicrophone(); });
       stopMicrophoneTestButton.addEventListener("click", () => stopMicrophoneTest(t("main.microphone.testStopped"), "main.microphone.testStopped"));
       backendReplayButton.addEventListener("click", () => { void replayLatestBackendAnswer(); });
+      if (testWebSearchButton) testWebSearchButton.addEventListener("click", () => { void testWebSearch(); });
       [voiceSelect, languageSelect, timeZoneInput, cityInput, webSearchCheckbox, maxOutputTokensInput, reasoningEffortSelect, sessionMinutesInput].forEach((control) => {
         if (control) control.addEventListener("change", saveConfigFromInputs);
       });

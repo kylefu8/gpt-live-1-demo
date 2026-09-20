@@ -14,7 +14,7 @@
 
 ## 普通用户最快开始
 
-Windows 用户最省事的方式是从 [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest) 下载 Windows x64 ZIP。当前公开版本是 `v0.2.1`。
+Windows 用户最省事的方式是从 [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest) 下载 Windows x64 ZIP。当前公开版本是 `v0.3.0`。
 
 1. 下载完整 ZIP 并解压到新文件夹。请让 `Start.cmd`、`runtime` 和 `app` 保持在同一层级。
 2. 双击 `Start.cmd`。
@@ -98,6 +98,17 @@ APP_DATA_DIR=/data
 仓库包含 `render.yaml`，用于创建 Docker Web 服务和 `/data` 持久磁盘。模板使用 Render 的付费 Starter 服务和持久磁盘；创建服务前请以 Render 页面显示的价格为准。
 
 模板只是部署起点，不是已经运行的托管服务。本仓库不声称 Render 模板已经完成线上部署。部署后请自行确认生成的 HTTPS 地址、健康检查、初始化口令、持久存储和浏览器麦克风访问。
+
+## 联网搜索
+
+兼容 Responses 的问答接口不一定支持内置联网搜索。在 **连接设置 → 后端能力 → 联网搜索** 中选择：
+
+- **后端内置搜索**：使用当前推理服务提供的搜索工具，无须额外搜索 Key，但服务与模型必须支持。
+- **Tavily 独立搜索**：服务端通过 Tavily 搜索，再把结果摘要交给推理模型。需填写你自己的 Tavily API Key，推理模型只需支持函数调用。
+
+点击 **测试联网搜索** 并检查返回的来源链接。测试会发起真实请求，可能消耗服务商额度；普通问答测试通过并不能证明搜索可用。启用联网搜索、保存配置，再重新连接语音会话。也可以在对话页测试已保存的搜索配置。
+
+搜索结果受服务商索引及网页发布时间影响，并非实时数据流。来源会显示在对话页的“查询来源与工具记录”中，查询失败会明确提示。Tavily Key 仅保存在服务端私有配置文件中，不会发给推理模型或回显到浏览器。
 
 ## 配置
 

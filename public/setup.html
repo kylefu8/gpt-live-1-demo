@@ -255,6 +255,37 @@
               <input id="backendApiKeyInput" type="password" autocomplete="new-password" maxlength="4096" placeholder="首次填写，留空则沿用已保存凭据" data-i18n-placeholder="setup.backend.keyPlaceholder">
             </div>
             <div class="field full">
+              <div class="sub-card" id="searchSettingsCard">
+                <h3 data-i18n="setup.search.title">联网查询</h3>
+                <p class="field-help" data-i18n="setup.search.intro">为“今天的新闻”“最新公开信息”等问题配置查询来源。它与对话后端分开测试。</p>
+                <div class="field-grid" style="margin-top:15px">
+                  <div class="field">
+                    <label for="searchProviderInput" data-i18n="setup.search.providerLabel">查询方式</label>
+                    <select id="searchProviderInput">
+                      <option value="native" data-i18n="setup.search.providerNative">后端内置工具</option>
+                      <option value="tavily" data-i18n="setup.search.providerTavily">Tavily</option>
+                    </select>
+                  </div>
+                  <div class="field" id="searchApiKeyField">
+                    <label for="searchApiKeyInput" data-i18n="setup.search.keyLabel">Tavily API Key</label>
+                    <input id="searchApiKeyInput" type="password" autocomplete="new-password" maxlength="4096" placeholder="首次填写，留空则沿用已保存凭据" data-i18n-placeholder="setup.search.keyPlaceholder">
+                    <p class="field-help" id="searchKeyHint" data-i18n="setup.search.keyHint">Tavily Key 只会发送到当前服务端。</p>
+                  </div>
+                  <div class="field">
+                    <label for="webSearchInput" data-i18n="setup.preferences.webSearch">联网查询</label>
+                    <select id="webSearchInput"><option value="false" data-i18n="setup.preferences.webSearchOff">关闭</option><option value="true" data-i18n="setup.preferences.webSearchOn">允许查询公开信息</option></select>
+                  </div>
+                </div>
+                <p class="field-help" id="searchProviderHelp" data-i18n="setup.search.providerNativeHelp">后端内置工具需要你的推理后端支持联网工具；即使对话可以工作，也可能没有该能力。</p>
+                <div class="inline-actions">
+                  <button class="button secondary" id="testSearchButton" type="button" data-i18n="setup.search.test">测试联网查询</button>
+                  <p class="test-result" id="searchTestResult" role="status" aria-live="polite"></p>
+                </div>
+                <p class="field-help" data-i18n="setup.search.testHint">测试会发起一次真实联网请求，可能消耗查询服务额度。</p>
+                <ul id="searchTestSources" style="margin:8px 0 0;padding-left:20px;overflow-wrap:anywhere" hidden></ul>
+              </div>
+            </div>
+            <div class="field full">
               <details>
                 <summary class="field-label" data-i18n="setup.backend.advanced">高级偏好</summary>
                 <div class="field-grid" style="margin-top:15px">
@@ -277,10 +308,6 @@
                   <div class="field">
                     <label for="cityInput" data-i18n="setup.preferences.city">默认天气城市</label>
                     <input id="cityInput" type="text" maxlength="80" placeholder="可选，例如上海" data-i18n-placeholder="setup.preferences.cityPlaceholder">
-                  </div>
-                  <div class="field">
-                    <label for="webSearchInput" data-i18n="setup.preferences.webSearch">联网查询</label>
-                    <select id="webSearchInput"><option value="false" data-i18n="setup.preferences.webSearchOff">关闭</option><option value="true" data-i18n="setup.preferences.webSearchOn">允许查询公开信息</option></select>
                   </div>
                   <div class="field">
                     <label for="maxOutputTokensInput" data-i18n="setup.preferences.maxOutputTokens">后端输出上限</label>
@@ -378,6 +405,13 @@
       const backendCustomFields = $("#backendCustomFields");
       const backendKeyField = $("#backendKeyField");
       const backendTestResult = $("#backendTestResult");
+      const searchProviderInput = $("#searchProviderInput");
+      const searchApiKeyInput = $("#searchApiKeyInput");
+      const searchApiKeyField = $("#searchApiKeyField");
+      const searchKeyHint = $("#searchKeyHint");
+      const searchProviderHelp = $("#searchProviderHelp");
+      const searchTestResult = $("#searchTestResult");
+      const searchTestSources = $("#searchTestSources");
       const microphoneSelect = $("#microphoneSelect");
       const testMicrophoneButton = $("#testMicrophoneButton");
       const stopMicrophoneButton = $("#stopMicrophoneButton");
@@ -388,6 +422,7 @@
       const voiceKeyHint = $("#voiceKeyHint");
       const voiceBaseUrlHelp = $("#voiceBaseUrlHelp");
       const MICROPHONE_STORAGE_KEY = "gpt-live-microphone-device";
+      const SESSION_CONFIG_STORAGE_KEY = "gpt-live-session-config";
       const MICROPHONE_TEST_TIMEOUT_MS = 30000;
       const state = {
         bootstrap: null,
@@ -402,9 +437,11 @@
         selectedDevice: "default",
         voiceKeyConfigured: false,
         backendKeyConfigured: false,
+        searchKeyConfigured: false,
         preferenceVoice: "marin",
         existingVoiceBaseUrl: "",
         existingBackendBaseUrl: "",
+        existingSearchProvider: "native",
         availableVoices: ["marin"],
         deviceStatusKey: "setup.device.resultIdle",
         statuses: Object.create(null)
@@ -494,9 +531,15 @@
         state.backendKeyConfigured = backend.keyConfigured === true;
         state.existingBackendBaseUrl = text(backend.baseUrl, "", 300);
         backendApiKeyInput.placeholder = backend.keyConfigured ? t("setup.backend.keyPlaceholder") : t("setup.backend.keyPlaceholderNew");
+        const search = value.search && typeof value.search === "object" ? value.search : {};
+        searchProviderInput.value = search.provider === "tavily" ? "tavily" : "native";
+        searchApiKeyInput.value = "";
+        state.searchKeyConfigured = search.keyConfigured === true;
+        state.existingSearchProvider = searchProviderInput.value;
         initialPreferences(preferences);
         updateVoiceHints();
         updateBackendFields();
+        updateSearchFields();
       }
       async function loadVoiceOptions() {
         try {
@@ -537,6 +580,10 @@
             auth: backendMode === "same" ? sameAuth : backendAuthInput.value,
             apiKey: backendMode === "same" ? voiceKey : backendKey
           },
+          search: {
+            provider: searchProviderInput.value === "tavily" ? "tavily" : "native",
+            apiKey: searchProviderInput.value === "tavily" ? searchApiKeyInput.value.trim() : ""
+          },
           preferences: {
             voice: $("#outputVoiceInput").value || state.preferenceVoice || "marin",
             language: $("#languageInput").value,
@@ -553,7 +600,7 @@
       function endpointKey(value) {
         return text(value, "", 300).replace(/\/+$/, "").toLowerCase();
       }
-      function validate(kind) {
+      function validate(kind, forceSearch) {
         const settings = settingsCandidate();
         if (!settings.voice.baseUrl) return t("setup.error.voiceBaseUrlRequired");
         if (!settings.voice.model) return t("setup.error.voiceModelRequired");
@@ -564,6 +611,8 @@
           if (settings.backend.mode === "custom" && !/^https:\/\//i.test(settings.backend.baseUrl)) return t("setup.error.backendHttps");
           if (settings.backend.mode === "custom" && state.backendKeyConfigured && !settings.backend.apiKey && endpointKey(settings.backend.baseUrl) !== endpointKey(state.existingBackendBaseUrl)) return t("setup.error.backendKeyChanged");
         }
+        if (kind === "search" && (forceSearch || settings.preferences.webSearch) && !settings.backend.enabled) return t("setup.error.searchBackendRequired");
+        if (kind === "search" && settings.search.provider === "tavily" && !settings.search.apiKey && !state.searchKeyConfigured && (forceSearch || settings.preferences.webSearch)) return t("setup.error.searchKeyRequired");
         return "";
       }
       async function jsonFetch(url, options) {
@@ -671,6 +720,15 @@
         voiceApiKeyInput.placeholder = state.voiceKeyConfigured ? t("setup.voice.keyPlaceholder") : t("setup.voice.keyPlaceholderNew");
         backendApiKeyInput.placeholder = state.backendKeyConfigured ? t("setup.backend.keyPlaceholder") : t("setup.backend.keyPlaceholderNew");
       }
+      function updateSearchFields() {
+        const provider = searchProviderInput.value === "tavily" ? "tavily" : "native";
+        searchProviderInput.value = provider;
+        searchApiKeyField.hidden = provider !== "tavily";
+        searchApiKeyInput.disabled = provider !== "tavily";
+        searchApiKeyInput.placeholder = state.searchKeyConfigured ? t("setup.search.keyPlaceholder") : t("setup.search.keyPlaceholderNew");
+        searchKeyHint.textContent = state.searchKeyConfigured ? t("setup.search.keyHintSaved") : t("setup.search.keyHint");
+        searchProviderHelp.textContent = t(provider === "tavily" ? "setup.search.providerTavilyHelp" : "setup.search.providerNativeHelp");
+      }
       function updateBackendFields() {
         const mode = selectedRadio("backendMode", "same");
         const custom = mode === "custom";
@@ -710,6 +768,8 @@
           [t("setup.summary.voiceDeployment"), settings.voice.model || t("setup.summary.notFilled")],
           [t("setup.summary.backend"), backendLabel],
           [t("setup.summary.backendModel"), settings.backend.enabled ? (settings.backend.model || t("setup.summary.notFilled")) : t("setup.summary.disabled")],
+          [t("setup.summary.search"), settings.search.provider === "tavily" ? t("setup.search.providerTavily") : t("setup.search.providerNative")],
+          [t("setup.summary.webSearch"), settings.preferences.webSearch ? t("setup.preferences.webSearchOn") : t("setup.preferences.webSearchOff")],
           [t("setup.summary.voice"), settings.preferences.voice],
           [t("setup.summary.microphone"), microphoneSelect.options[microphoneSelect.selectedIndex]?.textContent || t("setup.device.defaultMicrophone")],
           [t("setup.summary.languageZone"), conversationLanguage + " · " + settings.preferences.timeZone]
@@ -723,22 +783,45 @@
         });
       }
       async function testConnection(kind) {
-        const error = validate(kind);
-        const target = kind === "voice" ? voiceTestResult : backendTestResult;
-        const button = kind === "voice" ? $("#testVoiceButton") : $("#testBackendButton");
+        const error = validate(kind, kind === "search");
+        const target = kind === "voice" ? voiceTestResult : kind === "backend" ? backendTestResult : searchTestResult;
+        const button = kind === "voice" ? $("#testVoiceButton") : kind === "backend" ? $("#testBackendButton") : $("#testSearchButton");
         if (error) { setStatus(target, error, "error"); return; }
+        if (kind === "search") renderSearchSources([]);
         button.disabled = true;
-        setStatusKey(target, "setup.error.testWorking", "working");
+        setStatusKey(target, kind === "search" ? "setup.search.testWorking" : "setup.error.testWorking", "working");
         try {
           const payload = await jsonFetch("/api/settings/test", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ kind, settings: settingsCandidate() }) });
           if (!payload || payload.ok !== true) throw new Error(payload && payload.message ? i18n.error(payload.message) : t("setup.error.testFailed"));
           if (payload.message) setStatus(target, i18n.error(payload.message), "success");
-          else setStatusKey(target, "setup.error.testSuccess", "success");
+          else setStatusKey(target, kind === "search" ? "setup.search.testSuccess" : "setup.error.testSuccess", "success");
+          if (kind === "search") renderSearchSources(payload.sources);
           // Keep the entered key in this page's memory until the final save.
           // The test endpoint does not persist or return it.
         } catch (error) {
           setStatus(target, localizedMessage(error && error.message, "setup.error.connectionFailed"), "error");
         } finally { button.disabled = false; }
+      }
+      function renderSearchSources(values) {
+        if (!searchTestSources) return;
+        searchTestSources.replaceChildren();
+        const sources = Array.isArray(values) ? values : [];
+        sources.slice(-8).forEach((source) => {
+          try {
+            const url = new URL(source && source.url);
+            if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return;
+            const item = document.createElement("li");
+            const link = document.createElement("a");
+            link.href = url.href;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.style.color = "#71e0c0";
+            link.textContent = String(source.title || url.hostname).slice(0, 180);
+            item.append(link);
+            searchTestSources.append(item);
+          } catch (_) { /* Ignore malformed source URLs. */ }
+        });
+        searchTestSources.hidden = !searchTestSources.childNodes.length;
       }
       function microphoneConstraints() {
         const audio = { channelCount: { ideal: 1, max: 1 }, echoCancellation: true, noiseSuppression: true, autoGainControl: true };
@@ -854,7 +937,7 @@
         } catch (_) { state.toneContext = null; setDeviceStatus("setup.device.toneFailed", "error"); }
       }
       async function saveSettings() {
-        const error = validate("voice") || validate("backend");
+        const error = validate("voice") || validate("backend") || validate("search");
         if (error) { setStatus(saveStatus, error, "error"); return; }
         const initialRemote = Boolean(state.bootstrap && state.bootstrap.mode === "remote" && state.bootstrap.needsSetupToken === true);
         const adminPassword = adminPasswordInput.value;
@@ -865,7 +948,12 @@
           if (initialRemote) body.adminPassword = adminPassword;
           const payload = await jsonFetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
           if (!payload || payload.ok === false) throw new Error(payload && payload.error ? i18n.error(payload.error) : t("setup.finish.saveFailed"));
-          voiceApiKeyInput.value = ""; backendApiKeyInput.value = ""; adminPasswordInput.value = "";
+          try {
+            // Keep the wizard's conversation preferences in sync with the main
+            // page. This key contains no service credentials.
+            localStorage.setItem(SESSION_CONFIG_STORAGE_KEY, JSON.stringify(body.settings.preferences));
+          } catch (_) { /* Storage may be unavailable. */ }
+          voiceApiKeyInput.value = ""; backendApiKeyInput.value = ""; searchApiKeyInput.value = ""; adminPasswordInput.value = "";
           window.location.assign("/");
         } catch (error) {
           setStatus(saveStatus, localizedMessage(error && error.message, "setup.finish.saveError"), "error");
@@ -874,7 +962,11 @@
       }
       function next() {
         if (state.step === 1) { const error = validate("voice"); if (error) { setStatus(voiceTestResult, error, "error"); return; } }
-        if (state.step === 2) { const error = validate("backend"); if (error) { setStatus(backendTestResult, error, "error"); return; } }
+        if (state.step === 2) {
+          const backendError = validate("backend");
+          const searchError = backendError ? "" : validate("search");
+          if (backendError || searchError) { setStatus(backendError ? backendTestResult : searchTestResult, backendError || searchError, "error"); return; }
+        }
         if (state.step === 3) stopMicrophoneTest(t("setup.device.resultStoppedByStep"), "setup.device.resultStoppedByStep");
         if (state.step < 4) state.step += 1;
         renderStep();
@@ -899,6 +991,7 @@
         document.documentElement.lang = language === "zh-CN" ? "zh-CN" : "en";
         updateVoiceHints();
         updateBackendFields();
+        updateSearchFields();
         refreshMicrophoneOptionLabels();
         refreshVoiceOptionLabels();
         if (state.authUnavailable) authIntro.textContent = t("setup.error.serverUnavailable");
@@ -916,6 +1009,8 @@
       $$('input[name="backendMode"]').forEach((input) => input.addEventListener("change", updateBackendFields));
       $("#testVoiceButton").addEventListener("click", () => { void testConnection("voice"); });
       $("#testBackendButton").addEventListener("click", () => { void testConnection("backend"); });
+      $("#testSearchButton").addEventListener("click", () => { void testConnection("search"); });
+      searchProviderInput.addEventListener("change", updateSearchFields);
       microphoneSelect.addEventListener("change", () => { state.selectedDevice = microphoneSelect.value || "default"; try { localStorage.setItem(MICROPHONE_STORAGE_KEY, state.selectedDevice); } catch (_) {} });
       testMicrophoneButton.addEventListener("click", () => { void testMicrophone(); });
       stopMicrophoneButton.addEventListener("click", () => stopMicrophoneTest());

@@ -2,7 +2,7 @@
 
 [简体中文](RELEASE.zh-CN.md) | English
 
-This project publishes source on GitHub and can publish a self-contained Windows x64 ZIP. The current release is `v0.2.1`; use the same process for each new tag.
+This project publishes source on GitHub and can publish a self-contained Windows x64 ZIP. The current release is `v0.3.0`; use the same process for each new tag.
 
 ## Before a release
 
@@ -69,7 +69,7 @@ Before pushing a tag:
 1. Update `package.json` and `package-lock.json` to the intended version.
 2. Update `docs/RELEASE-NOTES.md` and both README language versions if user-visible behavior changed.
 3. Commit and push the source changes.
-4. Create and push the exact tag, for example `v0.2.1`.
+4. Create and push the exact tag, for example `v0.3.0`.
 5. Check the workflow logs, uploaded ZIP, SHA-256 file, and release page.
 
 The Docker CI smoke test proves that an empty local container starts and serves its health/setup endpoints. It does not prove that a provider account works, that browser microphone permissions work on a deployed host, or that the Render template has been live deployed.
