@@ -2,6 +2,8 @@
   "use strict";
 
   const dictionary = {
+    "setup.footer.author": { "zh-CN": "作者", en: "Author" },
+    "setup.footer.repository": { "zh-CN": "GitHub 项目仓库", en: "GitHub repository" },
     "setup.document.title": { "zh-CN": "连接设置 · 实时语音助手", en: "Connection setup · Real-time voice assistant" },
     "setup.eyebrow": { "zh-CN": "连接设置", en: "Connection setup" },
     "setup.hero.titleLine1": { "zh-CN": "准备你的", en: "Set up your " },

@@ -2,6 +2,8 @@
   "use strict";
 
   var dictionary = {
+    "main.footer.author": { "zh-CN": "作者", en: "Author" },
+    "main.footer.repository": { "zh-CN": "GitHub 项目仓库", en: "GitHub repository" },
     "main.page.title": { "zh-CN": "实时语音助手", en: "Real-time voice assistant" },
     "main.ui.language": { "zh-CN": "界面语言", en: "UI language" },
     "main.ui.zh": { "zh-CN": "简体中文", en: "Simplified Chinese" },

@@ -14,7 +14,7 @@
 
 ## 普通用户最快开始
 
-Windows 用户最省事的方式是从 [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest) 下载 Windows x64 ZIP。当前公开版本是 `v0.2.0`。
+Windows 用户最省事的方式是从 [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest) 下载 Windows x64 ZIP。当前公开版本是 `v0.2.1`。
 
 1. 下载完整 ZIP 并解压到新文件夹。请让 `Start.cmd`、`runtime` 和 `app` 保持在同一层级。
 2. 双击 `Start.cmd`。

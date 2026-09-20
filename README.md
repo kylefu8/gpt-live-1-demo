@@ -14,7 +14,7 @@ Project: <https://github.com/kylefu8/gpt-live-1-demo>
 
 ## Try it as an end user
 
-The easiest path on Windows is the published Windows x64 ZIP from [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest). The current public release is `v0.2.0`.
+The easiest path on Windows is the published Windows x64 ZIP from [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest). The current public release is `v0.2.1`.
 
 1. Download the complete ZIP and extract it to a new folder. Keep `Start.cmd`, `runtime`, and `app` together.
 2. Double-click `Start.cmd`.

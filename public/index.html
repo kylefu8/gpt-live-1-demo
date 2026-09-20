@@ -1012,6 +1012,9 @@
       text-align: center;
     }
 
+    .project-credit { margin-top: 8px; font-size: 12px; }
+    .project-credit a { color: inherit; text-underline-offset: 3px; }
+
     .sr-only {
       position: absolute;
       width: 1px;
@@ -1271,6 +1274,7 @@
     </main>
 
     <p class="footer-note" data-i18n="main.footer.note">音频通过浏览器 WebRTC 发送到服务端创建的会话；服务凭据只在服务端保存，浏览器不会读取或保存。</p>
+    <p class="footer-note project-credit"><span data-i18n="main.footer.author">作者</span>：kylefu8 · <a href="https://github.com/kylefu8/gpt-live-1-demo" target="_blank" rel="noopener noreferrer" data-i18n="main.footer.repository">GitHub 项目仓库</a></p>
   </div>
 
   <audio id="remoteAudio" autoplay playsinline class="sr-only" aria-label="GPT-Live 语音回复" data-i18n-aria-label="main.audio.aria"></audio>

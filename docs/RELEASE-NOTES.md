@@ -1,5 +1,10 @@
 # Release notes / 发布说明
 
+## v0.2.1 / 作者与项目链接
+
+- Add author credit and a GitHub repository link to the conversation and setup pages, in both interface languages. The link opens in a new tab.
+- 主界面和配置向导底部新增作者及 GitHub 项目链接，支持中英文，点击后在新标签页打开。
+
 ## v0.2.0 / 中英文版
 
 ### English
