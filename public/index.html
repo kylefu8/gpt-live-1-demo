@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#09121e">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307111d'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%2371e0c0'/%3E%3C/svg%3E">
-  <title>实时语音助手</title>
+  <title data-i18n="main.page.title">实时语音助手</title>
   <style>
     :root {
       color-scheme: dark;
@@ -122,6 +122,29 @@
       justify-content: flex-end;
       gap: 8px;
       padding-bottom: 6px;
+    }
+
+    .ui-language-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(17, 36, 58, 0.52);
+      font-size: 12px;
+    }
+
+    .ui-language-control select {
+      min-width: 92px;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      background: transparent;
+      font: inherit;
+      cursor: pointer;
     }
 
     .badge {
@@ -1048,14 +1071,20 @@
   <div class="page-shell">
     <header class="hero">
       <div>
-        <div class="eyebrow"><span class="status-dot" id="heroStatusDot" data-tone="idle" aria-hidden="true"></span>实时语音实验台</div>
-        <h1>和语音助手<br>直接说话</h1>
-        <p class="hero-copy">用浏览器麦克风建立一条低延迟语音链路。点击连接后自然开口，实时听见回复并查看转写。</p>
+        <div class="eyebrow"><span class="status-dot" id="heroStatusDot" data-tone="idle" aria-hidden="true"></span><span data-i18n="main.hero.eyebrow">实时语音实验台</span></div>
+        <h1><span data-i18n="main.hero.title.line1">和语音助手</span><br><span data-i18n="main.hero.title.line2">直接说话</span></h1>
+        <p class="hero-copy" data-i18n="main.hero.copy">用浏览器麦克风建立一条低延迟语音链路。点击连接后自然开口，实时听见回复并查看转写。</p>
       </div>
-      <div class="hero-badges" aria-label="会话信息">
+      <div class="hero-badges" aria-label="会话信息" data-i18n-aria-label="main.hero.sessionInfo">
+        <label class="ui-language-control" for="uiLanguageSelect"><span data-i18n="main.ui.language">界面语言</span>
+          <select id="uiLanguageSelect" aria-label="界面语言" data-i18n-aria-label="main.ui.language">
+            <option value="zh-CN" data-i18n="main.ui.zh">简体中文</option>
+            <option value="en" data-i18n="main.ui.en">English</option>
+          </select>
+        </label>
         <span class="badge accent">WebRTC</span>
-        <span class="badge">实时语音</span>
-        <span class="badge">凭据只在服务端</span>
+        <span class="badge" data-i18n="main.badge.realtime">实时语音</span>
+        <span class="badge" data-i18n="main.badge.serverCredentials">凭据只在服务端</span>
       </div>
     </header>
 
@@ -1063,8 +1092,8 @@
       <section class="card control-card" aria-labelledby="controlTitle">
         <div class="card-heading">
           <div>
-            <h2 id="controlTitle">会话控制</h2>
-            <p>浏览器只负责语音和会话信令</p>
+            <h2 id="controlTitle" data-i18n="main.control.title">会话控制</h2>
+            <p data-i18n="main.control.subtitle">浏览器只负责语音和会话信令</p>
           </div>
           <span class="session-chip">LIVE</span>
         </div>
@@ -1082,63 +1111,63 @@
         </div>
 
         <div class="control-buttons">
-          <button class="button primary" id="connectButton" type="button">连接会话</button>
-          <button class="button secondary" id="disconnectButton" type="button" disabled>断开</button>
+          <button class="button primary" id="connectButton" type="button" data-i18n="main.control.connect">连接会话</button>
+          <button class="button secondary" id="disconnectButton" type="button" disabled data-i18n="main.control.disconnect">断开</button>
         </div>
-        <button class="button mute" id="muteButton" type="button" aria-pressed="false" disabled>静音麦克风</button>
+        <button class="button mute" id="muteButton" type="button" aria-pressed="false" disabled data-i18n="main.control.mute">静音麦克风</button>
 
         <div class="microphone-controls">
-          <label class="microphone-label" for="microphoneSelect">输入麦克风</label>
+          <label class="microphone-label" for="microphoneSelect" data-i18n="main.microphone.inputLabel">输入麦克风</label>
           <select class="microphone-select" id="microphoneSelect" aria-describedby="microphoneHint">
-            <option value="default">系统默认麦克风</option>
+            <option value="default" data-i18n="main.microphone.systemDefault">系统默认麦克风</option>
           </select>
           <div class="microphone-test-actions">
-            <button class="button secondary" id="testMicrophoneButton" type="button">测试麦克风</button>
-            <button class="button secondary" id="stopMicrophoneTestButton" type="button" disabled>停止测试</button>
+            <button class="button secondary" id="testMicrophoneButton" type="button" data-i18n="main.microphone.test">测试麦克风</button>
+            <button class="button secondary" id="stopMicrophoneTestButton" type="button" disabled data-i18n="main.microphone.stopTest">停止测试</button>
           </div>
-          <p class="microphone-hint" id="microphoneHint">断开后可切换设备；连接期间无法切换。</p>
-          <p class="microphone-test-note" id="microphoneTestNote">仅本机测试，不连接语音服务。</p>
+          <p class="microphone-hint" id="microphoneHint" data-i18n="main.microphone.hint">断开后可切换设备；连接期间无法切换。</p>
+          <p class="microphone-test-note" id="microphoneTestNote" data-i18n="main.microphone.testNote">仅本机测试，不连接语音服务。</p>
           <div class="microphone-meter" aria-live="polite">
             <span class="microphone-meter-track"><span class="microphone-meter-fill" id="microphoneMeterFill"></span></span>
-            <span id="microphoneMeterStatus">未采集</span>
+            <span id="microphoneMeterStatus" data-i18n="main.microphone.notCaptured">未采集</span>
           </div>
           <p class="microphone-track" id="microphoneTrackLabel">当前设备：未采集</p>
         </div>
 
 
 
-        <p class="usage-note" id="usageNote"><strong>用量提醒：</strong>每次会话最多 10 分钟，语音连接期间计费；后端推理 token 另行计费。体验完成后请点击断开。</p>
+        <p class="usage-note" id="usageNote"><strong data-i18n="main.usage.label">用量提醒：</strong>每次会话最多 10 分钟，语音连接期间计费；后端推理 token 另行计费。体验完成后请点击断开。</p>
       </section>
 
       <div class="workspace-right">
         <section class="card transcript-card" aria-labelledby="transcriptTitle">
-          <div class="card-heading transcript-heading" title="时间戳优先使用会话创建时间加事件 start_ms；事件缺少 start_ms 时使用浏览器收到该增量的时间。按语句显示 HH:mm:ss，逐片段显示 HH:mm:ss.SSS。">
+          <div class="card-heading transcript-heading" title="时间戳优先使用会话创建时间加事件 start_ms；事件缺少 start_ms 时使用浏览器收到该增量的时间。按语句显示 HH:mm:ss，逐片段显示 HH:mm:ss.SSS。" data-i18n-title="main.transcript.timestampHelp">
             <div>
-              <h2 id="transcriptTitle">实时对话</h2>
-              <p>按语句合并相邻片段；切换显示会重新整理当前记录</p>
+              <h2 id="transcriptTitle" data-i18n="main.transcript.title">实时对话</h2>
+              <p data-i18n="main.transcript.subtitle">按语句合并相邻片段；切换显示会重新整理当前记录</p>
             </div>
-            <label class="transcript-mode-label" for="transcriptModeSelect">字幕显示
-              <select id="transcriptModeSelect" aria-label="字幕显示方式">
-                <option value="sentence">按语句（推荐）</option>
-                <option value="fragment">逐片段</option>
+            <label class="transcript-mode-label" for="transcriptModeSelect"><span data-i18n="main.transcript.modeLabel">字幕显示</span>
+              <select id="transcriptModeSelect" aria-label="字幕显示方式" data-i18n-aria-label="main.transcript.modeAria">
+                <option value="sentence" data-i18n="main.transcript.modeSentence">按语句（推荐）</option>
+                <option value="fragment" data-i18n="main.transcript.modeFragment">逐片段</option>
               </select>
             </label>
             <div class="live-hint" id="transcriptHint">等待连接</div>
-            <span class="backend-status" id="backendStatus" title="后端处理状态">后端待机</span>
+            <span class="backend-status" id="backendStatus" title="后端处理状态" data-i18n-title="main.backend.statusTitle">后端待机</span>
           </div>
 
           <div class="transcript-grid">
             <article class="transcript-panel" aria-labelledby="userTranscriptTitle">
               <div class="transcript-panel-header">
-                <span class="role-label" id="userTranscriptTitle">你</span>
-                <span class="transcript-state" id="userTranscriptState">等待麦克风</span>
+                <span class="role-label" id="userTranscriptTitle" data-i18n="main.transcript.user">你</span>
+            <span class="transcript-state" id="userTranscriptState" data-i18n="main.transcript.waitingMicrophone">等待麦克风</span>
               </div>
               <div class="transcript-body" id="userTranscript" role="log" aria-live="polite" aria-relevant="additions text"></div>
             </article>
             <article class="transcript-panel" aria-labelledby="assistantTranscriptTitle">
               <div class="transcript-panel-header">
                 <span class="role-label assistant" id="assistantTranscriptTitle">GPT-Live</span>
-                <span class="transcript-state" id="assistantTranscriptState">等待回复</span>
+                <span class="transcript-state" id="assistantTranscriptState" data-i18n="main.transcript.waitingReply">等待回复</span>
               </div>
               <div class="transcript-body" id="assistantTranscript" role="log" aria-live="polite" aria-relevant="additions text"></div>
             </article>
@@ -1147,110 +1176,115 @@
           <section class="backend-answer-card" id="backendAnswerCard" hidden aria-labelledby="backendAnswerTitle">
             <div class="backend-answer-header">
               <div>
-                <h3 class="backend-answer-title" id="backendAnswerTitle">后端答案</h3>
-                <p class="backend-answer-caption">后端处理结果与语音服务交接状态</p>
+                <h3 class="backend-answer-title" id="backendAnswerTitle" data-i18n="main.backend.answerTitle">后端答案</h3>
+                <p class="backend-answer-caption" data-i18n="main.backend.answerCaption">后端处理结果与语音服务交接状态</p>
               </div>
               <div class="backend-answer-actions">
                 <span class="backend-answer-status" id="backendAnswerStatus" role="status" aria-live="polite"></span>
-                <button class="backend-replay-button" id="backendReplayButton" type="button" disabled>重新播报</button>
+                <button class="backend-replay-button" id="backendReplayButton" type="button" disabled data-i18n="main.backend.replay">重新播报</button>
               </div>
             </div>
             <div class="backend-answer-list" id="backendAnswers" role="log" aria-live="polite" aria-relevant="additions text"></div>
           </section>
 
-          <p class="limitation-note">语音负责实时交流，后端负责推理、联网查询和工具调用；这里会显示后端处理进度。</p>
+          <p class="limitation-note" data-i18n="main.backend.limitation">语音负责实时交流，后端负责推理、联网查询和工具调用；这里会显示后端处理进度。</p>
           <details id="backendDetails" style="margin-top:12px; font-size:13px; color:#a8bfd1">
-            <summary>查询来源与工具记录</summary>
+            <summary data-i18n="main.backend.sourcesSummary">查询来源与工具记录</summary>
             <ul id="backendSources" style="overflow-wrap:anywhere; padding-left:20px"></ul>
-            <div id="backendToolLog" style="line-height:1.8; max-height:180px; overflow:auto">尚未调用工具。</div>
+            <div id="backendToolLog" style="line-height:1.8; max-height:180px; overflow:auto" data-i18n="main.backend.noTools">尚未调用工具。</div>
           </details>
         </section>
 
         <section class="card session-settings" id="sessionSettings" aria-labelledby="settingsTitle">
           <div class="settings-heading">
             <div>
-              <h3 id="settingsTitle">会话设置</h3>
-              <p>连接前调整，保存后下次会话生效。</p>
+              <h3 id="settingsTitle" data-i18n="main.settings.title">会话设置</h3>
+              <p data-i18n="main.settings.subtitle">连接前调整，保存后下次会话生效。</p>
             </div>
-            <a class="button secondary settings-link" id="connectionSettingsLink" href="/setup">连接设置</a>
+            <a class="button secondary settings-link" id="connectionSettingsLink" href="/setup" data-i18n="main.settings.connectionLink">连接设置</a>
           </div>
-          <div class="settings-status" id="configStatus" role="status" aria-live="polite">正在加载服务配置…<button id="reloadConfigButton" type="button" hidden>重新加载</button></div>
+          <div class="settings-status" id="configStatus" role="status" aria-live="polite">正在加载服务配置…<button id="reloadConfigButton" type="button" hidden data-i18n="main.settings.reload">重新加载</button></div>
           <div class="settings-grid" id="settingsGrid">
             <div class="settings-field">
-              <label for="voiceSelect">语音音色</label>
+              <label for="voiceSelect" data-i18n="main.settings.voice">语音音色</label>
               <select id="voiceSelect" disabled aria-describedby="settingsNote"></select>
             </div>
             <details class="advanced-settings">
-              <summary>高级配置</summary>
+              <summary data-i18n="main.settings.advanced">高级配置</summary>
               <div class="advanced-grid">
                 <div class="settings-field">
-                  <label for="languageSelect">对话语言</label>
+                  <label for="languageSelect" data-i18n="main.settings.conversationLanguage">对话语言</label>
                   <select id="languageSelect" disabled>
-                    <option value="zh-CN">中文（简体）</option>
-                    <option value="en-US">English</option>
-                    <option value="auto">自动识别</option>
+                    <option value="zh-CN" data-i18n="main.settings.conversationZh">中文（简体）</option>
+                    <option value="en-US" data-i18n="main.settings.conversationEn">English</option>
+                    <option value="auto" data-i18n="main.settings.conversationAuto">自动识别</option>
                   </select>
                 </div>
                 <div class="settings-field">
-                  <label for="timeZoneInput">时区</label>
-                  <input id="timeZoneInput" type="text" maxlength="80" disabled placeholder="Asia/Shanghai">
+                  <label for="timeZoneInput" data-i18n="main.settings.timeZone">时区</label>
+                  <input id="timeZoneInput" type="text" maxlength="80" disabled placeholder="Asia/Shanghai" data-i18n-placeholder="main.settings.timeZonePlaceholder">
                 </div>
                 <div class="settings-field full">
-                  <label for="instructionsInput">助手补充说明</label>
-                  <textarea id="instructionsInput" maxlength="1500" disabled placeholder="例如：用中文回答，先给结论，再简要说明依据。"></textarea>
-                  <div class="settings-meta"><span>用于约束本次对话风格</span><span id="instructionsCount">0 / 1500</span></div>
+                  <label for="instructionsInput" data-i18n="main.settings.instructions">助手补充说明</label>
+                  <textarea id="instructionsInput" maxlength="1500" disabled placeholder="例如：用中文回答，先给结论，再简要说明依据。" data-i18n-placeholder="main.settings.instructionsPlaceholder"></textarea>
+                  <div class="settings-meta"><span data-i18n="main.settings.instructionsHint">用于约束本次对话风格</span><span id="instructionsCount">0 / 1500</span></div>
                 </div>
                 <div class="settings-field">
-                  <label for="cityInput">默认天气城市</label>
-                  <input id="cityInput" type="text" maxlength="80" disabled placeholder="可选，例如上海">
+                  <label for="cityInput" data-i18n="main.settings.city">默认天气城市</label>
+                  <input id="cityInput" type="text" maxlength="80" disabled placeholder="可选，例如上海" data-i18n-placeholder="main.settings.cityPlaceholder">
                 </div>
                 <div class="settings-field">
-                  <span class="field-label">联网查询</span>
+                  <span class="field-label" data-i18n="main.settings.webSearch">联网查询</span>
                   <label class="settings-check" for="webSearchCheckbox">
                     <input id="webSearchCheckbox" type="checkbox" disabled>
-                    <span id="webSearchLabel">允许后端查询公开信息</span>
+                    <span id="webSearchLabel" data-i18n="main.settings.webSearchAllowed">允许后端查询公开信息</span>
                   </label>
                 </div>
                 <div class="settings-field">
-                  <label for="maxOutputTokensInput">后端输出上限</label>
+                  <label for="maxOutputTokensInput" data-i18n="main.settings.maxOutputTokens">后端输出上限</label>
                   <input id="maxOutputTokensInput" type="number" min="256" max="4096" step="1" inputmode="numeric" disabled>
                 </div>
                 <div class="settings-field">
-                  <label for="reasoningEffortSelect">推理强度</label>
+                  <label for="reasoningEffortSelect" data-i18n="main.settings.reasoningEffort">推理强度</label>
                   <select id="reasoningEffortSelect" disabled>
-                    <option value="none">默认（不指定）</option>
-                    <option value="low">低</option>
-                    <option value="medium">中</option>
-                    <option value="high">高</option>
+                    <option value="none" data-i18n="main.settings.reasoningNone">默认（不指定）</option>
+                    <option value="low" data-i18n="main.settings.reasoningLow">低</option>
+                    <option value="medium" data-i18n="main.settings.reasoningMedium">中</option>
+                    <option value="high" data-i18n="main.settings.reasoningHigh">高</option>
                   </select>
                 </div>
                 <div class="settings-field">
-                  <label for="sessionMinutesInput">最长会话（分钟）</label>
+                  <label for="sessionMinutesInput" data-i18n="main.settings.sessionMinutes">最长会话（分钟）</label>
                   <input id="sessionMinutesInput" type="number" min="1" max="30" step="1" inputmode="numeric" disabled>
                 </div>
               </div>
             </details>
           </div>
-          <p class="settings-note" id="settingsNote">连接设置由服务端管理，凭据不会写入浏览器。会话连接期间设置会锁定；如需更换服务或模型，请打开“连接设置”。</p>
+          <p class="settings-note" id="settingsNote" data-i18n="main.settings.note">连接设置由服务端管理，凭据不会写入浏览器。会话连接期间设置会锁定；如需更换服务或模型，请打开“连接设置”。</p>
         </section>
 
         <details class="card technical-card" id="technicalDetails">
-          <summary><span>技术事件日志</span><span class="sr-only">展开或收起</span></summary>
-          <ol class="event-log" id="eventLog" aria-label="技术事件日志"></ol>
+          <summary><span data-i18n="main.events.title">技术事件日志</span><span class="sr-only" data-i18n="main.events.toggle">展开或收起</span></summary>
+          <ol class="event-log" id="eventLog" aria-label="技术事件日志" data-i18n-aria-label="main.events.title"></ol>
         </details>
       </div>
     </main>
 
-    <p class="footer-note">音频通过浏览器 WebRTC 发送到服务端创建的会话；服务凭据只在服务端保存，浏览器不会读取或保存。</p>
+    <p class="footer-note" data-i18n="main.footer.note">音频通过浏览器 WebRTC 发送到服务端创建的会话；服务凭据只在服务端保存，浏览器不会读取或保存。</p>
   </div>
 
-  <audio id="remoteAudio" autoplay playsinline class="sr-only" aria-label="GPT-Live 语音回复"></audio>
+  <audio id="remoteAudio" autoplay playsinline class="sr-only" aria-label="GPT-Live 语音回复" data-i18n-aria-label="main.audio.aria"></audio>
+
+  <script src="/i18n.js"></script>
+  <script src="/locales/main.js"></script>
 
   <script>
     (() => {
       "use strict";
 
       const $ = (selector) => document.querySelector(selector);
+      const t = (key, params) => window.AppI18n && typeof window.AppI18n.t === "function" ? window.AppI18n.t(key, params || {}) : key;
+      const uiLanguageSelect = $("#uiLanguageSelect");
       const connectButton = $("#connectButton");
       const disconnectButton = $("#disconnectButton");
       const muteButton = $("#muteButton");
@@ -1293,6 +1327,34 @@
       const reasoningEffortSelect = $("#reasoningEffortSelect");
       const sessionMinutesInput = $("#sessionMinutesInput");
 
+      function refreshLocalizedUi() {
+        if (window.AppI18n && typeof window.AppI18n.apply === "function") window.AppI18n.apply(document);
+        document.documentElement.lang = window.AppI18n && typeof window.AppI18n.getLanguage === "function" && window.AppI18n.getLanguage() === "en" ? "en" : "zh-CN";
+        if (uiLanguageSelect && window.AppI18n && typeof window.AppI18n.getLanguage === "function") uiLanguageSelect.value = window.AppI18n.getLanguage();
+        renderTranscript("user");
+        renderTranscript("assistant");
+        renderBackendAnswers(backendAnswerRecords);
+        renderEventLog();
+        updateBackendReplayButton();
+        updateMuteButton();
+        updateUsageNote(sessionConfig ? sessionConfig.sessionMinutes : 10, currentAttempt && currentAttempt.backendTokens);
+        if (currentPhase) setPhase(currentPhase);
+        if (configCatalog && sessionConfig) {
+          webSearchLabel.textContent = configCatalog.webSearchAvailable ? t("main.settings.webSearchAllowed") : t("main.settings.webSearchUnavailable");
+        }
+        if (configStatusMessage) setConfigStatus(window.AppI18n.error(configStatusMessage), configStatusTone, configStatusRetry);
+        for (const option of voiceSelect.options) option.textContent = window.AppI18n.error(option.textContent);
+        for (const option of microphoneSelect.options) {
+          if (option.dataset.labelKey) option.textContent = t(option.dataset.labelKey, { number: option.dataset.number });
+        }
+        if (backendStatusDescriptor && backendStatusDescriptor.key) {
+          backendStatus.textContent = t(backendStatusDescriptor.key, backendStatusDescriptor.params || {});
+        }
+        if (microphoneMeterKey) microphoneMeterStatus.textContent = t(microphoneMeterKey);
+        microphoneTrackLabel.textContent = t("main.microphone.currentDevice", { device: microphoneDeviceLabel || t("main.microphone.notCaptured") });
+        if (microphoneTestNoteKey) microphoneTestNote.textContent = t(microphoneTestNoteKey);
+      }
+
       const AUDIO_CONSTRAINTS = {
         channelCount: { ideal: 1, max: 1 },
         sampleRate: { ideal: 24000 },
@@ -1312,20 +1374,20 @@
       const MAX_BACKEND_ANSWERS = 8;
 
       const answerStateMeta = {
-        queued: { label: "后端答案排队中", tone: "working" },
-        sent: { label: "后端答案已生成", tone: "success" },
-        accepted: { label: "语音服务已接收，等待播报", tone: "working" },
-        speaking: { label: "语音已开始", tone: "success" },
-        voice_pending: { label: "语音暂未响应", tone: "working" },
-        failed: { label: "语音回传失败", tone: "error" }
+        queued: { key: "main.backend.answerQueued", tone: "working" },
+        sent: { key: "main.backend.answerSent", tone: "success" },
+        accepted: { key: "main.backend.answerAccepted", tone: "working" },
+        speaking: { key: "main.backend.answerSpeaking", tone: "success" },
+        voice_pending: { key: "main.backend.answerVoicePending", tone: "working" },
+        failed: { key: "main.backend.answerFailed", tone: "error" }
       };
 
       const phaseMeta = {
-        idle: { label: "未连接", message: "点击“连接会话”，浏览器将请求麦克风权限。", tone: "idle" },
-        connecting: { label: "连接中", message: "正在建立安全的 WebRTC 语音链路…", tone: "connecting" },
-        connected: { label: "已连接", message: "会话已就绪，可以开始说话。", tone: "connected" },
-        disconnecting: { label: "断开中", message: "正在结束会话并释放麦克风…", tone: "connecting" },
-        error: { label: "需要检查", message: "连接没有建立，请检查后端和麦克风权限。", tone: "error" }
+        idle: { labelKey: "main.phase.idle.label", messageKey: "main.phase.idle.message", tone: "idle" },
+        connecting: { labelKey: "main.phase.connecting.label", messageKey: "main.phase.connecting.message", tone: "connecting" },
+        connected: { labelKey: "main.phase.connected.label", messageKey: "main.phase.connected.message", tone: "connected" },
+        disconnecting: { labelKey: "main.phase.disconnecting.label", messageKey: "main.phase.disconnecting.message", tone: "connecting" },
+        error: { labelKey: "main.phase.error.label", messageKey: "main.phase.error.message", tone: "error" }
       };
 
       const transcripts = { user: [], assistant: [] };
@@ -1343,6 +1405,12 @@
       let sessionConfig = null;
       let configReady = false;
       let configLoadInFlight = null;
+      let configStatusMessage = "", configStatusTone = "", configStatusRetry = false;
+      let backendStatusDescriptor = { key: "main.backend.idle", params: {}, tone: "" };
+      let phaseMessageOverride = null;
+      let microphoneMeterKey = "main.microphone.notCaptured";
+      let microphoneDeviceLabel = "";
+      let microphoneTestNoteKey = "main.microphone.testNote";
       try { selectedMicrophoneId = localStorage.getItem(MICROPHONE_STORAGE_KEY) || "default"; } catch (_) { /* Storage may be unavailable. */ }
 
       function clampInteger(value, min, max, fallback) {
@@ -1430,6 +1498,7 @@
       }
 
       function setConfigStatus(message, tone, retry) {
+        configStatusMessage = message; configStatusTone = tone; configStatusRetry = retry;
         if (!configStatus) return;
         configStatus.dataset.tone = tone || "";
         const button = reloadConfigButton;
@@ -1447,7 +1516,7 @@
         options.forEach((option) => {
           const item = document.createElement("option");
           item.value = option.id;
-          item.textContent = option.label;
+          item.textContent = window.AppI18n.error(option.label);
           voiceSelect.append(item);
         });
         voiceSelect.value = sessionConfig && sessionConfig.voice || "";
@@ -1467,9 +1536,9 @@
         reasoningEffortSelect.value = sessionConfig.reasoningEffort;
         sessionMinutesInput.value = String(sessionConfig.sessionMinutes);
         updateUsageNote(sessionConfig.sessionMinutes);
-        webSearchLabel.textContent = configCatalog && configCatalog.webSearchAvailable ? "允许后端查询公开信息" : "联网查询不可用（由服务配置决定）";
+        webSearchLabel.textContent = configCatalog && configCatalog.webSearchAvailable ? t("main.settings.webSearchAllowed") : t("main.settings.webSearchUnavailable");
         if (configStatus && configCatalog && configCatalog.backendReady === false) {
-          configStatus.textContent = "语音服务已就绪；后端推理尚未配置，可在连接设置中补充。";
+          configStatus.textContent = t("main.settings.voiceReadyNoBackend");
         }
         updateConfigControls();
       }
@@ -1507,8 +1576,8 @@
       }
 
       function validateSessionConfig(config) {
-        if (!configReady || !config) return "服务配置尚未加载完成，请稍候或重新加载。";
-        if (!config.voice) return "服务没有提供可用的语音音色，请检查后端配置。";
+        if (!configReady || !config) return t("main.settings.notLoaded");
+        if (!config.voice) return t("main.settings.noVoices");
         return "";
       }
 
@@ -1516,10 +1585,10 @@
         if (configLoadInFlight) return configLoadInFlight;
         configReady = false;
         updateConfigControls();
-        setConfigStatus("正在加载服务配置…", "", false);
+        setConfigStatus(t("main.settings.loading"), "", false);
         configLoadInFlight = (async () => {
           try {
-            const response = await fetch(CONFIG_ENDPOINT, { headers: { Accept: "application/json" } });
+            const response = await window.AppI18n.apiFetch(CONFIG_ENDPOINT, { headers: { Accept: "application/json" } });
             if (response.status === 401 || response.status === 403) {
               window.location.assign("/setup#login");
               return;
@@ -1530,7 +1599,7 @@
             }
             if (!response.ok) throw new Error("HTTP " + response.status);
             const payload = await response.json();
-            if (!payload || typeof payload !== "object") throw new Error("响应格式无效");
+            if (!payload || typeof payload !== "object") throw new Error("invalid_response_format");
             const defaults = configDefaults(payload);
             configCatalog = {
               voices: serverOptionList(payload.voices),
@@ -1543,14 +1612,14 @@
             configReady = true;
             applyConfigToInputs();
             persistConfig(sessionConfig);
-            setConfigStatus(configCatalog.backendReady ? "连接配置已加载，修改会在下次连接时使用。" : "语音配置已加载；后端推理尚未配置。", "", false);
+            setConfigStatus(configCatalog.backendReady ? t("main.settings.loaded") : t("main.settings.voiceLoadedNoBackend"), "", false);
             setPhase(currentPhase);
           } catch (error) {
             configReady = false;
             configCatalog = null;
             sessionConfig = null;
-            setConfigStatus("无法加载服务配置：请确认本机后端已启动，或点击重新加载。", "error", true);
-            addEvent("config.load.error", error && error.message ? "服务配置加载失败" : "服务配置加载失败");
+            setConfigStatus(t("main.settings.loadFailed"), "error", true);
+            addEvent("config.load.error", t("main.settings.loadErrorEvent"));
             updateConfigControls();
           } finally {
             configLoadInFlight = null;
@@ -1565,16 +1634,22 @@
       }
 
       function setPhase(phase, message) {
+        const previousPhase = currentPhase;
         currentPhase = phase;
         const meta = phaseMeta[phase] || phaseMeta.idle;
+        if (message !== undefined) phaseMessageOverride = message || null;
+        else if (previousPhase !== phase) phaseMessageOverride = null;
         document.body.dataset.phase = phase;
-        connectionStatus.textContent = meta.label;
-        connectionMessage.textContent = message || meta.message;
+        connectionStatus.textContent = t(meta.labelKey);
+        const renderedMessage = phaseMessageOverride && window.AppI18n && typeof window.AppI18n.error === "function"
+          ? window.AppI18n.error(phaseMessageOverride)
+          : phaseMessageOverride;
+        connectionMessage.textContent = renderedMessage || t(meta.messageKey);
         setDotTone(meta.tone);
         connectButton.disabled = phase === "connecting" || phase === "connected" || phase === "disconnecting";
         disconnectButton.disabled = !currentAttempt || (phase !== "connecting" && phase !== "connected");
         muteButton.disabled = !currentAttempt || !currentAttempt.stream || phase === "disconnecting";
-        transcriptHint.textContent = phase === "connected" ? "正在接收" : phase === "connecting" ? "建立中" : "等待连接";
+        transcriptHint.textContent = phase === "connected" ? t("main.transcript.receiving") : phase === "connecting" ? t("main.transcript.establishing") : t("main.transcript.waitingConnection");
         updateBackendReplayButton();
         updateMicrophoneControls();
         updateConfigControls();
@@ -1596,7 +1671,8 @@
           microphoneSelect.replaceChildren();
           const option = document.createElement("option");
           option.value = "default";
-          option.textContent = "系统默认麦克风";
+          option.dataset.labelKey = "main.microphone.systemDefault";
+          option.textContent = t("main.microphone.systemDefault");
           microphoneSelect.append(option);
           updateMicrophoneControls();
           return;
@@ -1611,16 +1687,20 @@
           if (reportStale) {
             selectedMicrophoneId = "default";
             saveMicrophoneSelection();
-            addEvent("microphone.device_reset", "已选麦克风不可用，已恢复系统默认");
+            addEvent("microphone.device_reset", t("main.microphone.deviceReset"));
           } else {
-            inputs.push({ deviceId: selectedMicrophoneId, label: "已保存的麦克风（等待权限）", kind: "audioinput" });
+            inputs.push({ deviceId: selectedMicrophoneId, labelKey: "main.microphone.savedWaiting", kind: "audioinput" });
           }
         }
         microphoneSelect.replaceChildren();
         inputs.forEach((device, index) => {
           const option = document.createElement("option");
           option.value = device.deviceId;
-          option.textContent = device.label || (device.deviceId === "default" ? "系统默认麦克风" : "麦克风 " + (index + 1));
+          if (!device.label) {
+            option.dataset.labelKey = device.labelKey || (device.deviceId === "default" ? "main.microphone.systemDefault" : "main.microphone.device");
+            option.dataset.number = String(index + 1);
+          }
+          option.textContent = device.label || t(option.dataset.labelKey, { number: index + 1 });
           microphoneSelect.append(option);
         });
         microphoneSelect.value = selectedMicrophoneId;
@@ -1642,15 +1722,16 @@
           if (!stale) throw error;
           selectedMicrophoneId = "default";
           saveMicrophoneSelection();
-          addEvent("microphone.device_reset", "所选麦克风已移除，已恢复系统默认并重试");
+          addEvent("microphone.device_reset", t("main.microphone.deviceResetRetry"));
           await refreshMicrophoneList({ reportStale: true });
           return navigator.mediaDevices.getUserMedia(microphoneConstraints());
         }
       }
 
-      function setMicrophoneMeter(level, status) {
+      function setMicrophoneMeter(level, status, statusKey) {
         microphoneMeterFill.style.width = Math.round(Math.max(0, Math.min(1, level)) * 100) + "%";
-        microphoneMeterStatus.textContent = status;
+        if (statusKey) microphoneMeterKey = statusKey;
+        microphoneMeterStatus.textContent = statusKey ? t(statusKey) : status;
       }
 
       function stopMicrophoneMeter(owner) {
@@ -1663,16 +1744,18 @@
           if (meter.context && meter.context.state !== "closed") void meter.context.close();
           owner.meter = null;
         }
-        setMicrophoneMeter(0, "未采集");
-        microphoneTrackLabel.textContent = "当前设备：未采集";
+        setMicrophoneMeter(0, t("main.microphone.notCaptured"), "main.microphone.notCaptured");
+        microphoneDeviceLabel = "";
+        microphoneTrackLabel.textContent = t("main.microphone.currentDevice", { device: t("main.microphone.notCaptured") });
       }
 
       function startMicrophoneMeter(owner) {
         const track = owner && owner.stream && owner.stream.getAudioTracks()[0];
-        if (!track) { setMicrophoneMeter(0, "未采集"); return; }
-        microphoneTrackLabel.textContent = "当前设备：" + (track.label || "系统默认麦克风");
+        if (!track) { setMicrophoneMeter(0, t("main.microphone.notCaptured"), "main.microphone.notCaptured"); return; }
+        microphoneDeviceLabel = track.label || "";
+        microphoneTrackLabel.textContent = t("main.microphone.currentDevice", { device: microphoneDeviceLabel });
         const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextCtor) { setMicrophoneMeter(0, "正在采集"); return; }
+        if (!AudioContextCtor) { setMicrophoneMeter(0, t("main.microphone.capturing"), "main.microphone.capturing"); return; }
         try {
           const context = new AudioContextCtor();
           const source = context.createMediaStreamSource(owner.stream);
@@ -1695,15 +1778,16 @@
               for (const sample of data) { const delta = (sample - 128) / 128; sum += delta * delta; }
               level = Math.min(1, Math.sqrt(sum / data.length) * 5);
             }
-            setMicrophoneMeter(level, !live ? "未采集" : muted ? "静音" : "正在采集");
+            const meterKey = !live ? "main.microphone.notCaptured" : muted ? "main.microphone.muted" : "main.microphone.capturing";
+            setMicrophoneMeter(level, t(meterKey), meterKey);
             meter.frame = requestAnimationFrame(draw);
           };
           draw();
           void context.resume().catch(() => {});
-        } catch (_) { setMicrophoneMeter(0, "正在采集"); }
+        } catch (_) { setMicrophoneMeter(0, t("main.microphone.capturing"), "main.microphone.capturing"); }
       }
 
-      function stopMicrophoneTest(message) {
+      function stopMicrophoneTest(message, messageKey) {
         const test = microphoneTest;
         if (!test) return;
         test.cleaned = true;
@@ -1712,7 +1796,8 @@
         stopTracks(test.stream);
         test.stream = null;
         microphoneTest = null;
-        microphoneTestNote.textContent = message || "仅本机测试，不连接语音服务。";
+        microphoneTestNoteKey = messageKey || "main.microphone.testNote";
+        microphoneTestNote.textContent = message || t(microphoneTestNoteKey);
         updateMicrophoneControls();
       }
 
@@ -1720,8 +1805,9 @@
         if (currentAttempt || microphoneTest) return;
         const test = { stream: null, meter: null, muted: false, cleaned: false, timer: null };
         microphoneTest = test;
-        microphoneTestNote.textContent = "测试中（仅本机，不连接语音服务，最多 30 秒）";
-        addEvent("microphone.test.start", "开始本机麦克风测试");
+        microphoneTestNoteKey = "main.microphone.testStarting";
+        microphoneTestNote.textContent = t(microphoneTestNoteKey);
+        addEvent("microphone.test.start", t("main.microphone.testStartedEvent"));
         updateMicrophoneControls();
         try {
           const stream = await getMicrophoneStream();
@@ -1729,12 +1815,12 @@
           test.stream = stream;
           startMicrophoneMeter(test);
           void refreshMicrophoneList({ reportStale: true });
-          test.timer = setTimeout(() => stopMicrophoneTest("本机测试已自动停止（30 秒上限）。"), MICROPHONE_TEST_TIMEOUT_MS);
-          addEvent("microphone.test.ready", "已采集所选麦克风，未连接语音服务");
+          test.timer = setTimeout(() => stopMicrophoneTest(t("main.microphone.testAutoStopped"), "main.microphone.testAutoStopped"), MICROPHONE_TEST_TIMEOUT_MS);
+          addEvent("microphone.test.ready", t("main.microphone.testReadyEvent"));
         } catch (error) {
           if (test.cleaned || microphoneTest !== test) return;
-          addEvent("microphone.test.error", error && error.name === "NotAllowedError" ? "麦克风权限被拒绝" : "麦克风测试失败，请检查设备");
-          stopMicrophoneTest("麦克风测试失败，请检查权限和设备。");
+          addEvent("microphone.test.error", error && error.name === "NotAllowedError" ? t("main.microphone.permissionDenied") : t("main.microphone.testFailedEvent"));
+          stopMicrophoneTest(t("main.microphone.testFailed"), "main.microphone.testFailed");
         }
       }
 
@@ -1747,7 +1833,7 @@
         if (entries.length === 0) {
           const empty = document.createElement("p");
           empty.className = "transcript-empty";
-          empty.textContent = role === "user" ? "连接后，你的语音转写会出现在这里。" : "GPT-Live 的语音转写会出现在这里。";
+          empty.textContent = role === "user" ? t("main.transcript.userEmpty") : t("main.transcript.assistantEmpty");
           target.append(empty);
         } else {
           entries.forEach((entry) => {
@@ -1759,9 +1845,9 @@
           if (nearBottom) target.scrollTop = target.scrollHeight;
         }
         if (role === "user") {
-          userTranscriptState.textContent = entries.length ? (transcriptMode === "fragment" ? "逐片段" : "按语句") : "等待麦克风";
+          userTranscriptState.textContent = entries.length ? (transcriptMode === "fragment" ? t("main.transcript.fragment") : t("main.transcript.sentence")) : t("main.transcript.waitingMicrophone");
         } else {
-          assistantTranscriptState.textContent = entries.length ? (transcriptMode === "fragment" ? "逐片段" : "按语句") : "等待回复";
+          assistantTranscriptState.textContent = entries.length ? (transcriptMode === "fragment" ? t("main.transcript.fragment") : t("main.transcript.sentence")) : t("main.transcript.waitingReply");
         }
       }
 
@@ -1787,11 +1873,12 @@
           const parsed = Date.parse(value);
           if (Number.isFinite(parsed)) timestamp = parsed;
         }
-        return timestamp === null ? "刚刚" : formatTranscriptTimestamp(timestamp, "sentence");
+        return timestamp === null ? t("main.transcript.justNow") : formatTranscriptTimestamp(timestamp, "sentence");
       }
 
       function backendAnswerStateMeta(answer) {
-        return answerStateMeta[answer && answer.state] || { label: "后端答案已更新", tone: "" };
+        const meta = answerStateMeta[answer && answer.state];
+        return meta ? { key: meta.key, params: {}, label: t(meta.key), tone: meta.tone } : { key: "main.backend.answerUpdated", params: {}, label: t("main.backend.answerUpdated"), tone: "" };
       }
 
       function updateBackendReplayButton() {
@@ -1799,7 +1886,7 @@
         const latest = backendAnswerRecords[backendAnswerRecords.length - 1];
         const canReplay = Boolean(currentAttempt && currentAttempt.sessionId && currentPhase === "connected" && latest && latest.id);
         backendReplayButton.disabled = backendReplayInFlight || !canReplay;
-        backendReplayButton.textContent = backendReplayInFlight ? "请求中…" : "重新播报";
+        backendReplayButton.textContent = backendReplayInFlight ? t("main.backend.requestingReplay") : t("main.backend.replay");
       }
 
       function renderBackendAnswers(values) {
@@ -1827,7 +1914,7 @@
           time.textContent = "[" + formatBackendAnswerTimestamp(answer.createdAt) + "]";
           const text = document.createElement("div");
           text.className = "backend-answer-text";
-          text.textContent = answer.text || answer.message || "后端没有返回文字答案。";
+          text.textContent = answer.text || answer.message || t("main.backend.noTextAnswer");
           const state = document.createElement("span");
           state.className = "backend-answer-state";
           state.dataset.tone = meta.tone;
@@ -1852,11 +1939,11 @@
         backendReplayInFlight = true;
         updateBackendReplayButton();
         if (backendAnswerStatus) {
-          backendAnswerStatus.textContent = "正在请求重新播报…";
+          backendAnswerStatus.textContent = t("main.backend.requestingReplay");
           backendAnswerStatus.dataset.tone = "working";
         }
         try {
-          const response = await fetch("/api/session/" + encodeURIComponent(String(attempt.sessionId)) + "/speak", {
+          const response = await window.AppI18n.apiFetch("/api/session/" + encodeURIComponent(String(attempt.sessionId)) + "/speak", {
             method: "POST",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
             body: JSON.stringify({ answerId: latest.id }),
@@ -1866,22 +1953,22 @@
           try { payload = await response.json(); } catch (_) { /* Error body may be empty. */ }
           if (!response.ok || !payload || payload.ok !== true) {
             const detail = payload && (payload.error || payload.message);
-            throw new Error(sanitizeBrief(typeof detail === "string" ? detail : "重新播报失败") || "重新播报失败");
+            throw new Error(sanitizeBrief(typeof detail === "string" ? detail : t("main.error.replay")) || t("main.error.replay"));
           }
           if (isCurrent(attempt) && !attempt.cancelRequested) {
             if (backendAnswerStatus) {
-              backendAnswerStatus.textContent = "已请求重新播报";
+              backendAnswerStatus.textContent = t("main.backend.replayRequested");
               backendAnswerStatus.dataset.tone = "success";
             }
-            addEvent("backend.answer.replay", "已请求重新播报最新答案");
+            addEvent("backend.answer.replay", t("main.backend.replayRequested"));
           }
         } catch (error) {
           if (!isCurrent(attempt) || attempt.cancelRequested || (error && error.name === "AbortError")) return;
           if (backendAnswerStatus) {
-            backendAnswerStatus.textContent = "重新播报失败：" + (sanitizeBrief(error && error.message) || "请稍后重试");
+            backendAnswerStatus.textContent = t("main.backend.replayFailed", { reason: sanitizeBrief(error && error.message) || t("main.error.retry") });
             backendAnswerStatus.dataset.tone = "error";
           }
-          addEvent("backend.answer.replay.error", "重新播报失败");
+          addEvent("backend.answer.replay.error", t("main.backend.replayError"));
         } finally {
           if (currentAttempt === attempt && !attempt.cleaned) {
             backendReplayInFlight = false;
@@ -1892,10 +1979,10 @@
 
       function resetTranscripts() {
         $("#backendSources").replaceChildren();
-        $("#backendToolLog").textContent = "尚未调用工具。";
+        $("#backendToolLog").textContent = t("main.backend.noTools");
         backendReplayInFlight = false;
         renderBackendAnswers([]);
-        setBackendStatus("后端待机", "");
+        setBackendStatus(t("main.backend.idle"), "", { key: "main.backend.idle", params: {} });
         transcriptEvents.user.length = 0;
         transcriptEvents.assistant.length = 0;
         transcripts.user.length = 0;
@@ -1906,9 +1993,12 @@
 
       function formatTranscriptTimestamp(value, mode) {
         const date = new Date(Number.isFinite(value) ? value : Date.now());
-        const hh = String(date.getHours()).padStart(2, "0");
-        const mm = String(date.getMinutes()).padStart(2, "0");
-        const ss = String(date.getSeconds()).padStart(2, "0");
+        const locale = window.AppI18n && typeof window.AppI18n.getLanguage === "function" && window.AppI18n.getLanguage() === "en" ? "en-US" : "zh-CN";
+        const formatted = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(date);
+        const timeParts = formatted.match(/(\d{1,2}).*?(\d{2}).*?(\d{2})/);
+        const hh = timeParts ? String(timeParts[1]).padStart(2, "0") : String(date.getHours()).padStart(2, "0");
+        const mm = timeParts ? timeParts[2] : String(date.getMinutes()).padStart(2, "0");
+        const ss = timeParts ? timeParts[3] : String(date.getSeconds()).padStart(2, "0");
         const ms = String(date.getMilliseconds()).padStart(3, "0");
         return mode === "fragment" ? hh + ":" + mm + ":" + ss + "." + ms : hh + ":" + mm + ":" + ss;
       }
@@ -1962,17 +2052,17 @@
       }
 
       function eventBrief(type, event) {
-        if (type === "session.started") return "会话已就绪";
-        if (type === "session.closed") return "会话已关闭";
-        if (type === "session.input_transcript.delta" || type === "session.output_transcript.delta") return "转写增量";
+        if (type === "session.started") return t("main.events.sessionStarted");
+        if (type === "session.closed") return t("main.events.sessionClosed");
+        if (type === "session.input_transcript.delta" || type === "session.output_transcript.delta") return t("main.events.transcriptDelta");
         if (type === "error" || type.endsWith(".error")) {
           const nested = event && typeof event.error === "object" ? event.error : null;
           const detail = nested && (nested.message || nested.code) || (event && (event.message || event.code));
-          return sanitizeBrief(typeof detail === "string" ? detail : "服务端返回错误") || "服务端返回错误";
+          return sanitizeBrief(typeof detail === "string" ? detail : t("main.events.serverError")) || t("main.events.serverError");
         }
-        if (type === "datachannel.open") return "事件通道已打开";
-        if (type === "datachannel.close") return "事件通道已关闭";
-        return "已收到事件";
+        if (type === "datachannel.open") return t("main.events.channelOpen");
+        if (type === "datachannel.close") return t("main.events.channelClose");
+        return t("main.events.received");
       }
 
       function backendToolName(value) {
@@ -2000,20 +2090,40 @@
           .filter((value) => typeof value === "string").join(" ").toLowerCase();
         const tool = backendToolName(nestedEvent) || backendToolName(response) || backendToolName(backend) || backendToolName(event);
         const suffix = tool ? " · " + tool : "";
-        if (/(failed|failure|error|cancelled|canceled)/.test(types)) return { label: "后端失败" + suffix, tone: "error" };
-        if (/(completed|complete|succeeded|success|done|finished)/.test(types)) return { label: "后端已完成" + suffix, tone: "success" };
-        if (/(in[_ .-]?progress|processing|started|tool|function[_ .-]?call|search|running)/.test(types)) return { label: "后端处理中" + suffix, tone: "working" };
+        const phase = [event && event.backendPhase, backend && backend.backendPhase, response && response.backendPhase, nestedEvent && nestedEvent.backendPhase]
+          .find((value) => typeof value === "string");
+        const phaseMap = {
+          ready: { key: "main.backend.ready", tone: "" },
+          queued: { key: "main.backend.answerQueued", tone: "working" },
+          processing: { key: "main.backend.processing", tone: "working", params: { suffix: suffix } },
+          ended: { key: "main.backend.completed", tone: "success", params: { suffix: suffix } },
+          failed: { key: "main.backend.failed", tone: "error", params: { suffix: suffix } },
+          sent: { key: "main.backend.answerSent", tone: "success" },
+          accepted: { key: "main.backend.answerAccepted", tone: "working" },
+          speaking: { key: "main.backend.answerSpeaking", tone: "success" },
+          voice_pending: { key: "main.backend.answerVoicePending", tone: "working" }
+        };
+        if (phaseMap[phase]) {
+          const value = phaseMap[phase];
+          return Object.assign({ label: t(value.key, value.params || {}) }, value);
+        }
+        if (/(failed|failure|error|cancelled|canceled)/.test(types)) return { key: "main.backend.failed", params: { suffix: suffix }, label: t("main.backend.failed", { suffix: suffix }), tone: "error" };
+        if (/(completed|complete|succeeded|success|done|finished)/.test(types)) return { key: "main.backend.completed", params: { suffix: suffix }, label: t("main.backend.completed", { suffix: suffix }), tone: "success" };
+        if (/(in[_ .-]?progress|processing|started|tool|function[_ .-]?call|search|running)/.test(types)) return { key: "main.backend.processing", params: { suffix: suffix }, label: t("main.backend.processing", { suffix: suffix }), tone: "working" };
         return null;
       }
 
-      function setBackendStatus(label, tone) {
-        backendStatus.textContent = label || "后端待机";
+      function setBackendStatus(label, tone, descriptor) {
+        backendStatus.textContent = label || t("main.backend.idle");
         backendStatus.dataset.tone = tone || "";
+        backendStatusDescriptor = descriptor && descriptor.key
+          ? { key: descriptor.key, params: descriptor.params || {}, tone: tone || "" }
+          : { key: null, params: {}, tone: tone || "", label: label || t("main.backend.idle") };
       }
 
       function updateBackendStatusFromEvent(type, event) {
         const status = backendStatusFromEvent(type, event);
-        if (status) setBackendStatus(status.label, status.tone);
+        if (status) setBackendStatus(status.label, status.tone, status);
       }
 
       function backendStatusFromPayload(payload) {
@@ -2031,29 +2141,48 @@
           : null;
         const answerMeta = latestAnswer ? backendAnswerStateMeta(latestAnswer) : null;
 
+        const backendPhase = statusObject && typeof statusObject.backendPhase === "string"
+          ? statusObject.backendPhase
+          : (typeof payload.backendPhase === "string" ? payload.backendPhase : "");
+        const phaseMap = {
+          ready: { key: "main.backend.ready", tone: "" },
+          queued: { key: "main.backend.answerQueued", tone: "working" },
+          processing: { key: "main.backend.processing", tone: "working", params: { suffix: suffix } },
+          ended: { key: "main.backend.completed", tone: "success", params: { suffix: suffix } },
+          failed: { key: "main.backend.failed", tone: "error", params: { suffix: suffix } },
+          sent: { key: "main.backend.answerSent", tone: "success" },
+          accepted: { key: "main.backend.answerAccepted", tone: "working" },
+          speaking: { key: "main.backend.answerSpeaking", tone: "success" },
+          voice_pending: { key: "main.backend.answerVoicePending", tone: "working" }
+        };
+        if (phaseMap[backendPhase]) {
+          const phase = phaseMap[backendPhase];
+          return Object.assign({ label: t(phase.key, phase.params || {}), params: phase.params || {} }, phase);
+        }
+
         // An explicit backend status is authoritative. A delivery state is more
         // specific than a generic completed tool and is used when the status
         // only reports that the backend has finished preparing an answer.
         if (rawStatus) {
           if (/失败|错误|超时|failed|failure|error|cancel/.test(normalized)) return { label: statusLabel || String(rawStatus).slice(0, 120), tone: "error" };
-          if (/(已返回|完成|complete|completed|succeed|success|done|finished)/.test(normalized) && answerMeta) return { label: answerMeta.label, tone: answerMeta.tone };
-          if (/已返回|完成|complete|completed|succeed|success|done|finished/.test(normalized)) return { label: "后端已完成" + suffix, tone: "success" };
+          if (/(已返回|完成|complete|completed|succeed|success|done|finished)/.test(normalized) && answerMeta) return { key: answerMeta.key, params: answerMeta.params || {}, label: answerMeta.label, tone: answerMeta.tone };
+          if (/已返回|完成|complete|completed|succeed|success|done|finished/.test(normalized)) return { key: "main.backend.completed", params: { suffix: suffix }, label: t("main.backend.completed", { suffix: suffix }), tone: "success" };
           if (/思考|查询|处理|排队|progress|process|start|running|pending|working|started/.test(normalized)) return { label: statusLabel || String(rawStatus).slice(0, 120), tone: "working" };
-          if (/就绪|ready/.test(normalized)) return { label: "后端就绪", tone: "" };
+          if (/就绪|ready/.test(normalized)) return { key: "main.backend.ready", params: {}, label: t("main.backend.ready"), tone: "" };
         }
-        if (answerMeta) return { label: answerMeta.label, tone: answerMeta.tone };
-        if (latestTool && /failed|failure|error|失败|错误/i.test(String(latestTool.status || ""))) return { label: "后端失败" + suffix, tone: "error" };
-        if (latestTool && /progress|process|start|running|pending|处理中|正在执行/i.test(String(latestTool.status || ""))) return { label: "后端处理中" + suffix, tone: "working" };
+        if (answerMeta) return { key: answerMeta.key, params: answerMeta.params || {}, label: answerMeta.label, tone: answerMeta.tone };
+        if (latestTool && /failed|failure|error|失败|错误/i.test(String(latestTool.status || ""))) return { key: "main.backend.failed", params: { suffix: suffix }, label: t("main.backend.failed", { suffix: suffix }), tone: "error" };
+        if (latestTool && /progress|process|start|running|pending|处理中|正在执行/i.test(String(latestTool.status || ""))) return { key: "main.backend.processing", params: { suffix: suffix }, label: t("main.backend.processing", { suffix: suffix }), tone: "working" };
         // A completed tool only means that the tool returned. It does not
         // prove that an answer was delivered to the voice service.
-        if (latestTool && /complete|completed|done|success|已完成|成功/i.test(String(latestTool.status || ""))) return { label: "工具已完成，等待答案", tone: "working" };
-        if (Array.isArray(payload.sources) && payload.sources.length) return { label: "已取得来源，等待答案", tone: "working" };
+        if (latestTool && /complete|completed|done|success|已完成|成功/i.test(String(latestTool.status || ""))) return { key: "main.backend.toolCompletedWaiting", params: {}, label: t("main.backend.toolCompletedWaiting"), tone: "working" };
+        if (Array.isArray(payload.sources) && payload.sources.length) return { key: "main.backend.sourcesWaiting", params: {}, label: t("main.backend.sourcesWaiting"), tone: "working" };
         return null;
       }
 
       function updateBackendStatusFromPayload(payload) {
         const status = backendStatusFromPayload(payload);
-        if (status) setBackendStatus(status.label, status.tone);
+        if (status) setBackendStatus(status.label, status.tone, status);
         if (Array.isArray(payload && payload.answers)) renderBackendAnswers(payload.answers);
         const sourceList = $("#backendSources");
         sourceList.replaceChildren();
@@ -2069,14 +2198,14 @@
         }
         const toolLog = $("#backendToolLog");
         toolLog.replaceChildren();
-        const names = {get_current_time:"时间查询",get_weather:"天气查询",calculate:"计算",web_search:"联网搜索",backend:"后端"};
+        const names = {get_current_time:t("main.backend.tool.time"),get_weather:t("main.backend.tool.weather"),calculate:t("main.backend.tool.calculate"),web_search:t("main.backend.tool.search"),backend:t("main.backend.tool.backend")};
         for (const tool of (payload.tools || []).slice(-12)) {
           const row = document.createElement("div");
-          const time = new Date(tool.at).toLocaleTimeString("zh-CN",{hour12:false});
+          const time = new Date(tool.at).toLocaleTimeString(window.AppI18n && typeof window.AppI18n.getLanguage === "function" && window.AppI18n.getLanguage() === "en" ? "en-US" : "zh-CN",{hour12:false});
           row.textContent = `[${time}] ${names[tool.name] || tool.name} · ${tool.summary || tool.status}`;
           toolLog.append(row);
         }
-        if (!toolLog.childNodes.length) toolLog.textContent = "尚未调用工具。";
+        if (!toolLog.childNodes.length) toolLog.textContent = t("main.backend.noTools");
         if (payload && payload.usage && typeof payload.usage === "object") {
           const usage = payload.usage;
           const explicitTotal = Number(usage.total_tokens ?? usage.totalTokens ?? usage.output_tokens ?? usage.outputTokens);
@@ -2094,11 +2223,11 @@
 
       function updateUsageNote(minutes, backendTokens) {
         const duration = clampInteger(minutes, 1, 30, 10);
-        const tokenText = Number.isFinite(backendTokens) ? "当前后端 token：" + Math.round(backendTokens) + "，另行计费。" : "后端推理 token 另行计费。";
+        const tokenText = Number.isFinite(backendTokens) ? t("main.usage.backendTokens", { tokens: Math.round(backendTokens) }) : t("main.usage.backendTokensUnknown");
         usageNote.replaceChildren();
         const strong = document.createElement("strong");
-        strong.textContent = "用量提醒：";
-        usageNote.append(strong, document.createTextNode("本次会话最长 " + duration + " 分钟，语音连接期间计费；" + tokenText + "体验完成后请点击断开。"));
+        strong.textContent = t("main.usage.label");
+        usageNote.append(strong, document.createTextNode(t("main.usage.note", { duration: duration, tokenText: tokenText })));
       }
 
       function stopBackendStatusPolling(attempt) {
@@ -2116,21 +2245,21 @@
         if (!isCurrent(attempt) || !attempt.sessionId || attempt.statusPollStopped || attempt.statusPollInFlight || pollGeneration !== attempt.statusPollGeneration) return;
         attempt.statusPollInFlight = true;
         try {
-          const response = await fetch("/api/session/" + encodeURIComponent(String(attempt.sessionId)) + "/status", { headers: { Accept: "application/json" }, signal: attempt.abortController.signal });
+          const response = await window.AppI18n.apiFetch("/api/session/" + encodeURIComponent(String(attempt.sessionId)) + "/status", { headers: { Accept: "application/json" }, signal: attempt.abortController.signal });
           if (response.ok) {
             const payload = await response.json();
             if (!isCurrent(attempt) || attempt.statusPollStopped || pollGeneration !== attempt.statusPollGeneration) return;
             updateBackendStatusFromPayload(payload);
           } else if (isCurrent(attempt) && !attempt.statusPollStopped && !attempt.cancelRequested && pollGeneration === attempt.statusPollGeneration && !attempt.statusPollErrorReported) {
             attempt.statusPollErrorReported = true;
-            addEvent("backend.status.error", "后端状态暂不可用，语音会话仍可继续");
+            addEvent("backend.status.error", t("main.backend.statusUnavailable"));
           }
         } catch (error) {
           // Closing a session aborts the status request deliberately. Do not
           // turn that expected abort into a misleading technical error.
           if (isCurrent(attempt) && !attempt.statusPollStopped && !attempt.cancelRequested && pollGeneration === attempt.statusPollGeneration && !(error && error.name === "AbortError") && !attempt.abortController.signal.aborted && !attempt.statusPollErrorReported) {
             attempt.statusPollErrorReported = true;
-            addEvent("backend.status.error", "后端状态暂不可用，语音会话仍可继续");
+            addEvent("backend.status.error", t("main.backend.statusUnavailable"));
           }
         } finally {
           attempt.statusPollInFlight = false;
@@ -2152,7 +2281,7 @@
         if (eventEntries.length === 0) {
           const empty = document.createElement("li");
           empty.className = "event-empty";
-          empty.textContent = "连接后，这里会显示脱敏的会话事件。";
+          empty.textContent = t("main.events.empty");
           eventLog.append(empty);
           return;
         }
@@ -2166,7 +2295,7 @@
           type.textContent = entry.type;
           const brief = document.createElement("span");
           brief.className = "event-brief";
-          brief.textContent = entry.brief;
+          brief.textContent = window.AppI18n.error(entry.brief);
           item.append(time, type, brief);
           eventLog.append(item);
         });
@@ -2176,7 +2305,7 @@
       function addEvent(type, brief) {
         const safeType = sanitizeBrief(type) || "event.unknown";
         eventEntries.push({
-          time: new Date().toLocaleTimeString("zh-CN", { hour12: false }),
+          time: new Date().toLocaleTimeString(window.AppI18n && typeof window.AppI18n.getLanguage === "function" && window.AppI18n.getLanguage() === "en" ? "en-US" : "zh-CN", { hour12: false }),
           type: safeType,
           brief: sanitizeBrief(brief) || ""
         });
@@ -2235,7 +2364,7 @@
           currentAttempt = null;
           remoteAudio.pause();
           remoteAudio.srcObject = null;
-          setBackendStatus("后端待机", "");
+          setBackendStatus(t("main.backend.idle"), "", { key: "main.backend.idle", params: {} });
           updateBackendReplayButton();
         }
         updateMuteButton();
@@ -2244,7 +2373,7 @@
       function updateMuteButton() {
         const muted = Boolean(currentAttempt && currentAttempt.muted);
         muteButton.setAttribute("aria-pressed", String(muted));
-        muteButton.textContent = muted ? "恢复麦克风" : "静音麦克风";
+        muteButton.textContent = muted ? t("main.control.unmute") : t("main.control.mute");
         muteButton.disabled = !currentAttempt || !currentAttempt.stream || currentPhase === "disconnecting";
       }
 
@@ -2261,7 +2390,7 @@
         attempt.connectionTimer = setTimeout(() => {
           attempt.connectionTimer = null;
           if (isCurrent(attempt) && !attempt.cancelRequested) {
-            failAttempt(attempt, message || "语音连接在 30 秒内未完成，请重新连接。", "peerconnection.timeout");
+            failAttempt(attempt, message || t("main.error.sessionTimeout"), "peerconnection.timeout");
           }
         }, CONNECTION_TIMEOUT_MS);
       }
@@ -2316,16 +2445,16 @@
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 1800);
         try {
-          const response = await fetch(sessionPath, {
+          const response = await window.AppI18n.apiFetch(sessionPath, {
             method: "POST",
             headers: { Accept: "application/json" },
             signal: controller.signal,
             keepalive: true
           });
-          if (!response.ok && isCurrent(attempt)) addEvent("session.close.error", "后端关闭请求未成功");
+          if (!response.ok && isCurrent(attempt)) addEvent("session.close.error", t("main.events.closeRequestNotOk"));
           return response.ok;
         } catch (_) {
-          if (isCurrent(attempt)) addEvent("session.close.error", "后端关闭请求失败");
+          if (isCurrent(attempt)) addEvent("session.close.error", t("main.events.closeRequestFailed"));
           return false;
         } finally {
           clearTimeout(timer);
@@ -2352,16 +2481,16 @@
         try { attempt.abortController.abort(); } catch (_) { /* Already aborted. */ }
 
         if (settings.waitForAck && isCurrent(attempt)) {
-          setPhase("disconnecting", "正在结束会话并释放麦克风…");
+          setPhase("disconnecting", t("main.error.closeResources"));
         }
 
         if (settings.sendProtocolClose && attempt.channel && attempt.channel.readyState === "open" && !attempt.closeSent) {
           try {
             attempt.channel.send(JSON.stringify({ type: "session.close" }));
             attempt.closeSent = true;
-            addEvent("session.close", "已请求关闭会话");
+            addEvent("session.close", t("main.events.closeRequested"));
           } catch (_) {
-            addEvent("session.close.error", "事件通道无法发送关闭请求");
+            addEvent("session.close.error", t("main.events.closeSendError"));
           }
         }
 
@@ -2370,7 +2499,7 @@
         if (!closedByEvent && attempt.sessionId) await closeBackendSession(attempt);
         if (attempt.sessionId && isCurrent(attempt)) {
           try {
-            const finalStatus = await fetch("/api/session/" + encodeURIComponent(attempt.sessionId) + "/status", { signal: AbortSignal.timeout(1200) });
+            const finalStatus = await window.AppI18n.apiFetch("/api/session/" + encodeURIComponent(attempt.sessionId) + "/status", { signal: AbortSignal.timeout(1200) });
             if (finalStatus.ok && isCurrent(attempt)) updateBackendStatusFromPayload(await finalStatus.json());
           } catch (_) { /* Closing must still release the microphone if final status is unavailable. */ }
         }
@@ -2389,18 +2518,18 @@
       function handleServerEvent(attempt, raw) {
         if (!isCurrent(attempt)) return;
         if (typeof raw !== "string") {
-          addEvent("event.binary_ignored", "忽略非文本事件");
+          addEvent("event.binary_ignored", t("main.events.binaryIgnored"));
           return;
         }
         let event;
         try {
           event = JSON.parse(raw);
         } catch (_) {
-          addEvent("event.invalid_json", "忽略无法解析的事件");
+          addEvent("event.invalid_json", t("main.events.invalidJson"));
           return;
         }
         if (!event || typeof event !== "object" || Array.isArray(event)) {
-          addEvent("event.unknown", "忽略非对象事件");
+          addEvent("event.unknown", t("main.events.unknown"));
           return;
         }
         const type = typeof event.type === "string" ? event.type : "event.unknown";
@@ -2412,7 +2541,7 @@
           attempt.sessionStarted = true;
           if (!attempt.cancelRequested) {
             clearConnectionTimer(attempt);
-            setPhase("connected", "会话已就绪，可以开始说话。");
+            setPhase("connected", t("main.events.connected"));
           }
         } else if (type === "session.closed") {
           resolveSessionClosed(attempt);
@@ -2444,17 +2573,17 @@
         }
         for (const candidate of candidates) {
           const brief = sanitizeBrief(candidate);
-          if (brief) return "后端错误：" + brief;
+          if (brief) return t("main.error.backendPrefix", { detail: brief });
         }
-        return "后端返回 HTTP " + response.status;
+        return t("main.error.http", { status: response.status });
       }
 
       async function connect() {
         if (currentAttempt) return;
-        if (microphoneTest) stopMicrophoneTest("本机测试已结束，开始连接会话。");
+        if (microphoneTest) stopMicrophoneTest(t("main.microphone.testEndedForSession"), "main.microphone.testEndedForSession");
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof RTCPeerConnection === "undefined") {
-          setPhase("error", "当前浏览器不支持麦克风 WebRTC，请使用最新版 Chrome 或 Edge。");
-          addEvent("client.unsupported", "浏览器缺少语音连接能力");
+          setPhase("error", t("main.error.unsupported"));
+          addEvent("client.unsupported", t("main.events.browserCapability"));
           return;
         }
 
@@ -2501,8 +2630,8 @@
           statusPollGeneration: 0
         };
         currentAttempt = attempt;
-        setPhase("connecting", "正在请求麦克风权限…");
-        addEvent("client.connect", "开始建立语音会话");
+        setPhase("connecting", t("main.error.microphonePermission"));
+        addEvent("client.connect", t("main.events.connectStart"));
 
         try {
           const stream = await getMicrophoneStream();
@@ -2517,40 +2646,40 @@
 
           const peer = new RTCPeerConnection();
           attempt.peer = peer;
-          armConnectionTimer(attempt, "语音连接在 30 秒内未完成，请检查网络后重新连接。");
+          armConnectionTimer(attempt, t("main.error.sessionTimeout"));
           peer.ontrack = (event) => {
             if (!isCurrent(attempt)) return;
             const streamForAudio = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
             remoteAudio.srcObject = streamForAudio;
-            remoteAudio.play().catch(() => addEvent("audio.autoplay", "浏览器等待用户手势播放语音"));
+            remoteAudio.play().catch(() => addEvent("audio.autoplay", t("main.events.browserGesture")));
           };
           peer.onconnectionstatechange = () => {
             if (!isCurrent(attempt)) return;
             if (peer.connectionState === "failed") {
-              failAttempt(attempt, "WebRTC 语音连接失败，请检查后端服务和网络。", "peerconnection.failed");
+              failAttempt(attempt, t("main.error.peerFailed"), "peerconnection.failed");
             } else if (peer.connectionState === "disconnected") {
               if (!attempt.recovering) {
                 attempt.recovering = true;
-                addEvent("peerconnection.disconnected", "语音链路暂时中断");
+                addEvent("peerconnection.disconnected", t("main.events.peerDisconnected"));
               }
-              armConnectionTimer(attempt, "语音链路在 30 秒内未恢复，请重新连接。");
-              if (!attempt.cancelRequested) setPhase("connecting", "语音链路暂时中断，正在等待恢复…");
+              armConnectionTimer(attempt, t("main.error.sessionRecoverTimeout"));
+              if (!attempt.cancelRequested) setPhase("connecting", t("main.error.linkInterrupted"));
             } else if (peer.connectionState === "connected") {
               if (attempt.recovering) {
                 attempt.recovering = false;
-                addEvent("peerconnection.recovered", "语音链路已恢复");
+                addEvent("peerconnection.recovered", t("main.events.peerRecovered"));
               }
               if (attempt.sessionStarted && !attempt.cancelRequested) {
                 clearConnectionTimer(attempt);
-                setPhase("connected", "会话已就绪，可以开始说话。");
+                setPhase("connected", t("main.events.connected"));
               } else if (!attempt.cancelRequested) {
-                armConnectionTimer(attempt, "会话在 30 秒内未完成，请重新连接。");
+                armConnectionTimer(attempt, t("main.error.sessionNotReadyTimeout"));
               }
             }
           };
           peer.oniceconnectionstatechange = () => {
             if (!isCurrent(attempt) || peer.iceConnectionState === "failed") return;
-            if (peer.iceConnectionState === "connected" || peer.iceConnectionState === "completed") addEvent("ice.connected", "网络候选已就绪");
+            if (peer.iceConnectionState === "connected" || peer.iceConnectionState === "completed") addEvent("ice.connected", t("main.events.iceConnected"));
           };
           stream.getTracks().forEach((track) => peer.addTrack(track, stream));
 
@@ -2559,26 +2688,26 @@
           channel.onopen = () => {
             if (!isCurrent(attempt)) return;
             attempt.channelOpen = true;
-            addEvent("datachannel.open", "事件通道已打开");
+            addEvent("datachannel.open", t("main.events.channelOpen"));
             if (attempt.sessionStarted && !attempt.cancelRequested) {
               clearConnectionTimer(attempt);
-              setPhase("connected", "会话已就绪，可以开始说话。");
+              setPhase("connected", t("main.events.connected"));
             }
-            else if (!attempt.cancelRequested) setPhase("connecting", "事件通道已打开，等待会话就绪…");
+            else if (!attempt.cancelRequested) setPhase("connecting", t("main.error.channelReady"));
           };
           channel.onmessage = (event) => handleServerEvent(attempt, event.data);
           channel.onerror = () => {
-            if (isCurrent(attempt) && !attempt.cancelRequested) failAttempt(attempt, "事件通道出现错误，请重新连接。", "datachannel.error");
+            if (isCurrent(attempt) && !attempt.cancelRequested) failAttempt(attempt, t("main.events.closeError"), "datachannel.error");
           };
           channel.onclose = () => {
             if (!isCurrent(attempt) || attempt.closing || attempt.cancelRequested) return;
-            addEvent("datachannel.close", "事件通道已关闭");
+            addEvent("datachannel.close", t("main.events.channelClose"));
             attempt.closing = true;
-            setPhase("disconnecting", "事件通道已关闭，正在释放资源…");
+            setPhase("disconnecting", t("main.error.closeChannel"));
             void closeAttempt(attempt, { waitForAck: false, finalPhase: "idle", sendProtocolClose: false });
           };
 
-          setPhase("connecting", "正在创建 WebRTC offer…");
+          setPhase("connecting", t("main.error.offerConnection"));
           const offer = await peer.createOffer();
           if (isCanceled(attempt)) return;
           await peer.setLocalDescription(offer);
@@ -2586,11 +2715,11 @@
           if (isCanceled(attempt)) return;
           if (!peer.localDescription || typeof peer.localDescription.sdp !== "string") throw new Error("local_description_missing");
 
-          setPhase("connecting", "正在让后端创建 GPT-Live 会话…");
+          setPhase("connecting", t("main.error.backendSession"));
           attempt.sessionWallClock = Date.now();
           let response;
           try {
-            response = await fetch("/api/session", {
+            response = await window.AppI18n.apiFetch("/api/session", {
               method: "POST",
               headers: { "Content-Type": "application/json", Accept: "application/json" },
               body: JSON.stringify({ sdp: peer.localDescription.sdp, config: attempt.config }),
@@ -2624,14 +2753,14 @@
             await closeBackendSession(attempt);
             return;
           }
-          setPhase("connecting", "已收到后端回答，等待会话就绪…");
+          setPhase("connecting", t("main.error.backendAnswer"));
         } catch (error) {
           if (isCanceled(attempt) || (error && error.name === "AbortError")) return;
-          let message = "连接失败，请检查后端服务、麦克风权限和浏览器网络。";
+          let message = t("main.error.connectFailed");
           if (error && typeof error.message === "string" && error.message.startsWith("backend_response:")) message = error.message.slice("backend_response:".length);
-          else if (error && error.message === "session_response_incomplete") message = "后端返回的会话信息不完整，请查看服务日志。";
-          else if (error && error.message === "session_response_invalid") message = "后端返回格式无法识别，请查看服务日志。";
-          else if (error && error.message === "local_description_missing") message = "浏览器没有生成有效的 WebRTC offer。";
+          else if (error && error.message === "session_response_incomplete") message = t("main.error.sessionIncomplete");
+          else if (error && error.message === "session_response_invalid") message = t("main.error.sessionInvalid");
+          else if (error && error.message === "local_description_missing") message = t("main.error.offerMissing");
           failAttempt(attempt, message, "client.connect.error");
         }
       }
@@ -2649,7 +2778,7 @@
         attempt.muted = !attempt.muted;
         attempt.stream.getAudioTracks().forEach((track) => { track.enabled = !attempt.muted; });
         updateMuteButton();
-        addEvent(attempt.muted ? "microphone.muted" : "microphone.unmuted", attempt.muted ? "麦克风已静音" : "麦克风已恢复");
+        addEvent(attempt.muted ? "microphone.muted" : "microphone.unmuted", attempt.muted ? t("main.control.mute") : t("main.control.unmute"));
       }
 
       function handlePageHide() {
@@ -2678,11 +2807,12 @@
         }
         selectedMicrophoneId = microphoneSelect.value || "default";
         saveMicrophoneSelection();
-        microphoneTestNote.textContent = "已选择设备；可点击“测试麦克风”确认电平。";
-        addEvent("microphone.selected", "已保存麦克风选择");
+        microphoneTestNoteKey = "main.microphone.testSelected";
+        microphoneTestNote.textContent = t(microphoneTestNoteKey);
+        addEvent("microphone.selected", t("main.microphone.selectedEvent"));
       });
       testMicrophoneButton.addEventListener("click", () => { void testMicrophone(); });
-      stopMicrophoneTestButton.addEventListener("click", () => stopMicrophoneTest("本机测试已停止。"));
+      stopMicrophoneTestButton.addEventListener("click", () => stopMicrophoneTest(t("main.microphone.testStopped"), "main.microphone.testStopped"));
       backendReplayButton.addEventListener("click", () => { void replayLatestBackendAnswer(); });
       [voiceSelect, languageSelect, timeZoneInput, cityInput, webSearchCheckbox, maxOutputTokensInput, reasoningEffortSelect, sessionMinutesInput].forEach((control) => {
         if (control) control.addEventListener("change", saveConfigFromInputs);
@@ -2697,12 +2827,19 @@
         renderTranscript("assistant");
       });
       if (reloadConfigButton) reloadConfigButton.addEventListener("click", () => { void loadConfig(); });
+      if (uiLanguageSelect) {
+        uiLanguageSelect.addEventListener("change", () => {
+          if (window.AppI18n && typeof window.AppI18n.setLanguage === "function") window.AppI18n.setLanguage(uiLanguageSelect.value);
+        });
+      }
+      document.addEventListener("app-language-change", refreshLocalizedUi);
       window.addEventListener("pagehide", handlePageHide);
 
+      if (window.AppI18n && typeof window.AppI18n.apply === "function") window.AppI18n.apply(document);
       renderTranscript("user");
       renderTranscript("assistant");
       renderEventLog();
-      setBackendStatus("后端待机", "");
+      setBackendStatus(t("main.backend.idle"), "", { key: "main.backend.idle", params: {} });
       updateUsageNote(10);
       setPhase("idle");
       void refreshMicrophoneList();

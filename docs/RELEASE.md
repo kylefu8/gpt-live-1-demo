@@ -1,48 +1,83 @@
-# 发布清单
+# Release checklist
 
-## 发布前
+[简体中文](RELEASE.zh-CN.md) | English
 
-1. 在干净的检出目录运行 npm ci。
-2. 运行 npm test。
-3. 运行 npm run check:release。
-4. 检查 .env、数据目录、日志、截图、音频和测试输出没有进入 Git。
-5. 确认 README、许可证和部署模板中的地址都是通用示例。
+This project publishes source on GitHub and can publish a self-contained Windows x64 ZIP. The current release is `v0.2.0`; use the same process for each new tag.
 
-## Windows ZIP
+## Before a release
 
-在项目目录运行：
+From a clean checkout:
 
-~~~text
-npm run build:release -- --out-dir ../releases/gpt-live-1-demo
-~~~
+1. Run `npm ci`.
+2. Run `npm test`.
+3. Run `npm run check:release`.
+4. Check `git status` and `git diff --check`.
+5. Confirm that `.env`, settings files, logs, screenshots, audio, tests, and local paths are absent from the files to be published.
+6. Check that the README language links, deployment links, license, and release notes describe the same version and behavior.
 
-脚本会：
+The source and release package must not contain service keys, setup tokens, administrator passwords, personal endpoints, private paths, or local conversation data.
 
-- 只复制 allowlist 中的应用模块、public 和必要文档；
-- 下载固定版本的官方 Node 24 Windows x64 ZIP；
-- 下载官方 SHASUMS256.txt，并同时核对固定 SHA-256；
-- 用随 Node 一起提供的 npm 安装生产依赖；
-- 写入根目录 Start.cmd；
-- 生成带版本号的 Windows x64 ZIP。
+## Build the Windows ZIP
 
-发行包中 app 和 runtime 必须保持同级。不要单独上传 app 目录，也不要把 .env、应用数据目录或本机日志复制进去。
+Run this from the project root. Use a new empty output location for every build:
 
-## GitHub Releases
+```text
+npm run build:release -- --out-dir ../releases/gpt-live-1-demo-vX.Y.Z
+```
 
-发布 `v*` 标签后，GitHub Actions 会运行检查、构建 Windows ZIP，并创建带校验文件的 GitHub Release。也可以在本机生成候选包验证。上传前查看压缩包目录：
+The builder:
 
-~~~text
-tar -tf ../releases/gpt-live-1-demo-0.1.0-windows-x64.zip
-~~~
+- Copies only the reviewed application allowlist, `public`, and `docs`.
+- Downloads the pinned official Node.js 24 Windows x64 runtime.
+- Checks the downloaded archive against the official `SHASUMS256.txt` and the pinned SHA-256.
+- Installs production dependencies with the bundled runtime.
+- Writes the root-level `Start.cmd` launcher.
+- Creates `<package-name>-<package-version>-windows-x64.zip` beside the output directory.
 
-确认只包含 Start.cmd、runtime 和 app。Windows 端验收：
+The package must keep `Start.cmd`, `runtime`, and `app` together. Do not upload `app` by itself and do not copy a local `.env` or application-data directory into the package. The builder refuses to reuse an existing output directory or archive so that an old package cannot be silently overwritten.
 
-1. 将 ZIP 解压到没有 Node.js 的 Windows 用户目录。
-2. 双击 Start.cmd。
-3. 浏览器打开首页，完成实时语音服务配置。
-4. 选择麦克风并确认测试、连接、断开、重新打开都能工作。
-5. 关闭程序后确认设置仍在系统私有数据目录，而不是 ZIP 目录。
+Inspect the archive before uploading. For a package built with version `0.2.0`, the filename will be `gpt-live-1-demo-0.2.0-windows-x64.zip`:
 
-## 版本变更
+```text
+tar -tf ../releases/gpt-live-1-demo-0.2.0-windows-x64.zip
+```
 
-升级 Node 24 时，在 scripts/build-release.mjs 中同时更新版本和固定 SHA-256，然后重新执行构建。升级依赖后提交 package-lock.json。任何版本都需要重新执行隐私扫描和发行包 smoke test。
+The exact relative path depends on the output directory chosen above. The listing should contain `Start.cmd`, `runtime`, and `app`, and must not contain `.env`, tests, logs, or user data.
+
+## Windows smoke test
+
+Use a Windows machine or clean user directory without Node.js installed:
+
+1. Extract the complete ZIP.
+2. Double-click `Start.cmd`.
+3. Confirm the browser opens the local setup page.
+4. Enter a test live voice service and run the connection test.
+5. Select a microphone and confirm input-level and playback tests.
+6. Connect, speak, receive audio, inspect timestamped transcript lines, mute, disconnect, and reconnect.
+7. Close and reopen the app; confirm settings remain in the system application-data directory rather than the ZIP directory.
+
+Use test credentials that can be revoked. Do not save a real personal key in a screenshot, log, issue, or release asset.
+
+## GitHub Actions release
+
+The CI workflow runs on pushes and pull requests. It tests Node.js 22 and 24, runs the release scan, builds the Docker image, starts an empty local container, and checks health and the setup page.
+
+The Windows release workflow runs for a `v*` tag or manual dispatch. It installs dependencies, runs tests and the release scan, builds the Windows package, uploads the ZIP artifact, calculates `SHA256SUMS.txt`, and creates the tagged GitHub Release with `docs/RELEASE-NOTES.md` as its notes when a tag is pushed.
+
+Before pushing a tag:
+
+1. Update `package.json` and `package-lock.json` to the intended version.
+2. Update `docs/RELEASE-NOTES.md` and both README language versions if user-visible behavior changed.
+3. Commit and push the source changes.
+4. Create and push the exact tag, for example `v0.2.0`.
+5. Check the workflow logs, uploaded ZIP, SHA-256 file, and release page.
+
+The Docker CI smoke test proves that an empty local container starts and serves its health/setup endpoints. It does not prove that a provider account works, that browser microphone permissions work on a deployed host, or that the Render template has been live deployed.
+
+## Render note
+
+`render.yaml` is a deployment template with a paid Starter service and a persistent disk. It is not part of the Windows release smoke test. If a maintainer deploys it, record the actual deployment result separately and verify HTTPS, setup authentication, persistent `/data`, and microphone access before describing it as live.
+
+## Version changes
+
+When changing the pinned Node.js runtime, update its version and fixed SHA-256 in `scripts/build-release.mjs`, then rebuild and inspect a fresh archive. When dependencies change, commit the regenerated lockfile. Every release needs a new privacy scan, test run, Docker smoke test, and Windows package smoke test.

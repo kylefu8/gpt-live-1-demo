@@ -1,122 +1,129 @@
 # GPT Live 1 Demo
 
-一个可以自行部署的实时语音助手示例。浏览器负责麦克风、播放和实时字幕，本机服务负责会话连接、工具调用以及可选的推理后端。项目不绑定某一家推理服务，首次打开页面会进入配置向导。
+English | [简体中文](README.zh-CN.md)
 
-这是非官方示例，需要支持 GPT-Live `/live/sessions` 协议的语音服务；普通聊天接口或其他 Realtime 接口不能直接替代。
+A self-hosted browser demo for a realtime voice assistant. The browser handles microphone input, playback, WebRTC, and timestamped transcript lines. The local Node.js service keeps credentials on the server, opens the live voice session, and can call an optional Responses-compatible reasoning backend.
 
-项目地址：<https://github.com/kylefu8/gpt-live-1-demo>
+This is an unofficial example application. It expects a live voice deployment that supports the `/live/sessions` protocol. A normal chat endpoint or an unrelated realtime API cannot be substituted without an adapter.
 
-## 最省事的方式：Windows 发行包
+Project: <https://github.com/kylefu8/gpt-live-1-demo>
 
-没有 Node.js 的用户直接下载 [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest) 中的 Windows x64 ZIP：
+![English interface: session controls, live transcripts, and voice settings](docs/images/interface-en.png)
 
-1. 解压完整 ZIP，不要只复制其中的 app 或 runtime 文件夹。
-2. 双击 Start.cmd。
-3. 浏览器打开后，按向导填写实时语音服务地址、部署名和 API Key。
-4. 如需天气、搜索、复杂问答，再填写一个 Responses 兼容的推理后端；也可以先跳过。
-5. 在向导中选择麦克风和音色，然后开始对话。
+*English interface. Switch between English and Simplified Chinese from the selector at the top.*
 
-运行中的设置和凭据保存在操作系统的应用私有数据目录，不写回发行包目录。发行包中的 Start.cmd 使用自带的 Node 运行时，因此 Windows 用户不需要另行安装 Node.js。
+## Try it as an end user
 
-第一次使用前需要准备：
+The easiest path on Windows is the published Windows x64 ZIP from [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest). The current public release is `v0.2.0`.
 
-- 一个可用的实时语音服务 API 地址、部署名或模型名以及 API Key。
-- 可选的 Responses 兼容推理服务地址、模型名以及 API Key。
-- 浏览器麦克风权限；远程部署时还需要 HTTPS。
+1. Download the complete ZIP and extract it to a new folder. Keep `Start.cmd`, `runtime`, and `app` together.
+2. Double-click `Start.cmd`.
+3. Allow microphone access when the browser asks.
+4. In the setup wizard, enter the live voice service URL, deployment/model name, and API key, then run the connection test.
+5. Optionally configure a Responses-compatible reasoning backend for calculations, weather, search, and complex questions. You can skip it and use voice conversation plus direct time/date answers.
+6. Select a microphone, run the input and playback tests, choose a voice, and save.
 
-## 本地开发
+The ZIP includes the official Node.js 24 Windows x64 runtime, so users do not need to install Node.js. Settings are written to the operating system's application data directory rather than back into the release folder.
 
-开发者需要 Node.js 22 或更高版本：
+Before starting, prepare:
 
-~~~text
+- A live voice endpoint, deployment/model name, and API key.
+- Optionally, a Responses-compatible endpoint, model name, and API key.
+- A browser that supports microphone access and WebRTC. Chrome and Edge are recommended.
+- HTTPS when the service is reached from another machine.
+
+Use the **UI language** selector at the top of either page to switch between English and Simplified Chinese. The choice is remembered in your browser; switching does not reload the page or change the conversation language.
+
+## What the demo does
+
+- Uses the live voice model for speech, interruption handling, audio playback, and transcript events.
+- Adds a timestamp and a new line for each displayed transcript sentence.
+- Answers standalone current time, date, and weekday questions from the configured local clock without using the reasoning backend.
+- Sends calculations, weather, web search, and broader reasoning to the configured backend. If no backend is configured, the setup page states that those capabilities are unavailable.
+- Lets the user choose a voice, conversation language (Simplified Chinese, English, or automatic), timezone, default city, search option, reasoning effort, output budget, and session limit.
+- Provides connection tests, microphone selection, an input level test, playback test tone, mute, reconnect, and session cleanup.
+
+Changing a voice or other session setting takes effect on the next connection. A live session that is already connected keeps its current session configuration.
+
+## Local development
+
+Developers need Node.js 22 or newer:
+
+```text
 npm ci
 npm start
-~~~
+```
 
-npm start 会启动服务并打开浏览器。只启动 HTTP 服务时使用：
+`npm start` starts the local service and opens the browser. To start only the HTTP service:
 
-~~~text
+```text
 npm run start:server
-~~~
+```
 
-运行测试：
+Run the automated checks with:
 
-~~~text
+```text
 npm test
-~~~
+npm run check:release
+```
 
-本地默认只绑定回环地址。用户可以通过页面设置向导完成连接配置；高级部署也可以复制 .env.example 为 .env，再填写环境变量。
+Local mode binds to `127.0.0.1` by default. The browser setup wizard is the normal way to enter service settings. Advanced deployments can copy `.env.example` to `.env` and provide environment variables instead.
 
 ## Docker
 
-最简单的本机容器方式：
+For a local container:
 
-~~~text
+```text
 docker compose -f compose.yml up --build
-~~~
+```
 
-打开 <http://127.0.0.1:8767/>，然后完成页面向导。应用数据放在 Docker 的 gpt-live-1-demo-data 卷中。
+Open <http://127.0.0.1:8767/> and complete the setup wizard. The compose file stores application data in the `gpt-live-1-demo-data` volume.
 
-远程服务器使用 compose.remote.yml 时，请先准备一个只在服务器保存的 .env，至少设置：
+For a server, use `compose.remote.yml` with a server-only `.env` containing at least:
 
-~~~dotenv
+```dotenv
 APP_MODE=remote
 HOST=0.0.0.0
 PUBLIC_ORIGIN=https://voice.example.com
-SETUP_TOKEN=change-this-before-starting
+SETUP_TOKEN=replace-with-a-long-random-value
 APP_DATA_DIR=/data
-~~~
+```
 
-远程模式要求 PUBLIC_ORIGIN 使用 HTTPS，并要求反向代理负责 TLS。不要把 .env 提交到 Git。容器端口可以通过反向代理公开；如果直接开放端口，仍应在防火墙和访问控制层保护它。
+Remote mode requires an HTTPS `PUBLIC_ORIGIN` and a reverse proxy that terminates TLS. Forward HTTP and WebSocket upgrades to the container's port `8767`. Protect the setup page with the generated or manually supplied setup token, then create an administrator password during the first setup. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-## Render
+## Render template
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/kylefu8/gpt-live-1-demo)
 
-仓库包含 render.yaml，用于创建一个 Docker Web Service 和 /data 持久磁盘。部署后：
+The repository includes `render.yaml` for a Docker web service and a `/data` persistent disk. The template uses Render's paid Starter service and a persistent disk; check the price shown by Render before creating the service.
 
-1. 等待部署完成，应用会先显示受初始化口令保护的设置页。
-2. Render 会把服务的 HTTPS 地址提供给应用；自定义域名部署时再设置 PUBLIC_ORIGIN。
-3. Render 会生成 SETUP_TOKEN；从服务日志取出首次设置令牌。
-4. 打开服务地址，完成管理员设置和语音/推理服务配置。
+The template is a deployment starting point, not a hosted service. This repository does not claim that the Render template has been live deployed. After deployment, verify the generated HTTPS address, health endpoint, setup token, persistent storage, and microphone access yourself.
 
-真实密钥只在 Render 环境变量或页面的受保护设置中保存，不要放进仓库。
+## Configuration
 
-该模板使用付费常驻服务和持久磁盘，费用以 Render 的部署确认页为准。
+Most users can leave `.env.example` alone and use the browser wizard. The variables below are available for automation and server deployments:
 
-## 配置说明
+- `LIVE_PROVIDER`, `LIVE_BASE_URL`, `LIVE_API_KEY`, `LIVE_MODEL`: live voice service.
+- `REASONING_BASE_URL`, `REASONING_API_KEY`, `REASONING_MODEL`, `REASONING_AUTH`: optional Responses-compatible backend.
+- `APP_MODE`, `HOST`, `PORT`, `APP_DATA_DIR`: runtime mode and data location.
+- `PUBLIC_ORIGIN`, `SETUP_TOKEN`: required protections for a remote deployment.
 
-页面向导适合普通用户，.env 适合自动化部署。可用变量见 .env.example：
+The server never sends a complete API key to the browser. Saved settings are kept in `settings.json` under the application data directory. The key is stored as plain text in that private file so the service can use it; the file is created with mode `0600` where the platform enforces POSIX modes. On Windows, protect the application data directory with the user account's filesystem permissions and keep backups private.
 
-- LIVE_PROVIDER、LIVE_BASE_URL、LIVE_API_KEY、LIVE_MODEL：实时语音服务。
-- REASONING_BASE_URL、REASONING_API_KEY、REASONING_MODEL、REASONING_AUTH：可选的 Responses 兼容推理服务。
-- APP_MODE、HOST、PORT、APP_DATA_DIR：运行方式和数据位置。
-- PUBLIC_ORIGIN、SETUP_TOKEN：远程部署的来源校验和首次设置保护。
+Do not commit `.env`, settings files, logs, screenshots, audio, or test output. Run `npm run check:release` before publishing.
 
-服务不会把 API Key 返回给浏览器。导出诊断信息时应继续检查内容，确保没有把请求头、环境变量或私有日志粘贴到公开 issue。
+## Costs and limits
 
-## 设计边界
+The live voice service, optional reasoning backend, search service, and Render hosting are separate services. Their network traffic and usage charges belong to the account configured by the person deploying this project. The repository supplies no credentials and includes no shared hosted backend.
 
-实时语音模型负责听说和打断。明确的时间、日期问题直接读取本机时钟；计算、天气及搜索目前由配置的推理后端调度工具。对话页面显示时间戳、按句换行，并在语音未响应时保留文字答案。
+The direct time/date shortcut only handles standalone clock questions. Other tools still require the optional reasoning backend. Browser microphone permissions, HTTPS requirements, provider quotas, model compatibility, network quality, and audio autoplay policies can affect the experience.
 
-语音服务、推理服务、搜索服务和浏览器之间的网络费用由部署者自己的账户承担。本仓库只提供示例应用和启动方式，不包含任何服务凭据。
+## Release and privacy
 
-## 发布和隐私
+The release builder uses an allowlist. It packages the application and required production dependencies, downloads a fixed official Node.js 24 runtime, verifies the published SHA-256, and writes `Start.cmd`. It does not copy local settings, logs, tests, or working directories. Release instructions are in [docs/RELEASE.md](docs/RELEASE.md).
 
-仓库只提交通用源码。.gitignore 和 .dockerignore 会排除 .env、密钥文件、日志、测试数据、发行目录和本机工作目录。提交前请运行：
-
-~~~text
-npm run check:release
-~~~
-
-制作 Windows 发行包：
-
-~~~text
-npm run build:release -- --out-dir ../releases/gpt-live-1-demo
-~~~
-
-构建脚本会下载固定版本的官方 Node 24 Windows x64 运行时，读取官方 SHASUMS256.txt，再用 SHA-256 校验后放入发行包。它只复制经过 allowlist 审查的应用文件和生产依赖，不会复制测试、工作目录或本机配置。完整的发布步骤见 docs/RELEASE.md。
+The GitHub Actions checks run the test suite on Node.js 22 and 24, scan for private paths and likely credentials, build the Docker image, and smoke-test an empty local container. A successful CI run does not mean that a provider account or a Render deployment has been tested.
 
 ## License
 
-MIT，见 LICENSE。
+MIT. See [LICENSE](LICENSE).

@@ -59,6 +59,15 @@ test('connection failures are actionable without exposing credentials',async t=>
  const r=await post(app.url,'/api/settings/test',{kind:'voice',settings:candidate()});assert.equal(r.status,400);
  const content=await r.text();assert.match(content,/密钥未通过验证/);assert.ok(!content.includes(voice.apiKey));
 });
+test('HTTP errors and metadata follow Accept-Language without changing saved preferences',async t=>{
+ const app=await fixture(t);
+ const invalid=await post(app.url,'/api/settings',{settings:{voice:{...voice,apiKey:''}}},{'Accept-Language':'en'});
+ assert.equal(invalid.status,400);assert.match((await invalid.json()).error,/voice API key/);
+ const chinese=await post(app.url,'/api/settings',{settings:{voice:{...voice,apiKey:''}}},{'Accept-Language':'zh-CN'});
+ assert.match((await chinese.json()).error,/语音服务 API Key/);
+ const config=await(await fetch(app.url+'/api/config',{headers:{'Accept-Language':'en'}})).json();
+ assert.equal(config.voices[0].label,'Marin · Default');assert.equal(config.defaults.language,'auto');
+});
 test('remote environment configuration still requires initial administrator setup',async t=>{
  const names=['LIVE_BASE_URL','LIVE_API_KEY','LIVE_MODEL'];const before=Object.fromEntries(names.map(k=>[k,process.env[k]]));
  process.env.LIVE_BASE_URL=voice.baseUrl;process.env.LIVE_API_KEY=voice.apiKey;process.env.LIVE_MODEL=voice.model;

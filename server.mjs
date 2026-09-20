@@ -11,6 +11,7 @@ import {SpeechDelivery} from './delivery.mjs';
 import {createSettingsStore,mergeSettings,publicSettings,passwordHash} from './settings-store.mjs';
 import {createAuth} from './auth.mjs';
 import {probeVoice,probeBackend,voiceHeaders,backendConnection,friendlyApiError} from './connections.mjs';
+import {requestLanguage,localizeResponse,translateMessage,backendPhase} from './ui-messages.mjs';
 
 export async function startServer(options={}){
   try{process.loadEnvFile?.();}catch(error){if(error.code!=='ENOENT')throw new Error('无法读取 .env 配置文件');}
@@ -44,9 +45,9 @@ export async function startServer(options={}){
     catch(error){throw new Error(friendlyApiError(error,{kind}));}
   }
 
-function reply(res,status,data){if(res.destroyed)return;res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));}
+function reply(res,status,data){if(res.destroyed)return;res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Content-Language':res.uiLanguage||'zh-CN'});res.end(JSON.stringify(localizeResponse(data,res.uiLanguage)));}
 async function body(req){let data='';for await(const chunk of req){data+=chunk;if(data.length>100000)throw new Error('请求过大');}return JSON.parse(data);}
-function statusOf(record){return {backendStatus:record.backendStatus,tools:record.tools.slice(-20),sources:record.sources.slice(-12),usage:record.usage,answers:record.delivery?.snapshot()||[],closed:record.closed};}
+function statusOf(record){return {backendStatus:record.backendStatus,backendPhase:backendPhase(record),tools:record.tools.slice(-20),sources:record.sources.slice(-12),usage:record.usage,answers:record.delivery?.snapshot()||[],closed:record.closed};}
 function send(record,event){if(record.closed||record.socket.readyState!==WebSocket.OPEN)return false;record.socket.send(JSON.stringify(event));return true;}
 function rememberStatus(record){recentStatuses.set(record.id,statusOf(record));setTimeout(()=>recentStatuses.delete(record.id),120000).unref();}
 function cleanup(record){
@@ -143,6 +144,7 @@ async function attach(id,config,backend,voice){
 
   const publicRoot=fileURLToPath(new URL('./public/',import.meta.url));
   const server=http.createServer(async(req,res)=>{
+    res.uiLanguage=requestLanguage(req.headers['accept-language']);
     try{
       const path=new URL(req.url,'http://local.invalid').pathname;
       res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');
@@ -167,7 +169,7 @@ async function attach(id,config,backend,voice){
         const relative=path==='/setup'?'setup.html':path==='/'?'index.html':decodeURIComponent(path).replace(/^\//,'');
         const file=resolve(publicRoot,relative);
         if(!file.startsWith(resolve(publicRoot)+sep))return reply(res,404,{error:'Not found'});
-        const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png'};
+        const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png'};
         if(!types[extname(file)])return reply(res,404,{error:'Not found'});
         try{res.setHeader('Content-Type',types[extname(file)]);return res.end(await readFile(file));}catch{return reply(res,404,{error:'Not found'});}
       }
@@ -236,5 +238,5 @@ async function attach(id,config,backend,voice){
   return {url:origin,port,dataDir:store.dataDir,close,server};
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
-  startServer().then(app=>{for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>app.close().then(()=>process.exit(0)));}).catch(error=>{console.error(error.message);process.exitCode=1;});
+  startServer().then(app=>{for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>app.close().then(()=>process.exit(0)));}).catch(error=>{console.error(translateMessage(error.message,'en'));process.exitCode=1;});
 }

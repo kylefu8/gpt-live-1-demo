@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#09121e">
-  <title>连接设置 · 实时语音助手</title>
+  <title data-i18n="setup.document.title">连接设置 · 实时语音助手</title>
   <style>
     :root {
       color-scheme: dark;
@@ -144,146 +144,152 @@
   <div class="shell">
     <header class="hero">
       <div>
-        <div class="eyebrow">连接设置</div>
-        <h1>准备你的<br>语音助手</h1>
-        <p class="hero-copy">完成一次配置，之后打开页面就可以直接开始对话。凭据只会发送到当前服务端，不会写入浏览器存储。</p>
+        <div class="eyebrow" data-i18n="setup.eyebrow">连接设置</div>
+        <h1><span data-i18n="setup.hero.titleLine1">准备你的</span><br><span data-i18n="setup.hero.titleLine2">语音助手</span></h1>
+        <p class="hero-copy" data-i18n="setup.hero.copy">完成一次配置，之后打开页面就可以直接开始对话。凭据只会发送到当前服务端，不会写入浏览器存储。</p>
       </div>
       <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end">
-        <button class="home-link" id="logoutButton" type="button" hidden>退出设置</button>
-        <a class="home-link" href="/">返回对话 →</a>
+        <label class="home-link" for="uiLanguageSelect"><span data-i18n="setup.uiLanguage">界面语言</span>
+          <select id="uiLanguageSelect" style="width:auto;margin-left:6px;padding:6px 8px" aria-label="界面语言" data-i18n-aria-label="setup.uiLanguage">
+            <option value="zh-CN" data-i18n="setup.uiLanguage.zh">中文</option>
+            <option value="en" data-i18n="setup.uiLanguage.en">English</option>
+          </select>
+        </label>
+        <button class="home-link" id="logoutButton" type="button" hidden data-i18n="setup.logout">退出设置</button>
+        <a class="home-link" href="/" data-i18n="setup.home">返回对话 →</a>
       </div>
     </header>
 
     <section class="card auth-card" id="authCard" hidden aria-labelledby="authTitle">
-      <h2 id="authTitle">需要验证</h2>
-      <p id="authIntro">请完成验证后继续连接设置。</p>
+      <h2 id="authTitle" data-i18n="setup.auth.title">需要验证</h2>
+      <p id="authIntro" data-i18n="setup.auth.intro">请完成验证后继续连接设置。</p>
       <form class="auth-form" id="tokenForm" hidden>
         <div class="field">
-          <label for="setupTokenInput">设置令牌</label>
-          <input id="setupTokenInput" name="setupToken" type="password" autocomplete="one-time-code" required placeholder="粘贴设置令牌">
-          <p class="field-help">令牌只用于解锁首次设置，不会保存到浏览器。</p>
+          <label for="setupTokenInput" data-i18n="setup.auth.tokenLabel">设置令牌</label>
+          <input id="setupTokenInput" name="setupToken" type="password" autocomplete="one-time-code" required placeholder="粘贴设置令牌" data-i18n-placeholder="setup.auth.tokenPlaceholder">
+          <p class="field-help" data-i18n="setup.auth.tokenHelp">令牌只用于解锁首次设置，不会保存到浏览器。</p>
         </div>
-        <button class="button primary" type="submit">解锁设置</button>
+        <button class="button primary" type="submit" data-i18n="setup.auth.unlock">解锁设置</button>
       </form>
-      <div class="auth-divider" id="authDivider" hidden>或</div>
+      <div class="auth-divider" id="authDivider" hidden data-i18n="setup.auth.or">或</div>
       <form class="auth-form" id="passwordForm" hidden>
         <div class="field">
-          <label for="loginPasswordInput">管理密码</label>
-          <input id="loginPasswordInput" name="password" type="password" autocomplete="current-password" required placeholder="输入管理密码">
+          <label for="loginPasswordInput" data-i18n="setup.auth.passwordLabel">管理密码</label>
+          <input id="loginPasswordInput" name="password" type="password" autocomplete="current-password" required placeholder="输入管理密码" data-i18n-placeholder="setup.auth.passwordPlaceholder">
         </div>
-        <button class="button primary" type="submit">登录</button>
+        <button class="button primary" type="submit" data-i18n="setup.auth.login">登录</button>
       </form>
       <div class="status" id="authStatus" role="status" aria-live="polite"></div>
     </section>
 
     <main class="wizard" id="wizard" hidden>
-      <nav class="stepper" aria-label="设置步骤">
-        <div class="step" data-step="1" data-state="active"><span class="step-number">1</span><span class="step-label">语音服务</span></div>
-        <div class="step" data-step="2" data-state="upcoming"><span class="step-number">2</span><span class="step-label">后端能力</span></div>
-        <div class="step" data-step="3" data-state="upcoming"><span class="step-number">3</span><span class="step-label">设备测试</span></div>
-        <div class="step" data-step="4" data-state="upcoming"><span class="step-number">4</span><span class="step-label">完成</span></div>
+      <nav class="stepper" aria-label="设置步骤" data-i18n-aria-label="setup.steps.aria">
+        <div class="step" data-step="1" data-state="active"><span class="step-number">1</span><span class="step-label" data-i18n="setup.steps.voice">语音服务</span></div>
+        <div class="step" data-step="2" data-state="upcoming"><span class="step-number">2</span><span class="step-label" data-i18n="setup.steps.backend">后端能力</span></div>
+        <div class="step" data-step="3" data-state="upcoming"><span class="step-number">3</span><span class="step-label" data-i18n="setup.steps.device">设备测试</span></div>
+        <div class="step" data-step="4" data-state="upcoming"><span class="step-number">4</span><span class="step-label" data-i18n="setup.steps.finish">完成</span></div>
       </nav>
 
       <section class="card wizard-card">
         <section class="step-panel" data-panel="1" aria-labelledby="voiceTitle">
-          <h2 id="voiceTitle">连接语音服务</h2>
-          <p class="step-intro">先填写实时语音服务的地址、部署名称和凭据。默认选项适合常见的 Azure 兼容实时接口。</p>
+          <h2 id="voiceTitle" data-i18n="setup.voice.title">连接语音服务</h2>
+          <p class="step-intro" data-i18n="setup.voice.intro">先填写实时语音服务的地址、部署名称和凭据。默认选项适合常见的 Azure 兼容实时接口。</p>
           <div class="field-grid">
             <div class="field full">
-              <span class="field-label">接口类型</span>
-              <div class="provider-row" role="radiogroup" aria-label="语音接口类型">
-                <label class="provider-option"><input type="radio" name="voiceProvider" value="azure" checked><span><strong>Azure 实时语音</strong><small>使用资源地址和 API Key</small></span></label>
-                <label class="provider-option"><input type="radio" name="voiceProvider" value="compatible"><span><strong>兼容接口</strong><small>适用于其他兼容服务</small></span></label>
+              <span class="field-label" data-i18n="setup.voice.interfaceLabel">接口类型</span>
+              <div class="provider-row" role="radiogroup" aria-label="语音接口类型" data-i18n-aria-label="setup.voice.interfaceAria">
+                <label class="provider-option"><input type="radio" name="voiceProvider" value="azure" checked><span><strong data-i18n="setup.voice.azure">Azure 实时语音</strong><small data-i18n="setup.voice.azureHelp">使用资源地址和 API Key</small></span></label>
+                <label class="provider-option"><input type="radio" name="voiceProvider" value="compatible"><span><strong data-i18n="setup.voice.compatible">兼容接口</strong><small data-i18n="setup.voice.compatibleHelp">适用于其他兼容服务</small></span></label>
               </div>
             </div>
             <div class="field full">
-              <label for="voiceBaseUrlInput">语音服务地址</label>
-              <input id="voiceBaseUrlInput" type="url" inputmode="url" autocomplete="url" maxlength="300" required placeholder="https://你的资源.openai.azure.com">
-              <p class="field-help" id="voiceBaseUrlHelp">填写资源地址或 API 地址，保存时会自动补齐接口路径；服务地址必须使用 HTTPS。</p>
+              <label for="voiceBaseUrlInput" data-i18n="setup.voice.baseUrlLabel">语音服务地址</label>
+              <input id="voiceBaseUrlInput" type="url" inputmode="url" autocomplete="url" maxlength="300" required placeholder="https://你的资源.openai.azure.com" data-i18n-placeholder="setup.voice.baseUrlPlaceholder">
+              <p class="field-help" id="voiceBaseUrlHelp" data-i18n="setup.voice.baseUrlHelp.azure">填写资源地址或 API 地址，保存时会自动补齐接口路径；服务地址必须使用 HTTPS。</p>
             </div>
             <div class="field">
-              <label for="voiceModelInput">语音部署名称</label>
-              <input id="voiceModelInput" type="text" autocomplete="off" maxlength="160" required placeholder="例如：实时语音部署">
+              <label for="voiceModelInput" data-i18n="setup.voice.modelLabel">语音部署名称</label>
+              <input id="voiceModelInput" type="text" autocomplete="off" maxlength="160" required placeholder="例如：实时语音部署" data-i18n-placeholder="setup.voice.modelPlaceholder">
             </div>
             <div class="field">
-              <label for="voiceApiKeyInput">语音 API Key</label>
-              <input id="voiceApiKeyInput" type="password" autocomplete="new-password" maxlength="4096" placeholder="首次填写，留空则沿用已保存凭据">
-              <p class="field-help" id="voiceKeyHint">密钥只在本次请求中提交给服务端。</p>
+              <label for="voiceApiKeyInput" data-i18n="setup.voice.keyLabel">语音 API Key</label>
+              <input id="voiceApiKeyInput" type="password" autocomplete="new-password" maxlength="4096" placeholder="首次填写，留空则沿用已保存凭据" data-i18n-placeholder="setup.voice.keyPlaceholder">
+              <p class="field-help" id="voiceKeyHint" data-i18n="setup.voice.keyHint">密钥只在本次请求中提交给服务端。</p>
             </div>
           </div>
-          <div class="secret-note">凭据保存在服务端私有配置目录，浏览器不会保存或回显 Key。</div>
+          <div class="secret-note" data-i18n="setup.voice.secretNote">凭据保存在服务端私有配置目录，浏览器不会保存或回显 Key。</div>
           <div class="inline-actions">
-            <button class="button secondary" id="testVoiceButton" type="button">测试语音连接</button>
+            <button class="button secondary" id="testVoiceButton" type="button" data-i18n="setup.voice.test">测试语音连接</button>
             <p class="test-result" id="voiceTestResult" role="status" aria-live="polite"></p>
           </div>
         </section>
 
         <section class="step-panel" data-panel="2" aria-labelledby="backendTitle" hidden>
-          <h2 id="backendTitle">选择后端能力</h2>
-          <p class="step-intro">复杂问题、天气和联网查询可以交给后端处理。你也可以先跳过，之后从“连接设置”回来补充。</p>
+          <h2 id="backendTitle" data-i18n="setup.backend.title">选择后端能力</h2>
+          <p class="step-intro" data-i18n="setup.backend.intro">复杂问题、天气和联网查询可以交给后端处理。你也可以先跳过，之后从“连接设置”回来补充。</p>
           <div class="field-grid">
             <div class="field full">
-              <span class="field-label">推理后端</span>
-              <div class="provider-row" role="radiogroup" aria-label="推理后端模式">
-                <label class="provider-option"><input type="radio" name="backendMode" value="none"><span><strong>暂不启用</strong><small>只使用实时语音对话</small></span></label>
-                <label class="provider-option"><input type="radio" name="backendMode" value="same" checked><span><strong>使用同一服务</strong><small>复用语音服务的地址和凭据</small></span></label>
-                <label class="provider-option"><input type="radio" name="backendMode" value="custom"><span><strong>另一个兼容接口</strong><small>单独填写推理服务</small></span></label>
+              <span class="field-label" data-i18n="setup.backend.label">推理后端</span>
+              <div class="provider-row" role="radiogroup" aria-label="推理后端模式" data-i18n-aria-label="setup.backend.aria">
+                <label class="provider-option"><input type="radio" name="backendMode" value="none"><span><strong data-i18n="setup.backend.none">暂不启用</strong><small data-i18n="setup.backend.noneHelp">只使用实时语音对话</small></span></label>
+                <label class="provider-option"><input type="radio" name="backendMode" value="same" checked><span><strong data-i18n="setup.backend.same">使用同一服务</strong><small data-i18n="setup.backend.sameHelp">复用语音服务的地址和凭据</small></span></label>
+                <label class="provider-option"><input type="radio" name="backendMode" value="custom"><span><strong data-i18n="setup.backend.custom">另一个兼容接口</strong><small data-i18n="setup.backend.customHelp">单独填写推理服务</small></span></label>
               </div>
             </div>
             <div class="field" id="backendModelField">
-              <label for="backendModelInput">后端模型或部署名</label>
-              <input id="backendModelInput" type="text" autocomplete="off" maxlength="160" placeholder="例如：推理模型部署">
+              <label for="backendModelInput" data-i18n="setup.backend.modelLabel">后端模型或部署名</label>
+              <input id="backendModelInput" type="text" autocomplete="off" maxlength="160" placeholder="例如：推理模型部署" data-i18n-placeholder="setup.backend.modelPlaceholder">
             </div>
             <div class="field" id="backendAuthField">
-              <label for="backendAuthInput">鉴权方式</label>
+              <label for="backendAuthInput" data-i18n="setup.backend.authLabel">鉴权方式</label>
               <select id="backendAuthInput"><option value="bearer">Bearer</option><option value="api-key">API Key</option></select>
             </div>
             <div class="field full" id="backendCustomFields" hidden>
-              <label for="backendBaseUrlInput">推理服务地址</label>
-              <input id="backendBaseUrlInput" type="url" inputmode="url" autocomplete="url" maxlength="300" placeholder="https://你的服务.example/v1">
+              <label for="backendBaseUrlInput" data-i18n="setup.backend.baseUrlLabel">推理服务地址</label>
+              <input id="backendBaseUrlInput" type="url" inputmode="url" autocomplete="url" maxlength="300" placeholder="https://你的服务.example/v1" data-i18n-placeholder="setup.backend.baseUrlPlaceholder">
             </div>
             <div class="field full" id="backendKeyField">
-              <label for="backendApiKeyInput">后端 API Key</label>
-              <input id="backendApiKeyInput" type="password" autocomplete="new-password" maxlength="4096" placeholder="首次填写，留空则沿用已保存凭据">
+              <label for="backendApiKeyInput" data-i18n="setup.backend.keyLabel">后端 API Key</label>
+              <input id="backendApiKeyInput" type="password" autocomplete="new-password" maxlength="4096" placeholder="首次填写，留空则沿用已保存凭据" data-i18n-placeholder="setup.backend.keyPlaceholder">
             </div>
             <div class="field full">
               <details>
-                <summary class="field-label">高级偏好</summary>
+                <summary class="field-label" data-i18n="setup.backend.advanced">高级偏好</summary>
                 <div class="field-grid" style="margin-top:15px">
                   <div class="field">
-                    <label for="languageInput">对话语言</label>
-                    <select id="languageInput"><option value="zh-CN">中文（简体）</option><option value="en-US">English</option><option value="auto">自动识别</option></select>
+                    <label for="languageInput" data-i18n="setup.preferences.language">对话语言</label>
+                    <select id="languageInput"><option value="zh-CN" data-i18n="setup.preferences.languageZh">中文（简体）</option><option value="en-US" data-i18n="setup.preferences.languageEn">English</option><option value="auto" data-i18n="setup.preferences.languageAuto">自动识别</option></select>
                   </div>
                   <div class="field">
-                    <label for="outputVoiceInput">输出音色</label>
+                    <label for="outputVoiceInput" data-i18n="setup.preferences.voice">输出音色</label>
                     <select id="outputVoiceInput"><option value="marin">Marin</option></select>
                   </div>
                   <div class="field">
-                    <label for="timeZoneInput">时区</label>
+                    <label for="timeZoneInput" data-i18n="setup.preferences.timeZone">时区</label>
                     <input id="timeZoneInput" type="text" maxlength="80" placeholder="Asia/Shanghai">
                   </div>
                   <div class="field full">
-                    <label for="instructionsInput">助手补充说明</label>
-                    <textarea id="instructionsInput" maxlength="1500" placeholder="例如：用中文回答，先给结论，再简要说明依据。"></textarea>
+                    <label for="instructionsInput" data-i18n="setup.preferences.instructions">助手补充说明</label>
+                    <textarea id="instructionsInput" maxlength="1500" placeholder="例如：用中文回答，先给结论，再简要说明依据。" data-i18n-placeholder="setup.preferences.instructionsPlaceholder"></textarea>
                   </div>
                   <div class="field">
-                    <label for="cityInput">默认天气城市</label>
-                    <input id="cityInput" type="text" maxlength="80" placeholder="可选，例如上海">
+                    <label for="cityInput" data-i18n="setup.preferences.city">默认天气城市</label>
+                    <input id="cityInput" type="text" maxlength="80" placeholder="可选，例如上海" data-i18n-placeholder="setup.preferences.cityPlaceholder">
                   </div>
                   <div class="field">
-                    <label for="webSearchInput">联网查询</label>
-                    <select id="webSearchInput"><option value="false">关闭</option><option value="true">允许查询公开信息</option></select>
+                    <label for="webSearchInput" data-i18n="setup.preferences.webSearch">联网查询</label>
+                    <select id="webSearchInput"><option value="false" data-i18n="setup.preferences.webSearchOff">关闭</option><option value="true" data-i18n="setup.preferences.webSearchOn">允许查询公开信息</option></select>
                   </div>
                   <div class="field">
-                    <label for="maxOutputTokensInput">后端输出上限</label>
+                    <label for="maxOutputTokensInput" data-i18n="setup.preferences.maxOutputTokens">后端输出上限</label>
                     <input id="maxOutputTokensInput" type="number" min="256" max="4096" step="1" inputmode="numeric" value="1024">
                   </div>
                   <div class="field">
-                    <label for="reasoningEffortInput">推理强度</label>
-                    <select id="reasoningEffortInput"><option value="none">默认</option><option value="low">低</option><option value="medium" selected>中</option><option value="high">高</option></select>
+                    <label for="reasoningEffortInput" data-i18n="setup.preferences.reasoningEffort">推理强度</label>
+                    <select id="reasoningEffortInput"><option value="none" data-i18n="setup.preferences.reasoningDefault">默认</option><option value="low" data-i18n="setup.preferences.reasoningLow">低</option><option value="medium" selected data-i18n="setup.preferences.reasoningMedium">中</option><option value="high" data-i18n="setup.preferences.reasoningHigh">高</option></select>
                   </div>
                   <div class="field">
-                    <label for="sessionMinutesInput">最长会话（分钟）</label>
+                    <label for="sessionMinutesInput" data-i18n="setup.preferences.sessionMinutes">最长会话（分钟）</label>
                     <input id="sessionMinutesInput" type="number" min="1" max="30" step="1" inputmode="numeric" value="10">
                   </div>
                 </div>
@@ -291,52 +297,56 @@
             </div>
           </div>
           <div class="inline-actions">
-            <button class="button secondary" id="testBackendButton" type="button">测试后端</button>
+            <button class="button secondary" id="testBackendButton" type="button" data-i18n="setup.backend.test">测试后端</button>
             <p class="test-result" id="backendTestResult" role="status" aria-live="polite"></p>
           </div>
         </section>
 
         <section class="step-panel" data-panel="3" aria-labelledby="deviceTitle" hidden>
-          <h2 id="deviceTitle">测试麦克风和播放</h2>
-          <p class="step-intro">这一步完全在本机执行，不会建立模型会话。先选择设备，说话确认音量条有反应，再播放测试音。</p>
+          <h2 id="deviceTitle" data-i18n="setup.device.title">测试麦克风和播放</h2>
+          <p class="step-intro" data-i18n="setup.device.intro">这一步完全在本机执行，不会建立模型会话。先选择设备，说话确认音量条有反应，再播放测试音。</p>
           <div class="device-card">
             <div class="field">
-              <label for="microphoneSelect">输入麦克风</label>
-              <select id="microphoneSelect"><option value="default">系统默认麦克风</option></select>
+              <label for="microphoneSelect" data-i18n="setup.device.microphoneLabel">输入麦克风</label>
+              <select id="microphoneSelect"><option value="default" data-i18n="setup.device.defaultMicrophone">系统默认麦克风</option></select>
             </div>
             <div class="inline-actions" style="margin-top:0">
-              <button class="button secondary" id="testMicrophoneButton" type="button">测试麦克风</button>
-              <button class="button secondary" id="stopMicrophoneButton" type="button" disabled>停止测试</button>
-              <button class="button secondary" id="testToneButton" type="button">播放测试音</button>
+              <button class="button secondary" id="testMicrophoneButton" type="button" data-i18n="setup.device.testMicrophone">测试麦克风</button>
+              <button class="button secondary" id="stopMicrophoneButton" type="button" disabled data-i18n="setup.device.stopTest">停止测试</button>
+              <button class="button secondary" id="testToneButton" type="button" data-i18n="setup.device.testTone">播放测试音</button>
             </div>
-            <div class="meter" aria-live="polite"><span class="meter-track"><span class="meter-fill" id="meterFill"></span></span><span class="meter-label" id="meterStatus">未采集</span></div>
-            <p class="test-result" id="deviceTestResult" role="status" aria-live="polite">测试结束后会自动释放麦克风，最长 30 秒。</p>
+            <div class="meter" aria-live="polite"><span class="meter-track"><span class="meter-fill" id="meterFill"></span></span><span class="meter-label" id="meterStatus" data-i18n="setup.device.meterIdle">未采集</span></div>
+            <p class="test-result" id="deviceTestResult" role="status" aria-live="polite" data-i18n="setup.device.resultIdle">测试结束后会自动释放麦克风，最长 30 秒。</p>
           </div>
         </section>
 
         <section class="step-panel" data-panel="4" aria-labelledby="finishTitle" hidden>
-          <h2 id="finishTitle">确认并保存</h2>
-          <p class="step-intro">请确认下面的连接摘要。保存后可以直接进入对话，之后仍可从“连接设置”修改。</p>
+          <h2 id="finishTitle" data-i18n="setup.finish.title">确认并保存</h2>
+          <p class="step-intro" data-i18n="setup.finish.intro">请确认下面的连接摘要。保存后可以直接进入对话，之后仍可从“连接设置”修改。</p>
           <dl class="summary" id="summaryList"></dl>
           <div class="remote-password" id="adminPasswordCard" hidden>
-            <p><strong>设置管理密码</strong><br>远程部署首次保存需要至少 10 个字符的管理密码，用于之后打开连接设置。</p>
-            <div class="field"><label for="adminPasswordInput">管理密码</label><input id="adminPasswordInput" type="password" autocomplete="new-password" minlength="10" maxlength="256" placeholder="至少 10 个字符"></div>
+            <p><strong data-i18n="setup.finish.passwordTitle">设置管理密码</strong><br><span data-i18n="setup.finish.passwordHelp">远程部署首次保存需要至少 10 个字符的管理密码，用于之后打开连接设置。</span></p>
+            <div class="field"><label for="adminPasswordInput" data-i18n="setup.auth.passwordLabel">管理密码</label><input id="adminPasswordInput" type="password" autocomplete="new-password" minlength="10" maxlength="256" placeholder="至少 10 个字符" data-i18n-placeholder="setup.finish.passwordPlaceholder"></div>
           </div>
           <div class="status" id="saveStatus" role="status" aria-live="polite"></div>
         </section>
 
         <div class="wizard-nav">
-          <button class="button secondary" id="backButton" type="button">上一步</button>
-          <div class="wizard-nav-right"><button class="button primary" id="nextButton" type="button">下一步</button><button class="button primary" id="saveButton" type="button" hidden>保存并进入对话</button></div>
+          <button class="button secondary" id="backButton" type="button" data-i18n="setup.nav.back">上一步</button>
+          <div class="wizard-nav-right"><button class="button primary" id="nextButton" type="button" data-i18n="setup.nav.next">下一步</button><button class="button primary" id="saveButton" type="button" hidden data-i18n="setup.nav.save">保存并进入对话</button></div>
         </div>
       </section>
     </main>
-    <p class="footer-note">需要帮助时，请先确认服务地址和部署名称拼写正确，并用“测试连接”查看实际错误提示。</p>
+    <p class="footer-note" data-i18n="setup.footer">需要帮助时，请先确认服务地址和部署名称拼写正确，并用“测试连接”查看实际错误提示。</p>
   </div>
 
+  <script src="/i18n.js"></script>
+  <script src="/locales/setup.js"></script>
   <script>
     (() => {
       "use strict";
+      const i18n = window.AppI18n;
+      const t = (key, params) => i18n.t(key, params);
       const $ = (selector) => document.querySelector(selector);
       const $$ = (selector) => Array.from(document.querySelectorAll(selector));
       const authCard = $("#authCard");
@@ -351,6 +361,7 @@
       const saveButton = $("#saveButton");
       const saveStatus = $("#saveStatus");
       const logoutButton = $("#logoutButton");
+      const uiLanguageSelect = $("#uiLanguageSelect");
       const adminPasswordCard = $("#adminPasswordCard");
       const adminPasswordInput = $("#adminPasswordInput");
       const voiceBaseUrlInput = $("#voiceBaseUrlInput");
@@ -379,6 +390,7 @@
         bootstrap: null,
         existing: null,
         authorized: false,
+        authUnavailable: false,
         step: 1,
         microphone: null,
         meter: null,
@@ -390,7 +402,9 @@
         preferenceVoice: "marin",
         existingVoiceBaseUrl: "",
         existingBackendBaseUrl: "",
-        availableVoices: ["marin"]
+        availableVoices: ["marin"],
+        deviceStatusKey: "setup.device.resultIdle",
+        statuses: Object.create(null)
       };
       try { state.selectedDevice = localStorage.getItem(MICROPHONE_STORAGE_KEY) || "default"; } catch (_) { /* Storage may be unavailable. */ }
 
@@ -405,10 +419,35 @@
       function browserTimeZone() {
         try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Shanghai"; } catch (_) { return "Asia/Shanghai"; }
       }
-      function setStatus(target, message, tone) {
+      function setStatus(target, message, tone, statusKey, params) {
         if (!target) return;
         target.textContent = message || "";
         target.dataset.tone = tone || "";
+        if (target.id) state.statuses[target.id] = { message: String(message || ""), tone: tone || "", key: statusKey || "", params: params || {} };
+      }
+      function setStatusKey(target, key, tone, params) {
+        setStatus(target, t(key, params), tone, key, params);
+      }
+      function refreshStatuses() {
+        Object.entries(state.statuses).forEach(([id, status]) => {
+          const target = document.getElementById(id);
+          if (!target) return;
+          if (status.key) {
+            const params = Object.fromEntries(Object.entries(status.params || {}).map(([key, value]) => [key, typeof value === "string" ? i18n.error(value) : value]));
+            target.textContent = t(status.key, params);
+          } else {
+            target.textContent = i18n.error(status.message || "");
+          }
+          target.dataset.tone = status.tone || "";
+        });
+      }
+      function setDeviceStatus(key, tone) {
+        state.deviceStatusKey = key;
+        setStatusKey(deviceTestResult, key, tone);
+      }
+      function localizedMessage(message, fallbackKey, params) {
+        const value = typeof message === "string" ? message.trim() : "";
+        return value ? i18n.error(value) : t(fallbackKey, params);
       }
       function selectedRadio(name, fallback) {
         const node = document.querySelector('input[name="' + name + '"]:checked');
@@ -441,8 +480,8 @@
         voiceApiKeyInput.value = "";
         state.voiceKeyConfigured = voice.keyConfigured === true;
         state.existingVoiceBaseUrl = text(voice.baseUrl, "", 300);
-        voiceApiKeyInput.placeholder = voice.keyConfigured ? "已保存凭据；留空则沿用（地址不变时）" : "首次填写语音 API Key";
-        voiceKeyHint.textContent = voice.keyConfigured ? "已保存凭据；留空会沿用，只有地址不变时才可复用。" : "密钥只在本次请求中提交给服务端。";
+        voiceApiKeyInput.placeholder = voice.keyConfigured ? t("setup.voice.keyPlaceholder") : t("setup.voice.keyPlaceholderNew");
+        voiceKeyHint.textContent = voice.keyConfigured ? t("setup.voice.keyHintSaved") : t("setup.voice.keyHint");
         const backendMode = backend.enabled === false ? "none" : backend.mode === "custom" ? "custom" : "same";
         $("input[name=backendMode][value=" + backendMode + "]").checked = true;
         backendModelInput.value = text(backend.model, "", 160);
@@ -451,7 +490,7 @@
         backendApiKeyInput.value = "";
         state.backendKeyConfigured = backend.keyConfigured === true;
         state.existingBackendBaseUrl = text(backend.baseUrl, "", 300);
-        backendApiKeyInput.placeholder = backend.keyConfigured ? "已保存凭据；留空则沿用（地址不变时）" : "首次填写后端 API Key";
+        backendApiKeyInput.placeholder = backend.keyConfigured ? t("setup.backend.keyPlaceholder") : t("setup.backend.keyPlaceholderNew");
         initialPreferences(preferences);
         updateVoiceHints();
         updateBackendFields();
@@ -473,7 +512,7 @@
           const preferred = text(payload.defaults && payload.defaults.voice, state.availableVoices.includes("marin") ? "marin" : state.availableVoices[0], 120);
           const target = $("#outputVoiceInput");
           target.replaceChildren();
-          unique.forEach((item) => { const option = document.createElement("option"); option.value = item.id; option.textContent = item.label; target.append(option); });
+          unique.forEach((item) => { const option = document.createElement("option"); option.value = item.id; option.dataset.voiceLabel = item.label; option.textContent = i18n.error(item.label); target.append(option); });
           target.value = state.availableVoices.includes(preferred) ? preferred : state.availableVoices[0];
         } catch (_) {
           // Keep the neutral Marin fallback when the public catalog is unavailable.
@@ -513,24 +552,26 @@
       }
       function validate(kind) {
         const settings = settingsCandidate();
-        if (!settings.voice.baseUrl) return "请填写语音服务地址。";
-        if (!settings.voice.model) return "请填写语音部署名称。";
-        if (!/^https:\/\//i.test(settings.voice.baseUrl)) return "语音服务地址必须使用 HTTPS，请检查地址后重试。";
-        if (state.voiceKeyConfigured && !settings.voice.apiKey && endpointKey(settings.voice.baseUrl) !== endpointKey(state.existingVoiceBaseUrl)) return "语音服务地址已改变，请重新填写新的 API Key。";
+        if (!settings.voice.baseUrl) return t("setup.error.voiceBaseUrlRequired");
+        if (!settings.voice.model) return t("setup.error.voiceModelRequired");
+        if (!/^https:\/\//i.test(settings.voice.baseUrl)) return t("setup.error.voiceHttps");
+        if (state.voiceKeyConfigured && !settings.voice.apiKey && endpointKey(settings.voice.baseUrl) !== endpointKey(state.existingVoiceBaseUrl)) return t("setup.error.voiceKeyChanged");
         if (kind === "backend" && settings.backend.enabled) {
-          if (!settings.backend.model) return "请填写后端模型或部署名。";
-          if (settings.backend.mode === "custom" && !/^https:\/\//i.test(settings.backend.baseUrl)) return "推理服务地址必须使用 HTTPS，请检查地址后重试。";
-          if (settings.backend.mode === "custom" && state.backendKeyConfigured && !settings.backend.apiKey && endpointKey(settings.backend.baseUrl) !== endpointKey(state.existingBackendBaseUrl)) return "推理服务地址已改变，请重新填写新的 API Key。";
+          if (!settings.backend.model) return t("setup.error.backendModelRequired");
+          if (settings.backend.mode === "custom" && !/^https:\/\//i.test(settings.backend.baseUrl)) return t("setup.error.backendHttps");
+          if (settings.backend.mode === "custom" && state.backendKeyConfigured && !settings.backend.apiKey && endpointKey(settings.backend.baseUrl) !== endpointKey(state.existingBackendBaseUrl)) return t("setup.error.backendKeyChanged");
         }
         return "";
       }
       async function jsonFetch(url, options) {
-        const response = await fetch(url, Object.assign({ headers: { Accept: "application/json" } }, options || {}));
+        const request = options || {};
+        const headers = Object.assign({ Accept: "application/json" }, request.headers || {});
+        const response = await i18n.apiFetch(url, Object.assign({}, request, { headers }));
         let payload = null;
         try { payload = await response.json(); } catch (_) { /* Response may be empty. */ }
         if (!response.ok) {
           const detail = payload && (payload.error || payload.message);
-          const message = typeof detail === "string" ? detail : "请求失败（HTTP " + response.status + "）";
+          const message = typeof detail === "string" ? i18n.error(detail) : t("setup.error.request", { status: response.status });
           const error = new Error(message);
           error.status = response.status;
           throw error;
@@ -548,12 +589,14 @@
           state.authorized = true;
           await loadSettings();
         } catch (error) {
-          setStatus(authStatus, "无法读取服务状态：" + (error.message || "请确认服务已启动。"), "error");
+          state.authUnavailable = true;
+          setStatusKey(authStatus, "setup.error.unavailable", "error", { message: localizedMessage(error && error.message, "setup.error.serverUnavailable") });
           authCard.hidden = false;
-          authIntro.textContent = "服务暂时无法响应，请检查地址并刷新页面。";
+          authIntro.textContent = t("setup.error.serverUnavailable");
         }
       }
       function showAuth(payload) {
+        state.authUnavailable = false;
         authCard.hidden = false;
         wizard.hidden = true;
         const configured = Boolean(payload && payload.configured);
@@ -563,7 +606,7 @@
         tokenForm.hidden = !canToken;
         passwordForm.hidden = !canPassword;
         authDivider.hidden = true;
-        authIntro.textContent = canToken ? "请输入设置令牌继续连接设置；令牌可以通过 URL 片段传入。" : canPassword ? "请输入管理密码打开连接设置。" : "当前服务需要远程认证，请检查部署配置。";
+        authIntro.textContent = canToken ? t("setup.auth.tokenPrompt") : canPassword ? t("setup.auth.passwordPrompt") : t("setup.auth.remotePrompt");
         logoutButton.hidden = true;
         if (canToken && location.hash) {
           const params = new URLSearchParams(location.hash.replace(/^#/, ""));
@@ -571,21 +614,21 @@
           if (token) {
             $("#setupTokenInput").value = token;
             history.replaceState(null, document.title, location.pathname + location.search);
-            setStatus(authStatus, "已读取设置令牌，请点击解锁。", "working");
+            setStatusKey(authStatus, "setup.auth.tokenRead", "working");
           }
         }
       }
       async function login(body) {
-        setStatus(authStatus, "正在验证…", "working");
+        setStatusKey(authStatus, "setup.auth.verifying", "working");
         try {
           const payload = await jsonFetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
-          if (!payload || payload.ok !== true) throw new Error("验证未通过，请检查输入。 ");
+          if (!payload || payload.ok !== true) throw new Error(t("setup.auth.invalid"));
           authCard.hidden = true;
           state.authorized = true;
           if (state.bootstrap) state.bootstrap.authenticated = true;
           await loadSettings();
         } catch (error) {
-          setStatus(authStatus, error.message || "验证失败，请稍后重试。", "error");
+          setStatus(authStatus, localizedMessage(error && error.message, "setup.auth.failed"), "error");
         }
       }
       async function loadSettings() {
@@ -598,12 +641,12 @@
           if (error.status === 401 || error.status === 403) {
             state.authorized = false;
             showAuth(state.bootstrap || { configured: true, mode: "remote" });
-            setStatus(authStatus, "登录已过期，请重新验证。", "error");
+            setStatusKey(authStatus, "setup.auth.expired", "error");
             return;
           }
           state.existing = null;
           defaultSettings(null);
-          if (error.status !== 404) setStatus(saveStatus, "读取现有设置失败，将使用空白配置：" + error.message, "error");
+          if (error.status !== 404) setStatusKey(saveStatus, "setup.error.loadSettings", "error", { message: localizedMessage(error && error.message, "setup.error.serverUnavailable") });
         }
         wizard.hidden = false;
         authCard.hidden = true;
@@ -618,10 +661,12 @@
       }
       function updateVoiceHints() {
         const provider = selectedRadio("voiceProvider", "azure");
-        voiceBaseUrlHelp.textContent = provider === "azure" ? "填写资源地址或 API 地址，保存时会自动补齐接口路径；服务地址必须使用 HTTPS。" : "填写兼容服务地址，保存时会自动补齐接口路径；服务地址必须使用 HTTPS。";
+        voiceBaseUrlHelp.textContent = t(provider === "azure" ? "setup.voice.baseUrlHelp.azure" : "setup.voice.baseUrlHelp.compatible");
         voiceKeyHint.textContent = state.voiceKeyConfigured
-          ? "已保存凭据；留空会沿用，只有地址不变时才可复用。"
-          : provider === "azure" ? "密钥只在本次请求中提交给服务端。" : "兼容接口的凭据只在本次请求中提交给服务端。";
+          ? t("setup.voice.keyHintSaved")
+          : t(provider === "azure" ? "setup.voice.keyHint" : "setup.voice.keyHintCompatible");
+        voiceApiKeyInput.placeholder = state.voiceKeyConfigured ? t("setup.voice.keyPlaceholder") : t("setup.voice.keyPlaceholderNew");
+        backendApiKeyInput.placeholder = state.backendKeyConfigured ? t("setup.backend.keyPlaceholder") : t("setup.backend.keyPlaceholderNew");
       }
       function updateBackendFields() {
         const mode = selectedRadio("backendMode", "same");
@@ -652,16 +697,19 @@
       }
       function renderSummary() {
         const settings = settingsCandidate();
-        const backendLabel = settings.backend.enabled ? (settings.backend.mode === "same" ? "使用同一服务" : "另一个兼容接口") : "未启用";
+        const backendLabel = settings.backend.enabled ? (settings.backend.mode === "same" ? t("setup.summary.sameService") : t("setup.summary.customEndpoint")) : t("setup.summary.disabled");
+        const conversationLanguage = settings.preferences.language === "zh-CN"
+          ? t("setup.preferences.languageZh")
+          : settings.preferences.language === "en-US" ? t("setup.preferences.languageEn") : t("setup.preferences.languageAuto");
         const rows = [
-          ["语音接口", settings.voice.provider === "azure" ? "Azure 实时语音" : "兼容接口"],
-          ["语音地址", settings.voice.baseUrl || "未填写"],
-          ["语音部署", settings.voice.model || "未填写"],
-          ["推理后端", backendLabel],
-          ["推理模型", settings.backend.enabled ? (settings.backend.model || "未填写") : "未启用"],
-          ["输出音色", settings.preferences.voice],
-          ["麦克风", microphoneSelect.options[microphoneSelect.selectedIndex]?.textContent || "系统默认麦克风"],
-          ["语言与时区", settings.preferences.language + " · " + settings.preferences.timeZone]
+          [t("setup.summary.voiceEndpoint"), settings.voice.provider === "azure" ? t("setup.voice.azure") : t("setup.voice.compatible")],
+          [t("setup.summary.voiceUrl"), settings.voice.baseUrl || t("setup.summary.notFilled")],
+          [t("setup.summary.voiceDeployment"), settings.voice.model || t("setup.summary.notFilled")],
+          [t("setup.summary.backend"), backendLabel],
+          [t("setup.summary.backendModel"), settings.backend.enabled ? (settings.backend.model || t("setup.summary.notFilled")) : t("setup.summary.disabled")],
+          [t("setup.summary.voice"), settings.preferences.voice],
+          [t("setup.summary.microphone"), microphoneSelect.options[microphoneSelect.selectedIndex]?.textContent || t("setup.device.defaultMicrophone")],
+          [t("setup.summary.languageZone"), conversationLanguage + " · " + settings.preferences.timeZone]
         ];
         const target = $("#summaryList");
         target.replaceChildren();
@@ -677,15 +725,16 @@
         const button = kind === "voice" ? $("#testVoiceButton") : $("#testBackendButton");
         if (error) { setStatus(target, error, "error"); return; }
         button.disabled = true;
-        setStatus(target, "正在测试实际连接…", "working");
+        setStatusKey(target, "setup.error.testWorking", "working");
         try {
           const payload = await jsonFetch("/api/settings/test", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ kind, settings: settingsCandidate() }) });
-          if (!payload || payload.ok !== true) throw new Error(payload && payload.message ? payload.message : "测试未通过。 ");
-          setStatus(target, payload.message || "连接测试成功。", "success");
+          if (!payload || payload.ok !== true) throw new Error(payload && payload.message ? i18n.error(payload.message) : t("setup.error.testFailed"));
+          if (payload.message) setStatus(target, i18n.error(payload.message), "success");
+          else setStatusKey(target, "setup.error.testSuccess", "success");
           // Keep the entered key in this page's memory until the final save.
           // The test endpoint does not persist or return it.
         } catch (error) {
-          setStatus(target, error.message || "连接测试失败，请检查地址、部署名和凭据。", "error");
+          setStatus(target, localizedMessage(error && error.message, "setup.error.connectionFailed"), "error");
         } finally { button.disabled = false; }
       }
       function microphoneConstraints() {
@@ -703,12 +752,12 @@
         if (meter.context && meter.context.state !== "closed") void meter.context.close();
         state.meter = null;
         meterFill.style.width = "0%";
-        meterStatus.textContent = "未采集";
+        meterStatus.textContent = t("setup.device.meterIdle");
       }
       function startMeter(stream) {
         stopMeter();
         const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextCtor) { meterStatus.textContent = "正在采集"; return; }
+        if (!AudioContextCtor) { meterStatus.textContent = t("setup.device.meterActive"); return; }
         try {
           const context = new AudioContextCtor();
           const source = context.createMediaStreamSource(stream);
@@ -724,13 +773,13 @@
             let sum = 0; for (const sample of data) { const delta = (sample - 128) / 128; sum += delta * delta; }
             const level = Math.min(1, Math.sqrt(sum / data.length) * 5);
             meterFill.style.width = Math.round(level * 100) + "%";
-            meterStatus.textContent = "正在采集";
+            meterStatus.textContent = t("setup.device.meterActive");
             meter.frame = requestAnimationFrame(draw);
           };
           void context.resume().catch(() => {}); draw();
-        } catch (_) { meterStatus.textContent = "正在采集"; }
+        } catch (_) { meterStatus.textContent = t("setup.device.meterActive"); }
       }
-      function stopMicrophoneTest(message) {
+      function stopMicrophoneTest(message, statusKey) {
         const owner = state.microphone;
         if (owner) owner.cancelled = true;
         if (owner && owner.timer) clearTimeout(owner.timer);
@@ -740,7 +789,10 @@
         stopMicrophoneButton.disabled = true;
         testMicrophoneButton.disabled = false;
         microphoneSelect.disabled = false;
-        deviceTestResult.textContent = message || "本机测试已停止。";
+        const key = statusKey || "setup.device.resultStopped";
+        state.deviceStatusKey = key;
+        if (message && !statusKey) setStatus(deviceTestResult, message, "");
+        else setStatusKey(deviceTestResult, key, "");
       }
       async function refreshMicrophones() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
@@ -748,70 +800,113 @@
           const devices = await navigator.mediaDevices.enumerateDevices();
           const inputs = devices.filter((device) => device.kind === "audioinput");
           microphoneSelect.replaceChildren();
-          const defaultOption = document.createElement("option"); defaultOption.value = "default"; defaultOption.textContent = "系统默认麦克风"; microphoneSelect.append(defaultOption);
-          inputs.forEach((device, index) => { if (device.deviceId === "default") return; const option = document.createElement("option"); option.value = device.deviceId; option.textContent = device.label || "麦克风 " + (index + 1); microphoneSelect.append(option); });
+          const defaultOption = document.createElement("option"); defaultOption.value = "default"; defaultOption.textContent = t("setup.device.defaultMicrophone"); microphoneSelect.append(defaultOption);
+          inputs.forEach((device, index) => {
+            if (device.deviceId === "default") return;
+            const option = document.createElement("option");
+            option.value = device.deviceId;
+            if (device.label) {
+              option.textContent = device.label;
+              option.dataset.deviceLabel = device.label;
+            } else {
+              option.textContent = t("setup.device.microphoneNumber", { number: index + 1 });
+              option.dataset.genericDevice = "true";
+              option.dataset.deviceNumber = String(index + 1);
+            }
+            microphoneSelect.append(option);
+          });
           microphoneSelect.value = state.selectedDevice;
           if (microphoneSelect.value !== state.selectedDevice) state.selectedDevice = "default";
         } catch (_) { /* Device labels can be unavailable before permission. */ }
       }
       async function testMicrophone() {
         if (state.microphone) return;
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setStatus(deviceTestResult, "当前浏览器不支持麦克风，请使用最新版 Chrome 或 Edge。", "error"); return; }
-        testMicrophoneButton.disabled = true; microphoneSelect.disabled = true; setStatus(deviceTestResult, "正在请求麦克风权限…", "working");
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setDeviceStatus("setup.device.unsupported", "error"); return; }
+        testMicrophoneButton.disabled = true; microphoneSelect.disabled = true; setDeviceStatus("setup.device.permission", "working");
         const owner = { stream: null, timer: null, cancelled: false };
         state.microphone = owner;
         try {
           const stream = await navigator.mediaDevices.getUserMedia(microphoneConstraints());
           if (owner.cancelled || state.microphone !== owner) { stream.getTracks().forEach((track) => { try { track.stop(); } catch (_) {} }); return; }
           owner.stream = stream;
-          owner.timer = setTimeout(() => stopMicrophoneTest("本机测试已自动停止（30 秒上限）。"), MICROPHONE_TEST_TIMEOUT_MS);
-          startMeter(stream); stopMicrophoneButton.disabled = false; setStatus(deviceTestResult, "正在采集，请说话确认音量条有反应。", "success"); await refreshMicrophones();
+          owner.timer = setTimeout(() => stopMicrophoneTest(t("setup.device.autoStopped"), "setup.device.autoStopped"), MICROPHONE_TEST_TIMEOUT_MS);
+          startMeter(stream); stopMicrophoneButton.disabled = false; setDeviceStatus("setup.device.capturing", "success"); await refreshMicrophones();
         } catch (error) {
           if (state.microphone === owner) state.microphone = null;
           testMicrophoneButton.disabled = false; microphoneSelect.disabled = false;
-          setStatus(deviceTestResult, error.name === "NotAllowedError" ? "麦克风权限被拒绝，请在浏览器地址栏允许访问。" : "麦克风测试失败，请检查设备。", "error");
+          setDeviceStatus(error.name === "NotAllowedError" ? "setup.device.permissionDenied" : "setup.device.failed", "error");
         }
       }
       function playTestTone() {
         if (state.toneContext) return;
         const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextCtor) { setStatus(deviceTestResult, "当前浏览器不支持播放测试音。", "error"); return; }
+        if (!AudioContextCtor) { setDeviceStatus("setup.device.toneUnsupported", "error"); return; }
         try {
           const context = state.toneContext = new AudioContextCtor();
           const oscillator = context.createOscillator(); const gain = context.createGain();
           oscillator.type = "sine"; oscillator.frequency.value = 660; gain.gain.value = .05; oscillator.connect(gain); gain.connect(context.destination); oscillator.start();
-          testToneButton.textContent = "播放中…"; testToneButton.disabled = true; setStatus(deviceTestResult, "如果听见短促提示音，播放设备正常。", "success");
-          state.toneTimer = setTimeout(() => { try { oscillator.stop(); } catch (_) {} void context.close(); state.toneContext = null; state.toneTimer = null; testToneButton.textContent = "播放测试音"; testToneButton.disabled = false; }, 500);
+          testToneButton.textContent = t("setup.device.playingTone"); testToneButton.disabled = true; setDeviceStatus("setup.device.toneReady", "success");
+          state.toneTimer = setTimeout(() => { try { oscillator.stop(); } catch (_) {} void context.close(); state.toneContext = null; state.toneTimer = null; testToneButton.textContent = t("setup.device.testTone"); testToneButton.disabled = false; }, 500);
           void context.resume().catch(() => {});
-        } catch (_) { state.toneContext = null; setStatus(deviceTestResult, "播放测试音失败，请检查浏览器音量。", "error"); }
+        } catch (_) { state.toneContext = null; setDeviceStatus("setup.device.toneFailed", "error"); }
       }
       async function saveSettings() {
         const error = validate("voice") || validate("backend");
         if (error) { setStatus(saveStatus, error, "error"); return; }
         const initialRemote = Boolean(state.bootstrap && state.bootstrap.mode === "remote" && state.bootstrap.needsSetupToken === true);
         const adminPassword = adminPasswordInput.value;
-        if (initialRemote && adminPassword.length < 10) { setStatus(saveStatus, "远程首次设置需要至少 10 个字符的管理密码。", "error"); return; }
-        saveButton.disabled = true; setStatus(saveStatus, "正在保存并验证配置…", "working");
+        if (initialRemote && adminPassword.length < 10) { setStatusKey(saveStatus, "setup.finish.passwordRequired", "error"); return; }
+        saveButton.disabled = true; setStatusKey(saveStatus, "setup.finish.saving", "working");
         try {
           const body = { settings: settingsCandidate() };
           if (initialRemote) body.adminPassword = adminPassword;
           const payload = await jsonFetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
-          if (!payload || payload.ok === false) throw new Error(payload && payload.error ? payload.error : "保存失败。");
+          if (!payload || payload.ok === false) throw new Error(payload && payload.error ? i18n.error(payload.error) : t("setup.finish.saveFailed"));
           voiceApiKeyInput.value = ""; backendApiKeyInput.value = ""; adminPasswordInput.value = "";
           window.location.assign("/");
         } catch (error) {
-          setStatus(saveStatus, error.message || "保存失败，请检查连接设置。", "error");
+          setStatus(saveStatus, localizedMessage(error && error.message, "setup.finish.saveError"), "error");
           saveButton.disabled = false;
         }
       }
       function next() {
         if (state.step === 1) { const error = validate("voice"); if (error) { setStatus(voiceTestResult, error, "error"); return; } }
         if (state.step === 2) { const error = validate("backend"); if (error) { setStatus(backendTestResult, error, "error"); return; } }
-        if (state.step === 3) stopMicrophoneTest("设备测试已停止。");
+        if (state.step === 3) stopMicrophoneTest(t("setup.device.resultStoppedByStep"), "setup.device.resultStoppedByStep");
         if (state.step < 4) state.step += 1;
         renderStep();
       }
-      function previous() { if (state.step > 1) { if (state.step === 3) stopMicrophoneTest("设备测试已停止。"); state.step -= 1; renderStep(); } }
+      function previous() { if (state.step > 1) { if (state.step === 3) stopMicrophoneTest(t("setup.device.resultStoppedByStep"), "setup.device.resultStoppedByStep"); state.step -= 1; renderStep(); } }
+      function refreshMicrophoneOptionLabels() {
+        const defaultOption = microphoneSelect.querySelector('option[value="default"]');
+        if (defaultOption) defaultOption.textContent = t("setup.device.defaultMicrophone");
+        microphoneSelect.querySelectorAll("option[data-generic-device]").forEach((option) => {
+          option.textContent = t("setup.device.microphoneNumber", { number: option.dataset.deviceNumber || "" });
+        });
+      }
+      function refreshVoiceOptionLabels() {
+        $("#outputVoiceInput").querySelectorAll("option[data-voice-label]").forEach((option) => {
+          option.textContent = i18n.error(option.dataset.voiceLabel || option.textContent);
+        });
+      }
+      function applyLanguage() {
+        i18n.apply(document);
+        const language = i18n.getLanguage();
+        uiLanguageSelect.value = language === "zh-CN" ? "zh-CN" : "en";
+        document.documentElement.lang = language === "zh-CN" ? "zh-CN" : "en";
+        updateVoiceHints();
+        updateBackendFields();
+        refreshMicrophoneOptionLabels();
+        refreshVoiceOptionLabels();
+        if (state.authUnavailable) authIntro.textContent = t("setup.error.serverUnavailable");
+        else if (state.bootstrap && !state.authorized && !authCard.hidden) showAuth(state.bootstrap);
+        if (state.step === 4) renderSummary();
+        meterStatus.textContent = state.meter ? t("setup.device.meterActive") : t("setup.device.meterIdle");
+        refreshStatuses();
+        if (state.toneContext) testToneButton.textContent = t("setup.device.playingTone");
+      }
+      uiLanguageSelect.addEventListener("change", () => { i18n.setLanguage(uiLanguageSelect.value); });
+      document.addEventListener("app-language-change", applyLanguage);
       tokenForm.addEventListener("submit", (event) => { event.preventDefault(); const value = $("#setupTokenInput").value.trim(); if (value) void login({ setupToken: value }); });
       passwordForm.addEventListener("submit", (event) => { event.preventDefault(); const value = $("#loginPasswordInput").value; if (value) void login({ password: value }); });
       $$('input[name="voiceProvider"]').forEach((input) => input.addEventListener("change", updateVoiceHints));
@@ -827,6 +922,7 @@
       saveButton.addEventListener("click", () => { void saveSettings(); });
       logoutButton.addEventListener("click", () => { void logout(); });
       window.addEventListener("pagehide", () => { stopMicrophoneTest(); if (state.toneTimer) clearTimeout(state.toneTimer); if (state.toneContext && state.toneContext.state !== "closed") void state.toneContext.close(); });
+      applyLanguage();
       initialPreferences({});
       $("#outputVoiceInput").value = "marin";
       void refreshMicrophones();
