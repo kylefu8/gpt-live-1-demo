@@ -93,7 +93,6 @@ async function handleDelegation(record,id,contextVersion){
       onUsage:usage=>{record.usage.backendInputTokens+=(usage.input_tokens||0);record.usage.backendOutputTokens+=(usage.output_tokens||0);}
     });
     if(record.closing||record.closed||contextVersion!==record.taskVersion)return;
-    
     record.delivery.enqueue(answer,id,contextVersion,{immediateSpeak:Boolean(fast)});
   }catch(error){
     if(record.closing||record.closed)return;
