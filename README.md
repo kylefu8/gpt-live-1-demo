@@ -47,6 +47,8 @@ Changing a voice or other session setting takes effect on the next connection. A
 
 ## Local development
 
+For ongoing development, see the [development guide](docs/DEVELOPMENT.md) and [proposed roadmap](docs/ROADMAP.md).
+
 Developers need Node.js 22 or newer:
 
 ```text

@@ -47,6 +47,8 @@ ZIP 已包含官方 Node.js 24 Windows x64 运行时，用户不需要另行安�
 
 ## 本地开发
 
+持续开发请阅读[开发说明](docs/DEVELOPMENT.md)和[候选路线图](docs/ROADMAP.md)。
+
 开发者需要 Node.js 22 或更高版本：
 
 ```text
