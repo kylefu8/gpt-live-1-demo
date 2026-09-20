@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run check:release
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build --tag gpt-live-1-demo:ci .
+      - name: Start empty local instance
+        run: |
+          docker run --detach --name gpt-live-1-demo-ci \
+            --env APP_MODE=local \
+            --env HOST=0.0.0.0 \
+            --env ALLOW_LOCAL_NETWORK=1 \
+            --env PORT=8767 \
+            --env APP_DATA_DIR=/data \
+            --publish 127.0.0.1:18767:8767 \
+            gpt-live-1-demo:ci
+      - name: Check health and bootstrap page
+        run: |
+          trap 'docker rm --force gpt-live-1-demo-ci' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:18767/api/health >/dev/null; then
+              curl --fail --silent http://127.0.0.1:18767/api/bootstrap | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["configured"] is False and d["authenticated"] is True'
+              curl --fail --silent http://127.0.0.1:18767/setup --output /tmp/voice-setup.html
+              grep -q '连接设置' /tmp/voice-setup.html
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs gpt-live-1-demo-ci
+          exit 1

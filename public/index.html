@@ -1,0 +1,2713 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09121e">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307111d'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%2371e0c0'/%3E%3C/svg%3E">
+  <title>实时语音助手</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111d;
+      --bg-soft: #0d1b2a;
+      --panel: rgba(16, 32, 49, 0.82);
+      --panel-strong: #11243a;
+      --line: rgba(174, 207, 235, 0.16);
+      --line-strong: rgba(174, 207, 235, 0.3);
+      --text: #eef6ff;
+      --muted: #9db2c9;
+      --quiet: #71879e;
+      --accent: #71e0c0;
+      --accent-strong: #39cba3;
+      --accent-ink: #06251e;
+      --warning: #f5c66b;
+      --danger: #ff8d9d;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+      font-family: Inter, "SF Pro Display", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    html { min-width: 320px; background: var(--bg); }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(55, 155, 194, 0.19), transparent 32rem),
+        radial-gradient(circle at 92% 5%, rgba(109, 224, 192, 0.13), transparent 30rem),
+        linear-gradient(155deg, #07111d 0%, #091827 56%, #07111d 100%);
+    }
+
+    button { font: inherit; }
+
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(113, 224, 192, 0.65);
+      outline-offset: 3px;
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 48px 0 42px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--quiet);
+      box-shadow: 0 0 0 5px rgba(113, 137, 158, 0.12);
+    }
+
+    .status-dot[data-tone="connecting"] {
+      background: var(--warning);
+      box-shadow: 0 0 0 5px rgba(245, 198, 107, 0.13);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .status-dot[data-tone="connected"] {
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgba(113, 224, 192, 0.13);
+    }
+
+    .status-dot[data-tone="error"] {
+      background: var(--danger);
+      box-shadow: 0 0 0 5px rgba(255, 141, 157, 0.13);
+    }
+
+    h1 {
+      max-width: 700px;
+      margin: 15px 0 12px;
+      font-size: clamp(2.3rem, 5.5vw, 4.7rem);
+      font-weight: 700;
+      letter-spacing: -0.055em;
+      line-height: 0.98;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-bottom: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(17, 36, 58, 0.52);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .badge.accent {
+      border-color: rgba(113, 224, 192, 0.3);
+      color: var(--accent);
+      background: rgba(113, 224, 192, 0.07);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(265px, 0.82fr) minmax(0, 1.6fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(155deg, rgba(17, 36, 58, 0.92), rgba(11, 26, 43, 0.78));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .control-card {
+      position: sticky;
+      top: 20px;
+      padding: 22px;
+    }
+
+    .card-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .card-heading h2 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .card-heading p {
+      margin: 6px 0 0;
+      color: var(--quiet);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .session-chip {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border-radius: 8px;
+      color: var(--accent);
+      background: rgba(113, 224, 192, 0.1);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 11px;
+    }
+
+    .session-visual {
+      display: grid;
+      place-items: center;
+      min-height: 172px;
+      margin: 0 -2px 20px;
+      overflow: hidden;
+      border: 1px solid rgba(174, 207, 235, 0.1);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle, rgba(113, 224, 192, 0.12) 0 18%, transparent 19% 33%, rgba(113, 224, 192, 0.05) 34% 35%, transparent 36%),
+        linear-gradient(145deg, rgba(23, 53, 77, 0.58), rgba(8, 21, 35, 0.56));
+    }
+
+    .signal-orb {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 86px;
+      height: 86px;
+      border: 1px solid rgba(113, 224, 192, 0.5);
+      border-radius: 50%;
+      color: var(--accent);
+      background: radial-gradient(circle at 40% 32%, rgba(113, 224, 192, 0.25), rgba(13, 38, 51, 0.9) 64%);
+      box-shadow: 0 0 0 13px rgba(113, 224, 192, 0.06), 0 0 36px rgba(113, 224, 192, 0.14);
+      transition: transform 240ms ease, box-shadow 240ms ease;
+    }
+
+    .signal-orb::before,
+    .signal-orb::after {
+      position: absolute;
+      width: 108px;
+      height: 108px;
+      border: 1px solid rgba(113, 224, 192, 0.15);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .signal-orb::after {
+      width: 132px;
+      height: 132px;
+      border-color: rgba(113, 224, 192, 0.08);
+    }
+
+    .mic-mark {
+      position: relative;
+      z-index: 1;
+      font-size: 27px;
+      line-height: 1;
+    }
+
+    body[data-phase="connecting"] .signal-orb {
+      transform: scale(1.04);
+      box-shadow: 0 0 0 13px rgba(245, 198, 107, 0.07), 0 0 42px rgba(245, 198, 107, 0.18);
+      color: var(--warning);
+    }
+
+    body[data-phase="connected"] .signal-orb {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 15px rgba(113, 224, 192, 0.08), 0 0 48px rgba(113, 224, 192, 0.25);
+    }
+
+    body[data-phase="error"] .signal-orb {
+      color: var(--danger);
+      border-color: rgba(255, 141, 157, 0.48);
+      box-shadow: 0 0 0 13px rgba(255, 141, 157, 0.06), 0 0 36px rgba(255, 141, 157, 0.15);
+    }
+
+    .status-block {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      margin-bottom: 18px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(7, 17, 29, 0.3);
+    }
+
+    .status-block .status-dot {
+      flex: 0 0 auto;
+      margin-top: 5px;
+    }
+
+    .status-block strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .status-block p {
+      min-height: 36px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .control-buttons {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 9px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 13px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, opacity 160ms ease;
+    }
+
+    .button:hover:not(:disabled) { transform: translateY(-1px); }
+    .button:active:not(:disabled) { transform: translateY(0); }
+
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+    }
+
+    .button.primary {
+      color: var(--accent-ink);
+      background: var(--accent);
+    }
+
+    .button.primary:hover:not(:disabled) { background: #8be8cf; }
+
+    .button.secondary {
+      border-color: var(--line-strong);
+      color: var(--text);
+      background: rgba(174, 207, 235, 0.06);
+    }
+
+    .button.secondary:hover:not(:disabled) { background: rgba(174, 207, 235, 0.12); }
+
+    .button.mute {
+      width: 100%;
+      margin-top: 9px;
+      border-color: rgba(174, 207, 235, 0.2);
+      color: var(--muted);
+      background: rgba(174, 207, 235, 0.04);
+    }
+
+    .button.mute[aria-pressed="true"] {
+      border-color: rgba(255, 141, 157, 0.35);
+      color: var(--danger);
+      background: rgba(255, 141, 157, 0.08);
+    }
+
+    .microphone-controls {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(7, 17, 29, 0.22);
+    }
+
+    .microphone-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .microphone-select {
+      width: 100%;
+      min-height: 36px;
+      padding: 7px 9px;
+      border: 1px solid var(--line-strong);
+      border-radius: 9px;
+      color: var(--text);
+      background: var(--panel-strong);
+      font: inherit;
+      font-size: 12px;
+    }
+
+    .microphone-select:disabled { cursor: not-allowed; opacity: 0.52; }
+
+    .microphone-test-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 7px;
+      margin-top: 9px;
+    }
+
+    .microphone-test-actions .button { min-height: 36px; padding: 7px 9px; font-size: 11px; }
+
+    .microphone-hint,
+    .microphone-track,
+    .microphone-test-note {
+      margin: 7px 0 0;
+      color: var(--quiet);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .microphone-meter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 11px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .microphone-meter-track {
+      flex: 1;
+      height: 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(174, 207, 235, 0.13);
+    }
+
+    .microphone-meter-fill {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width 80ms linear;
+    }
+
+    .session-settings {
+      margin-top: 0;
+      padding: 22px;
+    }
+
+    .settings-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 11px;
+    }
+
+    .settings-heading h3 {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .settings-heading p {
+      margin: 4px 0 0;
+      color: var(--quiet);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .settings-status {
+      min-height: 31px;
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--muted);
+      background: rgba(7, 17, 29, 0.24);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .settings-status[data-tone="error"] {
+      border-color: rgba(255, 141, 157, 0.36);
+      color: var(--danger);
+      background: rgba(255, 141, 157, 0.07);
+    }
+
+    .settings-status button {
+      margin-left: 6px;
+      padding: 2px 7px;
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      font-size: 10px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .settings-field {
+      min-width: 0;
+    }
+
+    .settings-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .settings-field label,
+    .settings-field > .field-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .settings-field select,
+    .settings-field input,
+    .settings-field textarea {
+      width: 100%;
+      min-height: 34px;
+      padding: 7px 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      color: var(--text);
+      background: var(--panel-strong);
+      font: inherit;
+      font-size: 11px;
+    }
+
+    .settings-field textarea {
+      min-height: 72px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .settings-field select:disabled,
+    .settings-field input:disabled,
+    .settings-field textarea:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
+    .settings-field input:focus,
+    .settings-field select:focus,
+    .settings-field textarea:focus {
+      outline: 2px solid rgba(113, 224, 192, 0.45);
+      outline-offset: 1px;
+    }
+
+    .settings-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+      color: var(--quiet);
+      font-size: 10px;
+    }
+
+    .settings-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .settings-check input {
+      width: 15px;
+      min-height: 15px;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .settings-check input:disabled,
+    .settings-check:has(input:disabled) {
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
+    .advanced-settings {
+      grid-column: 1 / -1;
+      margin-top: 1px;
+      border-top: 1px solid var(--line);
+    }
+
+    .advanced-settings summary {
+      padding: 10px 0 4px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      list-style: none;
+    }
+
+    .advanced-settings summary::-webkit-details-marker { display: none; }
+
+    .advanced-settings summary::after {
+      float: right;
+      color: var(--quiet);
+      content: "+";
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 11px;
+    }
+
+    .advanced-settings[open] summary::after { content: "−"; }
+
+    .advanced-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      padding-top: 7px;
+    }
+
+    .settings-note {
+      margin: 9px 0 0;
+      color: var(--quiet);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .usage-note {
+      margin: 18px 0 0;
+      padding-top: 17px;
+      border-top: 1px solid var(--line);
+      color: var(--quiet);
+      font-size: 11px;
+      line-height: 1.65;
+    }
+
+    .usage-note strong { color: var(--warning); font-weight: 600; }
+
+    .workspace-right {
+      display: grid;
+      gap: 18px;
+    }
+
+    .transcript-card { padding: 22px; }
+
+    .transcript-heading { align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+
+    .transcript-mode-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--quiet);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .transcript-mode-label select {
+      min-height: 28px;
+      padding: 4px 7px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      color: var(--muted);
+      background: var(--panel-strong);
+      font: inherit;
+      font-size: 10px;
+    }
+
+    .transcript-mode-label select:focus {
+      outline: 2px solid rgba(113, 224, 192, 0.45);
+      outline-offset: 1px;
+    }
+
+    .live-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--quiet);
+      font-size: 11px;
+    }
+
+    .live-hint::before {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--quiet);
+      content: "";
+    }
+
+    .backend-status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      max-width: 48%;
+      margin-left: auto;
+      padding: 4px 8px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--quiet);
+      background: rgba(7, 17, 29, 0.26);
+      font-size: 10px;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .backend-status[data-tone="working"] {
+      border-color: rgba(245, 198, 107, 0.32);
+      color: var(--warning);
+    }
+
+    .backend-status[data-tone="success"] { color: var(--accent); }
+
+    .backend-status[data-tone="error"] {
+      border-color: rgba(255, 141, 157, 0.36);
+      color: var(--danger);
+    }
+
+    body[data-phase="connected"] .live-hint { color: var(--accent); }
+    body[data-phase="connected"] .live-hint::before { background: var(--accent); }
+
+    .transcript-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .transcript-panel {
+      display: flex;
+      min-height: 252px;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(7, 17, 29, 0.28);
+      overflow: hidden;
+    }
+
+    .transcript-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .role-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .role-label::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--warning);
+      box-shadow: 0 0 0 4px rgba(245, 198, 107, 0.1);
+      content: "";
+    }
+
+    .role-label.assistant::before {
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(113, 224, 192, 0.1);
+    }
+
+    .transcript-state { color: var(--quiet); font-size: 11px; }
+
+    .transcript-body {
+      flex: 1;
+      max-height: 340px;
+      padding: 14px;
+      overflow: auto;
+      scrollbar-color: rgba(174, 207, 235, 0.25) transparent;
+    }
+
+    .transcript-line {
+      margin: 0 0 11px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .transcript-line::first-line { letter-spacing: 0.01em; }
+
+    .transcript-line:last-child { margin-bottom: 0; }
+
+    .transcript-line.live::after {
+      display: inline-block;
+      width: 5px;
+      height: 15px;
+      margin-left: 5px;
+      border-radius: 2px;
+      background: var(--accent);
+      vertical-align: -2px;
+      content: "";
+      animation: blink 1s steps(2, jump-none) infinite;
+    }
+
+    .transcript-empty {
+      margin: 0;
+      color: var(--quiet);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .backend-answer-card {
+      margin-top: 12px;
+      padding: 13px 14px;
+      border: 1px solid rgba(113, 224, 192, 0.2);
+      border-radius: 14px;
+      background: rgba(7, 17, 29, 0.34);
+    }
+
+    .backend-answer-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+
+    .backend-answer-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .backend-answer-caption {
+      margin: 3px 0 0;
+      color: var(--quiet);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .backend-answer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .backend-answer-status {
+      color: var(--quiet);
+      font-size: 10px;
+      line-height: 1.35;
+      text-align: right;
+    }
+
+    .backend-answer-status[data-tone="error"] { color: var(--danger); }
+    .backend-answer-status[data-tone="success"] { color: var(--accent); }
+
+    .backend-replay-button {
+      min-height: 29px;
+      padding: 5px 9px;
+      border: 1px solid rgba(113, 224, 192, 0.28);
+      border-radius: 8px;
+      color: var(--accent);
+      background: rgba(113, 224, 192, 0.07);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .backend-replay-button:hover:not(:disabled) { background: rgba(113, 224, 192, 0.14); }
+    .backend-replay-button:disabled { cursor: not-allowed; opacity: 0.42; }
+
+    .backend-answer-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .backend-answer-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 8px;
+      padding: 8px 9px;
+      border: 1px solid rgba(174, 207, 235, 0.11);
+      border-radius: 9px;
+      background: rgba(17, 36, 58, 0.42);
+    }
+
+    .backend-answer-time {
+      color: var(--quiet);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 10px;
+      line-height: 1.55;
+      white-space: nowrap;
+    }
+
+    .backend-answer-text {
+      min-width: 0;
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .backend-answer-state {
+      max-width: 150px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.45;
+      text-align: right;
+    }
+
+    .backend-answer-state[data-tone="working"] { color: var(--warning); }
+    .backend-answer-state[data-tone="success"] { color: var(--accent); }
+    .backend-answer-state[data-tone="error"] { color: var(--danger); }
+
+    @media (max-width: 680px) {
+      .backend-answer-header { flex-direction: column; }
+      .backend-answer-actions { justify-content: flex-start; }
+      .backend-answer-status { text-align: left; }
+      .backend-answer-item { grid-template-columns: auto minmax(0, 1fr); }
+      .backend-answer-state { grid-column: 2; max-width: none; text-align: left; }
+    }
+
+    .limitation-note {
+      margin: 15px 0 0;
+      padding: 11px 13px;
+      border-left: 2px solid rgba(113, 224, 192, 0.45);
+      color: var(--muted);
+      background: rgba(113, 224, 192, 0.045);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .technical-card { padding: 0; }
+
+    .technical-card summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 22px;
+      cursor: pointer;
+      list-style: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .technical-card summary::-webkit-details-marker { display: none; }
+
+    .technical-card summary::after {
+      color: var(--quiet);
+      content: "+";
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .technical-card[open] summary::after { content: "−"; }
+
+    .technical-card[open] summary { border-bottom: 1px solid var(--line); }
+
+    .event-log {
+      max-height: 260px;
+      margin: 0;
+      padding: 13px 22px 18px 43px;
+      overflow: auto;
+      scrollbar-color: rgba(174, 207, 235, 0.25) transparent;
+    }
+
+    .event-log li {
+      padding: 6px 0 6px 4px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .event-log li::marker { color: var(--quiet); }
+
+    .event-time { color: var(--quiet); }
+
+    .event-type {
+      margin: 0 4px;
+      color: var(--accent);
+    }
+
+    .event-brief { color: var(--muted); }
+
+    .event-empty {
+      color: var(--quiet) !important;
+      font-family: inherit !important;
+      list-style: none;
+    }
+
+    .footer-note {
+      margin: 24px 0 0;
+      color: var(--quiet);
+      font-size: 11px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes blink {
+      0%, 45% { opacity: 1; }
+      46%, 100% { opacity: 0.15; }
+    }
+
+    @media (max-width: 820px) {
+      .page-shell { width: min(100% - 28px, 680px); padding-top: 30px; }
+      .hero { display: block; }
+      .hero-badges { justify-content: flex-start; margin-top: 19px; }
+      .workspace { grid-template-columns: 1fr; }
+      .control-card { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      .page-shell { width: min(100% - 22px, 680px); padding-bottom: 24px; }
+      h1 { font-size: clamp(2.35rem, 13vw, 3.8rem); }
+      .hero-copy { font-size: 15px; }
+      .control-card, .transcript-card { padding: 17px; }
+      .transcript-grid { grid-template-columns: 1fr; }
+      .transcript-panel { min-height: 186px; }
+      .settings-grid, .advanced-grid { grid-template-columns: 1fr; }
+      .settings-field.full, .advanced-settings { grid-column: auto; }
+      .transcript-mode-label { order: 3; width: 100%; justify-content: space-between; }
+      .backend-status { max-width: 100%; margin-left: 0; }
+      .technical-card summary { padding: 16px 17px; }
+      .event-log { padding-right: 17px; padding-left: 36px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body data-phase="idle">
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow"><span class="status-dot" id="heroStatusDot" data-tone="idle" aria-hidden="true"></span>实时语音实验台</div>
+        <h1>和语音助手<br>直接说话</h1>
+        <p class="hero-copy">用浏览器麦克风建立一条低延迟语音链路。点击连接后自然开口，实时听见回复并查看转写。</p>
+      </div>
+      <div class="hero-badges" aria-label="会话信息">
+        <span class="badge accent">WebRTC</span>
+        <span class="badge">实时语音</span>
+        <span class="badge">凭据只在服务端</span>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="card control-card" aria-labelledby="controlTitle">
+        <div class="card-heading">
+          <div>
+            <h2 id="controlTitle">会话控制</h2>
+            <p>浏览器只负责语音和会话信令</p>
+          </div>
+          <span class="session-chip">LIVE</span>
+        </div>
+
+        <div class="session-visual" aria-hidden="true">
+          <div class="signal-orb"><span class="mic-mark">●</span></div>
+        </div>
+
+        <div class="status-block" role="status" aria-live="polite">
+          <span class="status-dot" id="controlStatusDot" data-tone="idle" aria-hidden="true"></span>
+          <div>
+            <strong id="connectionStatus">未连接</strong>
+            <p id="connectionMessage">点击“连接会话”，浏览器将请求麦克风权限。</p>
+          </div>
+        </div>
+
+        <div class="control-buttons">
+          <button class="button primary" id="connectButton" type="button">连接会话</button>
+          <button class="button secondary" id="disconnectButton" type="button" disabled>断开</button>
+        </div>
+        <button class="button mute" id="muteButton" type="button" aria-pressed="false" disabled>静音麦克风</button>
+
+        <div class="microphone-controls">
+          <label class="microphone-label" for="microphoneSelect">输入麦克风</label>
+          <select class="microphone-select" id="microphoneSelect" aria-describedby="microphoneHint">
+            <option value="default">系统默认麦克风</option>
+          </select>
+          <div class="microphone-test-actions">
+            <button class="button secondary" id="testMicrophoneButton" type="button">测试麦克风</button>
+            <button class="button secondary" id="stopMicrophoneTestButton" type="button" disabled>停止测试</button>
+          </div>
+          <p class="microphone-hint" id="microphoneHint">断开后可切换设备；连接期间无法切换。</p>
+          <p class="microphone-test-note" id="microphoneTestNote">仅本机测试，不连接语音服务。</p>
+          <div class="microphone-meter" aria-live="polite">
+            <span class="microphone-meter-track"><span class="microphone-meter-fill" id="microphoneMeterFill"></span></span>
+            <span id="microphoneMeterStatus">未采集</span>
+          </div>
+          <p class="microphone-track" id="microphoneTrackLabel">当前设备：未采集</p>
+        </div>
+
+
+
+        <p class="usage-note" id="usageNote"><strong>用量提醒：</strong>每次会话最多 10 分钟，语音连接期间计费；后端推理 token 另行计费。体验完成后请点击断开。</p>
+      </section>
+
+      <div class="workspace-right">
+        <section class="card transcript-card" aria-labelledby="transcriptTitle">
+          <div class="card-heading transcript-heading" title="时间戳优先使用会话创建时间加事件 start_ms；事件缺少 start_ms 时使用浏览器收到该增量的时间。按语句显示 HH:mm:ss，逐片段显示 HH:mm:ss.SSS。">
+            <div>
+              <h2 id="transcriptTitle">实时对话</h2>
+              <p>按语句合并相邻片段；切换显示会重新整理当前记录</p>
+            </div>
+            <label class="transcript-mode-label" for="transcriptModeSelect">字幕显示
+              <select id="transcriptModeSelect" aria-label="字幕显示方式">
+                <option value="sentence">按语句（推荐）</option>
+                <option value="fragment">逐片段</option>
+              </select>
+            </label>
+            <div class="live-hint" id="transcriptHint">等待连接</div>
+            <span class="backend-status" id="backendStatus" title="后端处理状态">后端待机</span>
+          </div>
+
+          <div class="transcript-grid">
+            <article class="transcript-panel" aria-labelledby="userTranscriptTitle">
+              <div class="transcript-panel-header">
+                <span class="role-label" id="userTranscriptTitle">你</span>
+                <span class="transcript-state" id="userTranscriptState">等待麦克风</span>
+              </div>
+              <div class="transcript-body" id="userTranscript" role="log" aria-live="polite" aria-relevant="additions text"></div>
+            </article>
+            <article class="transcript-panel" aria-labelledby="assistantTranscriptTitle">
+              <div class="transcript-panel-header">
+                <span class="role-label assistant" id="assistantTranscriptTitle">GPT-Live</span>
+                <span class="transcript-state" id="assistantTranscriptState">等待回复</span>
+              </div>
+              <div class="transcript-body" id="assistantTranscript" role="log" aria-live="polite" aria-relevant="additions text"></div>
+            </article>
+          </div>
+
+          <section class="backend-answer-card" id="backendAnswerCard" hidden aria-labelledby="backendAnswerTitle">
+            <div class="backend-answer-header">
+              <div>
+                <h3 class="backend-answer-title" id="backendAnswerTitle">后端答案</h3>
+                <p class="backend-answer-caption">后端处理结果与语音服务交接状态</p>
+              </div>
+              <div class="backend-answer-actions">
+                <span class="backend-answer-status" id="backendAnswerStatus" role="status" aria-live="polite"></span>
+                <button class="backend-replay-button" id="backendReplayButton" type="button" disabled>重新播报</button>
+              </div>
+            </div>
+            <div class="backend-answer-list" id="backendAnswers" role="log" aria-live="polite" aria-relevant="additions text"></div>
+          </section>
+
+          <p class="limitation-note">语音负责实时交流，后端负责推理、联网查询和工具调用；这里会显示后端处理进度。</p>
+          <details id="backendDetails" style="margin-top:12px; font-size:13px; color:#a8bfd1">
+            <summary>查询来源与工具记录</summary>
+            <ul id="backendSources" style="overflow-wrap:anywhere; padding-left:20px"></ul>
+            <div id="backendToolLog" style="line-height:1.8; max-height:180px; overflow:auto">尚未调用工具。</div>
+          </details>
+        </section>
+
+        <section class="card session-settings" id="sessionSettings" aria-labelledby="settingsTitle">
+          <div class="settings-heading">
+            <div>
+              <h3 id="settingsTitle">会话设置</h3>
+              <p>连接前调整，保存后下次会话生效。</p>
+            </div>
+            <a class="button secondary settings-link" id="connectionSettingsLink" href="/setup">连接设置</a>
+          </div>
+          <div class="settings-status" id="configStatus" role="status" aria-live="polite">正在加载服务配置…<button id="reloadConfigButton" type="button" hidden>重新加载</button></div>
+          <div class="settings-grid" id="settingsGrid">
+            <div class="settings-field">
+              <label for="voiceSelect">语音音色</label>
+              <select id="voiceSelect" disabled aria-describedby="settingsNote"></select>
+            </div>
+            <details class="advanced-settings">
+              <summary>高级配置</summary>
+              <div class="advanced-grid">
+                <div class="settings-field">
+                  <label for="languageSelect">对话语言</label>
+                  <select id="languageSelect" disabled>
+                    <option value="zh-CN">中文（简体）</option>
+                    <option value="en-US">English</option>
+                    <option value="auto">自动识别</option>
+                  </select>
+                </div>
+                <div class="settings-field">
+                  <label for="timeZoneInput">时区</label>
+                  <input id="timeZoneInput" type="text" maxlength="80" disabled placeholder="Asia/Shanghai">
+                </div>
+                <div class="settings-field full">
+                  <label for="instructionsInput">助手补充说明</label>
+                  <textarea id="instructionsInput" maxlength="1500" disabled placeholder="例如：用中文回答，先给结论，再简要说明依据。"></textarea>
+                  <div class="settings-meta"><span>用于约束本次对话风格</span><span id="instructionsCount">0 / 1500</span></div>
+                </div>
+                <div class="settings-field">
+                  <label for="cityInput">默认天气城市</label>
+                  <input id="cityInput" type="text" maxlength="80" disabled placeholder="可选，例如上海">
+                </div>
+                <div class="settings-field">
+                  <span class="field-label">联网查询</span>
+                  <label class="settings-check" for="webSearchCheckbox">
+                    <input id="webSearchCheckbox" type="checkbox" disabled>
+                    <span id="webSearchLabel">允许后端查询公开信息</span>
+                  </label>
+                </div>
+                <div class="settings-field">
+                  <label for="maxOutputTokensInput">后端输出上限</label>
+                  <input id="maxOutputTokensInput" type="number" min="256" max="4096" step="1" inputmode="numeric" disabled>
+                </div>
+                <div class="settings-field">
+                  <label for="reasoningEffortSelect">推理强度</label>
+                  <select id="reasoningEffortSelect" disabled>
+                    <option value="none">默认（不指定）</option>
+                    <option value="low">低</option>
+                    <option value="medium">中</option>
+                    <option value="high">高</option>
+                  </select>
+                </div>
+                <div class="settings-field">
+                  <label for="sessionMinutesInput">最长会话（分钟）</label>
+                  <input id="sessionMinutesInput" type="number" min="1" max="30" step="1" inputmode="numeric" disabled>
+                </div>
+              </div>
+            </details>
+          </div>
+          <p class="settings-note" id="settingsNote">连接设置由服务端管理，凭据不会写入浏览器。会话连接期间设置会锁定；如需更换服务或模型，请打开“连接设置”。</p>
+        </section>
+
+        <details class="card technical-card" id="technicalDetails">
+          <summary><span>技术事件日志</span><span class="sr-only">展开或收起</span></summary>
+          <ol class="event-log" id="eventLog" aria-label="技术事件日志"></ol>
+        </details>
+      </div>
+    </main>
+
+    <p class="footer-note">音频通过浏览器 WebRTC 发送到服务端创建的会话；服务凭据只在服务端保存，浏览器不会读取或保存。</p>
+  </div>
+
+  <audio id="remoteAudio" autoplay playsinline class="sr-only" aria-label="GPT-Live 语音回复"></audio>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const $ = (selector) => document.querySelector(selector);
+      const connectButton = $("#connectButton");
+      const disconnectButton = $("#disconnectButton");
+      const muteButton = $("#muteButton");
+      const microphoneSelect = $("#microphoneSelect");
+      const testMicrophoneButton = $("#testMicrophoneButton");
+      const stopMicrophoneTestButton = $("#stopMicrophoneTestButton");
+      const microphoneTestNote = $("#microphoneTestNote");
+      const microphoneMeterFill = $("#microphoneMeterFill");
+      const microphoneMeterStatus = $("#microphoneMeterStatus");
+      const microphoneTrackLabel = $("#microphoneTrackLabel");
+      const remoteAudio = $("#remoteAudio");
+      const connectionStatus = $("#connectionStatus");
+      const connectionMessage = $("#connectionMessage");
+      const transcriptHint = $("#transcriptHint");
+      const transcriptModeSelect = $("#transcriptModeSelect");
+      const backendStatus = $("#backendStatus");
+      const usageNote = $("#usageNote");
+      const userTranscript = $("#userTranscript");
+      const assistantTranscript = $("#assistantTranscript");
+      const userTranscriptState = $("#userTranscriptState");
+      const assistantTranscriptState = $("#assistantTranscriptState");
+      const backendAnswerCard = $("#backendAnswerCard");
+      const backendAnswersTarget = $("#backendAnswers");
+      const backendAnswerStatus = $("#backendAnswerStatus");
+      const backendReplayButton = $("#backendReplayButton");
+      const eventLog = $("#eventLog");
+      const heroStatusDot = $("#heroStatusDot");
+      const controlStatusDot = $("#controlStatusDot");
+      const configStatus = $("#configStatus");
+      const reloadConfigButton = $("#reloadConfigButton");
+      const voiceSelect = $("#voiceSelect");
+      const languageSelect = $("#languageSelect");
+      const instructionsInput = $("#instructionsInput");
+      const instructionsCount = $("#instructionsCount");
+      const timeZoneInput = $("#timeZoneInput");
+      const cityInput = $("#cityInput");
+      const webSearchCheckbox = $("#webSearchCheckbox");
+      const webSearchLabel = $("#webSearchLabel");
+      const maxOutputTokensInput = $("#maxOutputTokensInput");
+      const reasoningEffortSelect = $("#reasoningEffortSelect");
+      const sessionMinutesInput = $("#sessionMinutesInput");
+
+      const AUDIO_CONSTRAINTS = {
+        channelCount: { ideal: 1, max: 1 },
+        sampleRate: { ideal: 24000 },
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      };
+      const MAX_EVENT_ENTRIES = 60;
+      const MAX_TRANSCRIPT_ENTRIES = 500;
+      const MAX_TRANSCRIPT_CHARS = 20000;
+      const CONNECTION_TIMEOUT_MS = 30000;
+      const MICROPHONE_STORAGE_KEY = "gpt-live-microphone-device";
+      const MICROPHONE_TEST_TIMEOUT_MS = 30000;
+      const CONFIG_STORAGE_KEY = "gpt-live-session-config";
+      const CONFIG_ENDPOINT = "/api/config";
+      const BACKEND_STATUS_INTERVAL_MS = 500;
+      const MAX_BACKEND_ANSWERS = 8;
+
+      const answerStateMeta = {
+        queued: { label: "后端答案排队中", tone: "working" },
+        sent: { label: "后端答案已生成", tone: "success" },
+        accepted: { label: "语音服务已接收，等待播报", tone: "working" },
+        speaking: { label: "语音已开始", tone: "success" },
+        voice_pending: { label: "语音暂未响应", tone: "working" },
+        failed: { label: "语音回传失败", tone: "error" }
+      };
+
+      const phaseMeta = {
+        idle: { label: "未连接", message: "点击“连接会话”，浏览器将请求麦克风权限。", tone: "idle" },
+        connecting: { label: "连接中", message: "正在建立安全的 WebRTC 语音链路…", tone: "connecting" },
+        connected: { label: "已连接", message: "会话已就绪，可以开始说话。", tone: "connected" },
+        disconnecting: { label: "断开中", message: "正在结束会话并释放麦克风…", tone: "connecting" },
+        error: { label: "需要检查", message: "连接没有建立，请检查后端和麦克风权限。", tone: "error" }
+      };
+
+      const transcripts = { user: [], assistant: [] };
+      const transcriptEvents = { user: [], assistant: [] };
+      let backendAnswerRecords = [];
+      let backendReplayInFlight = false;
+      let transcriptMode = "sentence";
+      const eventEntries = [];
+      let currentAttempt = null;
+      let microphoneTest = null;
+      let attemptSequence = 0;
+      let currentPhase = "idle";
+      let selectedMicrophoneId = "default";
+      let configCatalog = null;
+      let sessionConfig = null;
+      let configReady = false;
+      let configLoadInFlight = null;
+      try { selectedMicrophoneId = localStorage.getItem(MICROPHONE_STORAGE_KEY) || "default"; } catch (_) { /* Storage may be unavailable. */ }
+
+      function clampInteger(value, min, max, fallback) {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed)) return fallback;
+        return Math.max(min, Math.min(max, Math.round(parsed)));
+      }
+
+      function textValue(value, fallback, maxLength) {
+        if (typeof value !== "string") return fallback;
+        return value.trim().slice(0, maxLength || 500);
+      }
+
+      function browserTimeZone() {
+        try {
+          const value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          return typeof value === "string" && value ? value : "Asia/Shanghai";
+        } catch (_) {
+          return "Asia/Shanghai";
+        }
+      }
+
+      function serverOptionList(value) {
+        if (!Array.isArray(value)) return [];
+        return value.map((option) => {
+          if (typeof option === "string") return { id: option.trim(), label: option.trim() };
+          if (!option || typeof option !== "object") return null;
+          const id = textValue(option.id, "", 120);
+          if (!id) return null;
+          return { id, label: textValue(option.label, id, 160) };
+        }).filter(Boolean);
+      }
+
+      function readStoredConfig() {
+        try {
+          const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+          if (!raw) return {};
+          const value = JSON.parse(raw);
+          return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+        } catch (_) {
+          return {};
+        }
+      }
+
+      function configDefaults(payload) {
+        const defaults = payload && payload.defaults && typeof payload.defaults === "object" ? payload.defaults : {};
+        const voices = serverOptionList(payload && payload.voices);
+        const webSearchAvailable = Boolean(payload && payload.webSearchAvailable);
+        const defaultVoice = voices.some((option) => option.id === defaults.voice) ? defaults.voice : (voices[0] ? voices[0].id : "");
+        return {
+          voice: defaultVoice,
+          language: ["zh-CN", "en-US", "auto"].includes(defaults.language) ? defaults.language : "zh-CN",
+          instructions: textValue(defaults.instructions, "", 1500),
+          timeZone: textValue(defaults.timeZone, browserTimeZone(), 80) || browserTimeZone(),
+          city: textValue(defaults.city, "", 80),
+          webSearch: webSearchAvailable && Boolean(defaults.webSearch),
+          maxOutputTokens: clampInteger(defaults.maxOutputTokens, 256, 4096, 1024),
+          reasoningEffort: ["none", "low", "medium", "high"].includes(defaults.reasoningEffort) ? defaults.reasoningEffort : "medium",
+          sessionMinutes: clampInteger(defaults.sessionMinutes, 1, 30, 10)
+        };
+      }
+
+      function normalizeConfig(value, defaults) {
+        const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+        const base = defaults || configDefaults({});
+        const voices = configCatalog ? configCatalog.voices : [];
+        const voice = voices.some((option) => option.id === source.voice) ? source.voice : base.voice;
+        return {
+          voice: textValue(voice, "", 120),
+          language: ["zh-CN", "en-US", "auto"].includes(source.language) ? source.language : base.language,
+          instructions: textValue(source.instructions, base.instructions, 1500),
+          timeZone: textValue(source.timeZone, base.timeZone || browserTimeZone(), 80) || browserTimeZone(),
+          city: textValue(source.city, base.city, 80),
+          webSearch: Boolean(source.webSearch) && Boolean(configCatalog && configCatalog.webSearchAvailable),
+          maxOutputTokens: clampInteger(source.maxOutputTokens, 256, 4096, base.maxOutputTokens),
+          reasoningEffort: ["none", "low", "medium", "high"].includes(source.reasoningEffort) ? source.reasoningEffort : base.reasoningEffort,
+          sessionMinutes: clampInteger(source.sessionMinutes, 1, 30, base.sessionMinutes)
+        };
+      }
+
+      function persistConfig(config) {
+        if (!config || typeof config !== "object") return;
+        const safe = normalizeConfig(config, configDefaults({}));
+        try { localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(safe)); } catch (_) { /* Storage may be unavailable. */ }
+      }
+
+      function setConfigStatus(message, tone, retry) {
+        if (!configStatus) return;
+        configStatus.dataset.tone = tone || "";
+        const button = reloadConfigButton;
+        configStatus.replaceChildren(document.createTextNode(message));
+        if (button) {
+          button.hidden = !retry;
+          configStatus.append(button);
+        }
+      }
+
+      function fillVoiceOptions() {
+        if (!voiceSelect) return;
+        voiceSelect.replaceChildren();
+        const options = configCatalog && configCatalog.voices ? configCatalog.voices : [];
+        options.forEach((option) => {
+          const item = document.createElement("option");
+          item.value = option.id;
+          item.textContent = option.label;
+          voiceSelect.append(item);
+        });
+        voiceSelect.value = sessionConfig && sessionConfig.voice || "";
+        voiceSelect.disabled = !options.length || !configReady;
+      }
+
+      function applyConfigToInputs() {
+        if (!sessionConfig) return;
+        fillVoiceOptions();
+        languageSelect.value = sessionConfig.language;
+        instructionsInput.value = sessionConfig.instructions;
+        instructionsCount.textContent = instructionsInput.value.length + " / 1500";
+        timeZoneInput.value = sessionConfig.timeZone;
+        cityInput.value = sessionConfig.city;
+        webSearchCheckbox.checked = sessionConfig.webSearch;
+        maxOutputTokensInput.value = String(sessionConfig.maxOutputTokens);
+        reasoningEffortSelect.value = sessionConfig.reasoningEffort;
+        sessionMinutesInput.value = String(sessionConfig.sessionMinutes);
+        updateUsageNote(sessionConfig.sessionMinutes);
+        webSearchLabel.textContent = configCatalog && configCatalog.webSearchAvailable ? "允许后端查询公开信息" : "联网查询不可用（由服务配置决定）";
+        if (configStatus && configCatalog && configCatalog.backendReady === false) {
+          configStatus.textContent = "语音服务已就绪；后端推理尚未配置，可在连接设置中补充。";
+        }
+        updateConfigControls();
+      }
+
+      function collectConfigFromInputs() {
+        const current = sessionConfig || {};
+        const config = {
+          voice: voiceSelect.value,
+          language: languageSelect.value,
+          instructions: instructionsInput.value,
+          timeZone: timeZoneInput.value,
+          city: cityInput.value,
+          webSearch: webSearchCheckbox.checked,
+          maxOutputTokens: maxOutputTokensInput.value,
+          reasoningEffort: reasoningEffortSelect.value,
+          sessionMinutes: sessionMinutesInput.value
+        };
+        return normalizeConfig(config, current);
+      }
+
+      function saveConfigFromInputs() {
+        if (!configReady || !sessionConfig) return;
+        sessionConfig = collectConfigFromInputs();
+        persistConfig(sessionConfig);
+        updateUsageNote(sessionConfig.sessionMinutes, currentAttempt && currentAttempt.backendTokens);
+        updateConfigControls();
+      }
+
+      function updateConfigControls() {
+        const locked = Boolean(currentAttempt) || currentPhase === "connecting" || currentPhase === "connected" || currentPhase === "disconnecting";
+        const controls = [voiceSelect, languageSelect, instructionsInput, timeZoneInput, cityInput, webSearchCheckbox, maxOutputTokensInput, reasoningEffortSelect, sessionMinutesInput];
+        controls.forEach((control) => { if (control) control.disabled = !configReady || locked; });
+        if (webSearchCheckbox) webSearchCheckbox.disabled = !configReady || locked || !(configCatalog && configCatalog.webSearchAvailable);
+        if (connectButton) connectButton.disabled = locked || !configReady;
+      }
+
+      function validateSessionConfig(config) {
+        if (!configReady || !config) return "服务配置尚未加载完成，请稍候或重新加载。";
+        if (!config.voice) return "服务没有提供可用的语音音色，请检查后端配置。";
+        return "";
+      }
+
+      async function loadConfig() {
+        if (configLoadInFlight) return configLoadInFlight;
+        configReady = false;
+        updateConfigControls();
+        setConfigStatus("正在加载服务配置…", "", false);
+        configLoadInFlight = (async () => {
+          try {
+            const response = await fetch(CONFIG_ENDPOINT, { headers: { Accept: "application/json" } });
+            if (response.status === 401 || response.status === 403) {
+              window.location.assign("/setup#login");
+              return;
+            }
+            if (response.status === 404 || response.status === 409) {
+              window.location.assign("/setup");
+              return;
+            }
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            const payload = await response.json();
+            if (!payload || typeof payload !== "object") throw new Error("响应格式无效");
+            const defaults = configDefaults(payload);
+            configCatalog = {
+              voices: serverOptionList(payload.voices),
+              webSearchAvailable: Boolean(payload.webSearchAvailable),
+              backendReady: payload.backendReady !== false,
+              backendModel: textValue(payload.defaults && payload.defaults.backendModel, "", 120)
+            };
+            const stored = readStoredConfig();
+            sessionConfig = normalizeConfig(Object.assign({}, defaults, stored), defaults);
+            configReady = true;
+            applyConfigToInputs();
+            persistConfig(sessionConfig);
+            setConfigStatus(configCatalog.backendReady ? "连接配置已加载，修改会在下次连接时使用。" : "语音配置已加载；后端推理尚未配置。", "", false);
+            setPhase(currentPhase);
+          } catch (error) {
+            configReady = false;
+            configCatalog = null;
+            sessionConfig = null;
+            setConfigStatus("无法加载服务配置：请确认本机后端已启动，或点击重新加载。", "error", true);
+            addEvent("config.load.error", error && error.message ? "服务配置加载失败" : "服务配置加载失败");
+            updateConfigControls();
+          } finally {
+            configLoadInFlight = null;
+          }
+        })();
+        return configLoadInFlight;
+      }
+
+      function setDotTone(tone) {
+        heroStatusDot.dataset.tone = tone;
+        controlStatusDot.dataset.tone = tone;
+      }
+
+      function setPhase(phase, message) {
+        currentPhase = phase;
+        const meta = phaseMeta[phase] || phaseMeta.idle;
+        document.body.dataset.phase = phase;
+        connectionStatus.textContent = meta.label;
+        connectionMessage.textContent = message || meta.message;
+        setDotTone(meta.tone);
+        connectButton.disabled = phase === "connecting" || phase === "connected" || phase === "disconnecting";
+        disconnectButton.disabled = !currentAttempt || (phase !== "connecting" && phase !== "connected");
+        muteButton.disabled = !currentAttempt || !currentAttempt.stream || phase === "disconnecting";
+        transcriptHint.textContent = phase === "connected" ? "正在接收" : phase === "connecting" ? "建立中" : "等待连接";
+        updateBackendReplayButton();
+        updateMicrophoneControls();
+        updateConfigControls();
+      }
+
+      function saveMicrophoneSelection() {
+        try { localStorage.setItem(MICROPHONE_STORAGE_KEY, selectedMicrophoneId); } catch (_) { /* Storage may be unavailable. */ }
+      }
+
+      function updateMicrophoneControls() {
+        const active = Boolean(currentAttempt || microphoneTest);
+        microphoneSelect.disabled = active || !navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices !== "function";
+        testMicrophoneButton.disabled = active || !navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== "function";
+        stopMicrophoneTestButton.disabled = !microphoneTest;
+      }
+
+      async function refreshMicrophoneList(options) {
+        if (!navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices !== "function") {
+          microphoneSelect.replaceChildren();
+          const option = document.createElement("option");
+          option.value = "default";
+          option.textContent = "系统默认麦克风";
+          microphoneSelect.append(option);
+          updateMicrophoneControls();
+          return;
+        }
+        let devices;
+        try { devices = await navigator.mediaDevices.enumerateDevices(); } catch (_) { updateMicrophoneControls(); return; }
+        const inputs = devices.filter((device) => device && device.kind === "audioinput");
+        const ids = new Set(inputs.map((device) => device.deviceId));
+        const reportStale = Boolean(options && options.reportStale);
+        if (!ids.has("default")) inputs.unshift({ deviceId: "default", label: "", kind: "audioinput" });
+        if (selectedMicrophoneId !== "default" && !ids.has(selectedMicrophoneId)) {
+          if (reportStale) {
+            selectedMicrophoneId = "default";
+            saveMicrophoneSelection();
+            addEvent("microphone.device_reset", "已选麦克风不可用，已恢复系统默认");
+          } else {
+            inputs.push({ deviceId: selectedMicrophoneId, label: "已保存的麦克风（等待权限）", kind: "audioinput" });
+          }
+        }
+        microphoneSelect.replaceChildren();
+        inputs.forEach((device, index) => {
+          const option = document.createElement("option");
+          option.value = device.deviceId;
+          option.textContent = device.label || (device.deviceId === "default" ? "系统默认麦克风" : "麦克风 " + (index + 1));
+          microphoneSelect.append(option);
+        });
+        microphoneSelect.value = selectedMicrophoneId;
+        if (microphoneSelect.value !== selectedMicrophoneId) {
+          selectedMicrophoneId = "default";
+          saveMicrophoneSelection();
+          microphoneSelect.value = "default";
+        }
+        updateMicrophoneControls();
+      }
+
+      function microphoneConstraints() {
+        return { audio: Object.assign({}, AUDIO_CONSTRAINTS, { deviceId: { exact: selectedMicrophoneId } }), video: false };
+      }
+
+      async function getMicrophoneStream() {
+        try { return await navigator.mediaDevices.getUserMedia(microphoneConstraints()); } catch (error) {
+          const stale = selectedMicrophoneId !== "default" && error && (error.name === "OverconstrainedError" || error.name === "NotFoundError");
+          if (!stale) throw error;
+          selectedMicrophoneId = "default";
+          saveMicrophoneSelection();
+          addEvent("microphone.device_reset", "所选麦克风已移除，已恢复系统默认并重试");
+          await refreshMicrophoneList({ reportStale: true });
+          return navigator.mediaDevices.getUserMedia(microphoneConstraints());
+        }
+      }
+
+      function setMicrophoneMeter(level, status) {
+        microphoneMeterFill.style.width = Math.round(Math.max(0, Math.min(1, level)) * 100) + "%";
+        microphoneMeterStatus.textContent = status;
+      }
+
+      function stopMicrophoneMeter(owner) {
+        const meter = owner && owner.meter;
+        if (meter) {
+          if (meter.frame) cancelAnimationFrame(meter.frame);
+          try { meter.source.disconnect(); } catch (_) { /* Source may already be closed. */ }
+          try { meter.analyser.disconnect(); } catch (_) { /* Analyser may already be closed. */ }
+          try { meter.sink.disconnect(); } catch (_) { /* Sink may already be closed. */ }
+          if (meter.context && meter.context.state !== "closed") void meter.context.close();
+          owner.meter = null;
+        }
+        setMicrophoneMeter(0, "未采集");
+        microphoneTrackLabel.textContent = "当前设备：未采集";
+      }
+
+      function startMicrophoneMeter(owner) {
+        const track = owner && owner.stream && owner.stream.getAudioTracks()[0];
+        if (!track) { setMicrophoneMeter(0, "未采集"); return; }
+        microphoneTrackLabel.textContent = "当前设备：" + (track.label || "系统默认麦克风");
+        const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextCtor) { setMicrophoneMeter(0, "正在采集"); return; }
+        try {
+          const context = new AudioContextCtor();
+          const source = context.createMediaStreamSource(owner.stream);
+          const analyser = context.createAnalyser();
+          const sink = context.createGain();
+          const data = new Uint8Array(analyser.fftSize);
+          sink.gain.value = 0;
+          source.connect(analyser);
+          analyser.connect(sink);
+          sink.connect(context.destination);
+          const meter = owner.meter = { context, source, analyser, sink, data, frame: 0 };
+          const draw = () => {
+            if (owner.cleaned || owner.stream !== (currentAttempt && currentAttempt.stream || microphoneTest && microphoneTest.stream)) return;
+            const live = track.readyState === "live";
+            const muted = owner.muted || !track.enabled;
+            let level = 0;
+            if (live && !muted) {
+              analyser.getByteTimeDomainData(data);
+              let sum = 0;
+              for (const sample of data) { const delta = (sample - 128) / 128; sum += delta * delta; }
+              level = Math.min(1, Math.sqrt(sum / data.length) * 5);
+            }
+            setMicrophoneMeter(level, !live ? "未采集" : muted ? "静音" : "正在采集");
+            meter.frame = requestAnimationFrame(draw);
+          };
+          draw();
+          void context.resume().catch(() => {});
+        } catch (_) { setMicrophoneMeter(0, "正在采集"); }
+      }
+
+      function stopMicrophoneTest(message) {
+        const test = microphoneTest;
+        if (!test) return;
+        test.cleaned = true;
+        if (test.timer) clearTimeout(test.timer);
+        stopMicrophoneMeter(test);
+        stopTracks(test.stream);
+        test.stream = null;
+        microphoneTest = null;
+        microphoneTestNote.textContent = message || "仅本机测试，不连接语音服务。";
+        updateMicrophoneControls();
+      }
+
+      async function testMicrophone() {
+        if (currentAttempt || microphoneTest) return;
+        const test = { stream: null, meter: null, muted: false, cleaned: false, timer: null };
+        microphoneTest = test;
+        microphoneTestNote.textContent = "测试中（仅本机，不连接语音服务，最多 30 秒）";
+        addEvent("microphone.test.start", "开始本机麦克风测试");
+        updateMicrophoneControls();
+        try {
+          const stream = await getMicrophoneStream();
+          if (test.cleaned || microphoneTest !== test) { stopTracks(stream); return; }
+          test.stream = stream;
+          startMicrophoneMeter(test);
+          void refreshMicrophoneList({ reportStale: true });
+          test.timer = setTimeout(() => stopMicrophoneTest("本机测试已自动停止（30 秒上限）。"), MICROPHONE_TEST_TIMEOUT_MS);
+          addEvent("microphone.test.ready", "已采集所选麦克风，未连接语音服务");
+        } catch (error) {
+          if (test.cleaned || microphoneTest !== test) return;
+          addEvent("microphone.test.error", error && error.name === "NotAllowedError" ? "麦克风权限被拒绝" : "麦克风测试失败，请检查设备");
+          stopMicrophoneTest("麦克风测试失败，请检查权限和设备。");
+        }
+      }
+
+      function renderTranscript(role) {
+        const target = role === "user" ? userTranscript : assistantTranscript;
+        const entries = buildTranscriptEntries(role);
+        transcripts[role] = entries;
+        const nearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 80;
+        target.replaceChildren();
+        if (entries.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "transcript-empty";
+          empty.textContent = role === "user" ? "连接后，你的语音转写会出现在这里。" : "GPT-Live 的语音转写会出现在这里。";
+          target.append(empty);
+        } else {
+          entries.forEach((entry) => {
+            const line = document.createElement("p");
+            line.className = "transcript-line";
+            line.textContent = "[" + entry.timestamp + "] " + entry.text;
+            target.append(line);
+          });
+          if (nearBottom) target.scrollTop = target.scrollHeight;
+        }
+        if (role === "user") {
+          userTranscriptState.textContent = entries.length ? (transcriptMode === "fragment" ? "逐片段" : "按语句") : "等待麦克风";
+        } else {
+          assistantTranscriptState.textContent = entries.length ? (transcriptMode === "fragment" ? "逐片段" : "按语句") : "等待回复";
+        }
+      }
+
+      function normalizeBackendAnswer(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+        const idValue = value.id ?? value.answerId;
+        const id = idValue === undefined || idValue === null ? "" : String(idValue).trim().slice(0, 240);
+        const text = typeof value.text === "string"
+          ? value.text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").trim().slice(0, 2400)
+          : "";
+        const message = sanitizeBrief(value.message);
+        if (!id && !text && !message) return null;
+        const state = Object.prototype.hasOwnProperty.call(answerStateMeta, value.state) ? value.state : "sent";
+        return { id, text, message, state, createdAt: value.createdAt };
+      }
+
+      function formatBackendAnswerTimestamp(value) {
+        let timestamp = null;
+        if (typeof value === "number" || (typeof value === "string" && value.trim() !== "" && /^\d+(?:\.\d+)?$/.test(value.trim()))) {
+          const numeric = Number(value);
+          if (Number.isFinite(numeric)) timestamp = numeric < 100000000000 ? numeric * 1000 : numeric;
+        } else if (typeof value === "string") {
+          const parsed = Date.parse(value);
+          if (Number.isFinite(parsed)) timestamp = parsed;
+        }
+        return timestamp === null ? "刚刚" : formatTranscriptTimestamp(timestamp, "sentence");
+      }
+
+      function backendAnswerStateMeta(answer) {
+        return answerStateMeta[answer && answer.state] || { label: "后端答案已更新", tone: "" };
+      }
+
+      function updateBackendReplayButton() {
+        if (!backendReplayButton) return;
+        const latest = backendAnswerRecords[backendAnswerRecords.length - 1];
+        const canReplay = Boolean(currentAttempt && currentAttempt.sessionId && currentPhase === "connected" && latest && latest.id);
+        backendReplayButton.disabled = backendReplayInFlight || !canReplay;
+        backendReplayButton.textContent = backendReplayInFlight ? "请求中…" : "重新播报";
+      }
+
+      function renderBackendAnswers(values) {
+        const normalized = Array.isArray(values) ? values.map(normalizeBackendAnswer).filter(Boolean) : [];
+        backendAnswerRecords = normalized.slice(-MAX_BACKEND_ANSWERS);
+        if (!backendAnswerRecords.length) {
+          backendAnswerCard.hidden = true;
+          backendAnswersTarget.replaceChildren();
+          if (backendAnswerStatus) {
+            backendAnswerStatus.textContent = "";
+            backendAnswerStatus.dataset.tone = "";
+          }
+          updateBackendReplayButton();
+          return;
+        }
+
+        backendAnswerCard.hidden = false;
+        backendAnswersTarget.replaceChildren();
+        backendAnswerRecords.forEach((answer) => {
+          const meta = backendAnswerStateMeta(answer);
+          const item = document.createElement("div");
+          item.className = "backend-answer-item";
+          const time = document.createElement("span");
+          time.className = "backend-answer-time";
+          time.textContent = "[" + formatBackendAnswerTimestamp(answer.createdAt) + "]";
+          const text = document.createElement("div");
+          text.className = "backend-answer-text";
+          text.textContent = answer.text || answer.message || "后端没有返回文字答案。";
+          const state = document.createElement("span");
+          state.className = "backend-answer-state";
+          state.dataset.tone = meta.tone;
+          state.dataset.state = answer.state;
+          state.textContent = meta.label;
+          item.append(time, text, state);
+          backendAnswersTarget.append(item);
+        });
+        const latest = backendAnswerRecords[backendAnswerRecords.length - 1];
+        const latestMeta = backendAnswerStateMeta(latest);
+        if (backendAnswerStatus && !backendReplayInFlight) {
+          backendAnswerStatus.textContent = latestMeta.label;
+          backendAnswerStatus.dataset.tone = latestMeta.tone;
+        }
+        updateBackendReplayButton();
+      }
+
+      async function replayLatestBackendAnswer() {
+        const attempt = currentAttempt;
+        const latest = backendAnswerRecords[backendAnswerRecords.length - 1];
+        if (!attempt || !attempt.sessionId || currentPhase !== "connected" || !latest || !latest.id || backendReplayInFlight) return;
+        backendReplayInFlight = true;
+        updateBackendReplayButton();
+        if (backendAnswerStatus) {
+          backendAnswerStatus.textContent = "正在请求重新播报…";
+          backendAnswerStatus.dataset.tone = "working";
+        }
+        try {
+          const response = await fetch("/api/session/" + encodeURIComponent(String(attempt.sessionId)) + "/speak", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ answerId: latest.id }),
+            signal: attempt.abortController.signal
+          });
+          let payload = null;
+          try { payload = await response.json(); } catch (_) { /* Error body may be empty. */ }
+          if (!response.ok || !payload || payload.ok !== true) {
+            const detail = payload && (payload.error || payload.message);
+            throw new Error(sanitizeBrief(typeof detail === "string" ? detail : "重新播报失败") || "重新播报失败");
+          }
+          if (isCurrent(attempt) && !attempt.cancelRequested) {
+            if (backendAnswerStatus) {
+              backendAnswerStatus.textContent = "已请求重新播报";
+              backendAnswerStatus.dataset.tone = "success";
+            }
+            addEvent("backend.answer.replay", "已请求重新播报最新答案");
+          }
+        } catch (error) {
+          if (!isCurrent(attempt) || attempt.cancelRequested || (error && error.name === "AbortError")) return;
+          if (backendAnswerStatus) {
+            backendAnswerStatus.textContent = "重新播报失败：" + (sanitizeBrief(error && error.message) || "请稍后重试");
+            backendAnswerStatus.dataset.tone = "error";
+          }
+          addEvent("backend.answer.replay.error", "重新播报失败");
+        } finally {
+          if (currentAttempt === attempt && !attempt.cleaned) {
+            backendReplayInFlight = false;
+            updateBackendReplayButton();
+          }
+        }
+      }
+
+      function resetTranscripts() {
+        $("#backendSources").replaceChildren();
+        $("#backendToolLog").textContent = "尚未调用工具。";
+        backendReplayInFlight = false;
+        renderBackendAnswers([]);
+        setBackendStatus("后端待机", "");
+        transcriptEvents.user.length = 0;
+        transcriptEvents.assistant.length = 0;
+        transcripts.user.length = 0;
+        transcripts.assistant.length = 0;
+        renderTranscript("user");
+        renderTranscript("assistant");
+      }
+
+      function formatTranscriptTimestamp(value, mode) {
+        const date = new Date(Number.isFinite(value) ? value : Date.now());
+        const hh = String(date.getHours()).padStart(2, "0");
+        const mm = String(date.getMinutes()).padStart(2, "0");
+        const ss = String(date.getSeconds()).padStart(2, "0");
+        const ms = String(date.getMilliseconds()).padStart(3, "0");
+        return mode === "fragment" ? hh + ":" + mm + ":" + ss + "." + ms : hh + ":" + mm + ":" + ss;
+      }
+
+      function finiteEventNumber(event, key) {
+        const value = event && event[key];
+        const usable = typeof value === "number" || (typeof value === "string" && value.trim() !== "");
+        return usable && Number.isFinite(Number(value)) ? Number(value) : null;
+      }
+
+      function buildTranscriptEntries(role) {
+        const raw = transcriptEvents[role];
+        if (transcriptMode === "fragment") {
+          return raw.map((entry) => ({
+            text: entry.text,
+            timestamp: formatTranscriptTimestamp(entry.timestampMs, "fragment")
+          }));
+        }
+        const entries = [];
+        raw.forEach((entry, index) => {
+          const previousRaw = raw[index - 1];
+          const previousEntry = entries[entries.length - 1];
+          const punctuationBreak = previousRaw && /[。！？!?]\s*$/.test(previousRaw.text);
+          const timingBreak = previousRaw && previousRaw.endMs !== null && entry.startMs !== null && entry.startMs - previousRaw.endMs > 1200;
+          if (!previousEntry || punctuationBreak || timingBreak) {
+            entries.push({ text: entry.text, timestamp: formatTranscriptTimestamp(entry.timestampMs, "sentence") });
+          } else {
+            previousEntry.text = (previousEntry.text + entry.text).slice(0, MAX_TRANSCRIPT_CHARS);
+          }
+        });
+        return entries;
+      }
+
+      function appendTranscript(role, value, event, attempt, receivedAt) {
+        if (typeof value !== "string" || !value) return;
+        const eventStartMs = finiteEventNumber(event, "start_ms");
+        const eventEndMs = finiteEventNumber(event, "end_ms");
+        const base = attempt && Number.isFinite(attempt.sessionWallClock) ? attempt.sessionWallClock : null;
+        const timestampValue = eventStartMs !== null && base !== null ? base + eventStartMs : (Number.isFinite(receivedAt) ? receivedAt : Date.now());
+        const events = transcriptEvents[role];
+        events.push({ text: value.slice(0, MAX_TRANSCRIPT_CHARS), timestampMs: timestampValue, startMs: eventStartMs, endMs: eventEndMs });
+        if (events.length > MAX_TRANSCRIPT_ENTRIES) events.splice(0, events.length - MAX_TRANSCRIPT_ENTRIES);
+        renderTranscript(role);
+      }
+
+      function sanitizeBrief(value) {
+        if (typeof value !== "string") return "";
+        const compact = value.replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim();
+        if (!compact || /(sdp|candidate|base64|data:audio|pcm16|audio\/)/i.test(compact)) return "";
+        return compact.slice(0, 160);
+      }
+
+      function eventBrief(type, event) {
+        if (type === "session.started") return "会话已就绪";
+        if (type === "session.closed") return "会话已关闭";
+        if (type === "session.input_transcript.delta" || type === "session.output_transcript.delta") return "转写增量";
+        if (type === "error" || type.endsWith(".error")) {
+          const nested = event && typeof event.error === "object" ? event.error : null;
+          const detail = nested && (nested.message || nested.code) || (event && (event.message || event.code));
+          return sanitizeBrief(typeof detail === "string" ? detail : "服务端返回错误") || "服务端返回错误";
+        }
+        if (type === "datachannel.open") return "事件通道已打开";
+        if (type === "datachannel.close") return "事件通道已关闭";
+        return "已收到事件";
+      }
+
+      function backendToolName(value) {
+        if (!value || typeof value !== "object") return "";
+        const candidates = [
+          value.tool_name,
+          value.toolName,
+          value.name,
+          value.tool && value.tool.name,
+          value.function && value.function.name,
+          value.item && value.item.name
+        ];
+        for (const candidate of candidates) {
+          const safe = sanitizeBrief(candidate);
+          if (safe) return safe.slice(0, 60);
+        }
+        return "";
+      }
+
+      function backendStatusFromEvent(type, event) {
+        const nestedEvent = event && event.event && typeof event.event === "object" ? event.event : null;
+        const response = event && event.response && typeof event.response === "object" ? event.response : null;
+        const backend = event && event.backend && typeof event.backend === "object" ? event.backend : null;
+        const types = [type, nestedEvent && nestedEvent.type, response && response.type, backend && backend.type, nestedEvent && nestedEvent.status, response && response.status, backend && backend.status]
+          .filter((value) => typeof value === "string").join(" ").toLowerCase();
+        const tool = backendToolName(nestedEvent) || backendToolName(response) || backendToolName(backend) || backendToolName(event);
+        const suffix = tool ? " · " + tool : "";
+        if (/(failed|failure|error|cancelled|canceled)/.test(types)) return { label: "后端失败" + suffix, tone: "error" };
+        if (/(completed|complete|succeeded|success|done|finished)/.test(types)) return { label: "后端已完成" + suffix, tone: "success" };
+        if (/(in[_ .-]?progress|processing|started|tool|function[_ .-]?call|search|running)/.test(types)) return { label: "后端处理中" + suffix, tone: "working" };
+        return null;
+      }
+
+      function setBackendStatus(label, tone) {
+        backendStatus.textContent = label || "后端待机";
+        backendStatus.dataset.tone = tone || "";
+      }
+
+      function updateBackendStatusFromEvent(type, event) {
+        const status = backendStatusFromEvent(type, event);
+        if (status) setBackendStatus(status.label, status.tone);
+      }
+
+      function backendStatusFromPayload(payload) {
+        if (!payload || typeof payload !== "object") return null;
+        const status = payload.backendStatus;
+        const latestTool = Array.isArray(payload.tools) && payload.tools.length ? payload.tools[payload.tools.length - 1] : null;
+        const statusObject = status && typeof status === "object" ? status : null;
+        const rawStatus = statusObject ? (statusObject.status || statusObject.type || statusObject.label || "") : (typeof status === "string" ? status : "");
+        const statusLabel = statusObject && typeof statusObject.label === "string" ? statusObject.label.trim() : "";
+        const tool = backendToolName(statusObject) || backendToolName(latestTool);
+        const normalized = String(rawStatus).toLowerCase();
+        const suffix = tool ? " · " + tool : "";
+        const latestAnswer = Array.isArray(payload.answers) && payload.answers.length
+          ? normalizeBackendAnswer(payload.answers[payload.answers.length - 1])
+          : null;
+        const answerMeta = latestAnswer ? backendAnswerStateMeta(latestAnswer) : null;
+
+        // An explicit backend status is authoritative. A delivery state is more
+        // specific than a generic completed tool and is used when the status
+        // only reports that the backend has finished preparing an answer.
+        if (rawStatus) {
+          if (/失败|错误|超时|failed|failure|error|cancel/.test(normalized)) return { label: statusLabel || String(rawStatus).slice(0, 120), tone: "error" };
+          if (/(已返回|完成|complete|completed|succeed|success|done|finished)/.test(normalized) && answerMeta) return { label: answerMeta.label, tone: answerMeta.tone };
+          if (/已返回|完成|complete|completed|succeed|success|done|finished/.test(normalized)) return { label: "后端已完成" + suffix, tone: "success" };
+          if (/思考|查询|处理|排队|progress|process|start|running|pending|working|started/.test(normalized)) return { label: statusLabel || String(rawStatus).slice(0, 120), tone: "working" };
+          if (/就绪|ready/.test(normalized)) return { label: "后端就绪", tone: "" };
+        }
+        if (answerMeta) return { label: answerMeta.label, tone: answerMeta.tone };
+        if (latestTool && /failed|failure|error|失败|错误/i.test(String(latestTool.status || ""))) return { label: "后端失败" + suffix, tone: "error" };
+        if (latestTool && /progress|process|start|running|pending|处理中|正在执行/i.test(String(latestTool.status || ""))) return { label: "后端处理中" + suffix, tone: "working" };
+        // A completed tool only means that the tool returned. It does not
+        // prove that an answer was delivered to the voice service.
+        if (latestTool && /complete|completed|done|success|已完成|成功/i.test(String(latestTool.status || ""))) return { label: "工具已完成，等待答案", tone: "working" };
+        if (Array.isArray(payload.sources) && payload.sources.length) return { label: "已取得来源，等待答案", tone: "working" };
+        return null;
+      }
+
+      function updateBackendStatusFromPayload(payload) {
+        const status = backendStatusFromPayload(payload);
+        if (status) setBackendStatus(status.label, status.tone);
+        if (Array.isArray(payload && payload.answers)) renderBackendAnswers(payload.answers);
+        const sourceList = $("#backendSources");
+        sourceList.replaceChildren();
+        for (const source of (payload.sources || []).slice(-12)) {
+          try {
+            const url = new URL(source.url);
+            if (!["http:","https:"].includes(url.protocol)) continue;
+            const item = document.createElement("li"), link = document.createElement("a");
+            link.href = url.href; link.target = "_blank"; link.rel = "noopener noreferrer";
+            link.style.color = "#71e0c0"; link.textContent = String(source.title || url.hostname).slice(0,180);
+            item.append(link); sourceList.append(item);
+          } catch (_) { /* Ignore malformed source URLs. */ }
+        }
+        const toolLog = $("#backendToolLog");
+        toolLog.replaceChildren();
+        const names = {get_current_time:"时间查询",get_weather:"天气查询",calculate:"计算",web_search:"联网搜索",backend:"后端"};
+        for (const tool of (payload.tools || []).slice(-12)) {
+          const row = document.createElement("div");
+          const time = new Date(tool.at).toLocaleTimeString("zh-CN",{hour12:false});
+          row.textContent = `[${time}] ${names[tool.name] || tool.name} · ${tool.summary || tool.status}`;
+          toolLog.append(row);
+        }
+        if (!toolLog.childNodes.length) toolLog.textContent = "尚未调用工具。";
+        if (payload && payload.usage && typeof payload.usage === "object") {
+          const usage = payload.usage;
+          const explicitTotal = Number(usage.total_tokens ?? usage.totalTokens ?? usage.output_tokens ?? usage.outputTokens);
+          const inputTokens = Number(usage.backendInputTokens ?? usage.backend_input_tokens);
+          const outputTokens = Number(usage.backendOutputTokens ?? usage.backend_output_tokens);
+          const tokens = Number.isFinite(inputTokens) || Number.isFinite(outputTokens)
+            ? (Number.isFinite(inputTokens) ? inputTokens : 0) + (Number.isFinite(outputTokens) ? outputTokens : 0)
+            : explicitTotal;
+          if (Number.isFinite(tokens) && tokens >= 0 && currentAttempt && currentAttempt.config) {
+            currentAttempt.backendTokens = Math.round(tokens);
+            updateUsageNote(currentAttempt.config.sessionMinutes, currentAttempt.backendTokens);
+          }
+        }
+      }
+
+      function updateUsageNote(minutes, backendTokens) {
+        const duration = clampInteger(minutes, 1, 30, 10);
+        const tokenText = Number.isFinite(backendTokens) ? "当前后端 token：" + Math.round(backendTokens) + "，另行计费。" : "后端推理 token 另行计费。";
+        usageNote.replaceChildren();
+        const strong = document.createElement("strong");
+        strong.textContent = "用量提醒：";
+        usageNote.append(strong, document.createTextNode("本次会话最长 " + duration + " 分钟，语音连接期间计费；" + tokenText + "体验完成后请点击断开。"));
+      }
+
+      function stopBackendStatusPolling(attempt) {
+        if (!attempt) return;
+        if (attempt.statusPollTimer) {
+          clearTimeout(attempt.statusPollTimer);
+          attempt.statusPollTimer = null;
+        }
+        attempt.statusPollStopped = true;
+        attempt.statusPollGeneration = (attempt.statusPollGeneration || 0) + 1;
+      }
+
+      async function pollBackendStatus(attempt, generation) {
+        const pollGeneration = Number.isFinite(generation) ? generation : attempt && attempt.statusPollGeneration;
+        if (!isCurrent(attempt) || !attempt.sessionId || attempt.statusPollStopped || attempt.statusPollInFlight || pollGeneration !== attempt.statusPollGeneration) return;
+        attempt.statusPollInFlight = true;
+        try {
+          const response = await fetch("/api/session/" + encodeURIComponent(String(attempt.sessionId)) + "/status", { headers: { Accept: "application/json" }, signal: attempt.abortController.signal });
+          if (response.ok) {
+            const payload = await response.json();
+            if (!isCurrent(attempt) || attempt.statusPollStopped || pollGeneration !== attempt.statusPollGeneration) return;
+            updateBackendStatusFromPayload(payload);
+          } else if (isCurrent(attempt) && !attempt.statusPollStopped && !attempt.cancelRequested && pollGeneration === attempt.statusPollGeneration && !attempt.statusPollErrorReported) {
+            attempt.statusPollErrorReported = true;
+            addEvent("backend.status.error", "后端状态暂不可用，语音会话仍可继续");
+          }
+        } catch (error) {
+          // Closing a session aborts the status request deliberately. Do not
+          // turn that expected abort into a misleading technical error.
+          if (isCurrent(attempt) && !attempt.statusPollStopped && !attempt.cancelRequested && pollGeneration === attempt.statusPollGeneration && !(error && error.name === "AbortError") && !attempt.abortController.signal.aborted && !attempt.statusPollErrorReported) {
+            attempt.statusPollErrorReported = true;
+            addEvent("backend.status.error", "后端状态暂不可用，语音会话仍可继续");
+          }
+        } finally {
+          attempt.statusPollInFlight = false;
+          if (isCurrent(attempt) && !attempt.statusPollStopped && pollGeneration === attempt.statusPollGeneration) {
+            attempt.statusPollTimer = setTimeout(() => { attempt.statusPollTimer = null; void pollBackendStatus(attempt, pollGeneration); }, BACKEND_STATUS_INTERVAL_MS);
+          }
+        }
+      }
+
+      function startBackendStatusPolling(attempt) {
+        stopBackendStatusPolling(attempt);
+        attempt.statusPollStopped = false;
+        attempt.statusPollGeneration = (attempt.statusPollGeneration || 0) + 1;
+        void pollBackendStatus(attempt, attempt.statusPollGeneration);
+      }
+
+      function renderEventLog() {
+        eventLog.replaceChildren();
+        if (eventEntries.length === 0) {
+          const empty = document.createElement("li");
+          empty.className = "event-empty";
+          empty.textContent = "连接后，这里会显示脱敏的会话事件。";
+          eventLog.append(empty);
+          return;
+        }
+        eventEntries.forEach((entry) => {
+          const item = document.createElement("li");
+          const time = document.createElement("span");
+          time.className = "event-time";
+          time.textContent = entry.time;
+          const type = document.createElement("span");
+          type.className = "event-type";
+          type.textContent = entry.type;
+          const brief = document.createElement("span");
+          brief.className = "event-brief";
+          brief.textContent = entry.brief;
+          item.append(time, type, brief);
+          eventLog.append(item);
+        });
+        eventLog.scrollTop = eventLog.scrollHeight;
+      }
+
+      function addEvent(type, brief) {
+        const safeType = sanitizeBrief(type) || "event.unknown";
+        eventEntries.push({
+          time: new Date().toLocaleTimeString("zh-CN", { hour12: false }),
+          type: safeType,
+          brief: sanitizeBrief(brief) || ""
+        });
+        if (eventEntries.length > MAX_EVENT_ENTRIES) eventEntries.splice(0, eventEntries.length - MAX_EVENT_ENTRIES);
+        renderEventLog();
+      }
+
+      function resetEventLog() {
+        eventEntries.length = 0;
+        renderEventLog();
+      }
+
+      function isCurrent(attempt) {
+        return currentAttempt === attempt && !attempt.cleaned;
+      }
+
+      function isCanceled(attempt) {
+        return attempt.cancelRequested || attempt.cleaned || currentAttempt !== attempt;
+      }
+
+      function stopTracks(stream) {
+        if (!stream) return;
+        stream.getTracks().forEach((track) => {
+          try { track.stop(); } catch (_) { /* Track may already be stopped. */ }
+        });
+      }
+
+      function cleanupAttempt(attempt) {
+        if (!attempt || attempt.cleaned) return;
+        attempt.cleaned = true;
+        stopBackendStatusPolling(attempt);
+        if (attempt.abortController) {
+          try { attempt.abortController.abort(); } catch (_) { /* Already aborted. */ }
+        }
+        clearConnectionTimer(attempt);
+        if (attempt.iceCleanup) attempt.iceCleanup();
+        if (attempt.closeTimer) clearTimeout(attempt.closeTimer);
+        attempt.closeWaiters.splice(0).forEach((resolve) => resolve(false));
+        if (attempt.channel) {
+          attempt.channel.onopen = null;
+          attempt.channel.onmessage = null;
+          attempt.channel.onerror = null;
+          attempt.channel.onclose = null;
+          try { attempt.channel.close(); } catch (_) { /* Channel may already be closed. */ }
+        }
+        if (attempt.peer) {
+          attempt.peer.ontrack = null;
+          attempt.peer.onconnectionstatechange = null;
+          attempt.peer.oniceconnectionstatechange = null;
+          try { attempt.peer.close(); } catch (_) { /* Peer may already be closed. */ }
+        }
+        stopMicrophoneMeter(attempt);
+        stopTracks(attempt.stream);
+        attempt.stream = null;
+        if (currentAttempt === attempt) {
+          currentAttempt = null;
+          remoteAudio.pause();
+          remoteAudio.srcObject = null;
+          setBackendStatus("后端待机", "");
+          updateBackendReplayButton();
+        }
+        updateMuteButton();
+      }
+
+      function updateMuteButton() {
+        const muted = Boolean(currentAttempt && currentAttempt.muted);
+        muteButton.setAttribute("aria-pressed", String(muted));
+        muteButton.textContent = muted ? "恢复麦克风" : "静音麦克风";
+        muteButton.disabled = !currentAttempt || !currentAttempt.stream || currentPhase === "disconnecting";
+      }
+
+      function clearConnectionTimer(attempt) {
+        if (attempt && attempt.connectionTimer) {
+          clearTimeout(attempt.connectionTimer);
+          attempt.connectionTimer = null;
+        }
+      }
+
+      function armConnectionTimer(attempt, message) {
+        if (!attempt || attempt.cleaned || attempt.cancelRequested) return;
+        clearConnectionTimer(attempt);
+        attempt.connectionTimer = setTimeout(() => {
+          attempt.connectionTimer = null;
+          if (isCurrent(attempt) && !attempt.cancelRequested) {
+            failAttempt(attempt, message || "语音连接在 30 秒内未完成，请重新连接。", "peerconnection.timeout");
+          }
+        }, CONNECTION_TIMEOUT_MS);
+      }
+
+      function waitForIceGathering(attempt, timeoutMs) {
+        const peer = attempt.peer;
+        if (!peer || peer.iceGatheringState === "complete" || attempt.cancelRequested || attempt.abortController.signal.aborted) return Promise.resolve();
+        return new Promise((resolve) => {
+          let settled = false;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            peer.removeEventListener("icegatheringstatechange", onStateChange);
+            attempt.abortController.signal.removeEventListener("abort", finish);
+            attempt.iceCleanup = null;
+            resolve();
+          };
+          const onStateChange = () => {
+            if (peer.iceGatheringState === "complete" || attempt.cancelRequested) finish();
+          };
+          const timer = setTimeout(finish, timeoutMs);
+          attempt.iceCleanup = finish;
+          peer.addEventListener("icegatheringstatechange", onStateChange);
+          attempt.abortController.signal.addEventListener("abort", finish, { once: true });
+        });
+      }
+
+      function waitForSessionClosed(attempt, timeoutMs) {
+        if (attempt.closedAck) return Promise.resolve(true);
+        return new Promise((resolve) => {
+          const waiter = (value) => {
+            clearTimeout(timer);
+            const index = attempt.closeWaiters.indexOf(waiter);
+            if (index >= 0) attempt.closeWaiters.splice(index, 1);
+            resolve(value);
+          };
+          const timer = setTimeout(() => waiter(false), timeoutMs);
+          attempt.closeWaiters.push(waiter);
+        });
+      }
+
+      function resolveSessionClosed(attempt) {
+        attempt.closedAck = true;
+        attempt.closeWaiters.splice(0).forEach((resolve) => resolve(true));
+      }
+
+      async function closeBackendSession(attempt) {
+        if (!attempt || !attempt.sessionId || attempt.backendCloseAttempted) return false;
+        attempt.backendCloseAttempted = true;
+        const sessionPath = "/api/session/" + encodeURIComponent(String(attempt.sessionId)) + "/close";
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 1800);
+        try {
+          const response = await fetch(sessionPath, {
+            method: "POST",
+            headers: { Accept: "application/json" },
+            signal: controller.signal,
+            keepalive: true
+          });
+          if (!response.ok && isCurrent(attempt)) addEvent("session.close.error", "后端关闭请求未成功");
+          return response.ok;
+        } catch (_) {
+          if (isCurrent(attempt)) addEvent("session.close.error", "后端关闭请求失败");
+          return false;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      function sendCloseBeacon(attempt) {
+        if (!attempt || !attempt.sessionId || !navigator.sendBeacon) return false;
+        const sessionPath = "/api/session/" + encodeURIComponent(String(attempt.sessionId)) + "/close";
+        try {
+          const payload = new Blob([""], { type: "application/json" });
+          const sent = navigator.sendBeacon(sessionPath, payload);
+          if (sent) attempt.backendCloseAttempted = true;
+          return sent;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      async function closeAttempt(attempt, options) {
+        const settings = Object.assign({ waitForAck: false, finalPhase: "idle", sendProtocolClose: true }, options || {});
+        if (!attempt || attempt.cleaned) return;
+        attempt.cancelRequested = true;
+        try { attempt.abortController.abort(); } catch (_) { /* Already aborted. */ }
+
+        if (settings.waitForAck && isCurrent(attempt)) {
+          setPhase("disconnecting", "正在结束会话并释放麦克风…");
+        }
+
+        if (settings.sendProtocolClose && attempt.channel && attempt.channel.readyState === "open" && !attempt.closeSent) {
+          try {
+            attempt.channel.send(JSON.stringify({ type: "session.close" }));
+            attempt.closeSent = true;
+            addEvent("session.close", "已请求关闭会话");
+          } catch (_) {
+            addEvent("session.close.error", "事件通道无法发送关闭请求");
+          }
+        }
+
+        let closedByEvent = attempt.closedAck;
+        if (settings.waitForAck && attempt.closeSent) closedByEvent = await waitForSessionClosed(attempt, 2500);
+        if (!closedByEvent && attempt.sessionId) await closeBackendSession(attempt);
+        if (attempt.sessionId && isCurrent(attempt)) {
+          try {
+            const finalStatus = await fetch("/api/session/" + encodeURIComponent(attempt.sessionId) + "/status", { signal: AbortSignal.timeout(1200) });
+            if (finalStatus.ok && isCurrent(attempt)) updateBackendStatusFromPayload(await finalStatus.json());
+          } catch (_) { /* Closing must still release the microphone if final status is unavailable. */ }
+        }
+        cleanupAttempt(attempt);
+        if (settings.finalPhase) setPhase(settings.finalPhase, settings.finalPhase === "error" ? attempt.failureMessage : undefined);
+      }
+
+      function failAttempt(attempt, message, eventType) {
+        if (!isCurrent(attempt) || attempt.cancelRequested) return;
+        attempt.failureMessage = message;
+        addEvent(eventType || "client.error", message);
+        setPhase("error", message);
+        void closeAttempt(attempt, { waitForAck: false, finalPhase: "error" });
+      }
+
+      function handleServerEvent(attempt, raw) {
+        if (!isCurrent(attempt)) return;
+        if (typeof raw !== "string") {
+          addEvent("event.binary_ignored", "忽略非文本事件");
+          return;
+        }
+        let event;
+        try {
+          event = JSON.parse(raw);
+        } catch (_) {
+          addEvent("event.invalid_json", "忽略无法解析的事件");
+          return;
+        }
+        if (!event || typeof event !== "object" || Array.isArray(event)) {
+          addEvent("event.unknown", "忽略非对象事件");
+          return;
+        }
+        const type = typeof event.type === "string" ? event.type : "event.unknown";
+        addEvent(type, eventBrief(type, event));
+        updateBackendStatusFromEvent(type, event);
+        const receivedAt = Date.now();
+
+        if (type === "session.started") {
+          attempt.sessionStarted = true;
+          if (!attempt.cancelRequested) {
+            clearConnectionTimer(attempt);
+            setPhase("connected", "会话已就绪，可以开始说话。");
+          }
+        } else if (type === "session.closed") {
+          resolveSessionClosed(attempt);
+          if (!attempt.closing) {
+            attempt.closing = true;
+            void closeAttempt(attempt, { waitForAck: false, finalPhase: "idle", sendProtocolClose: false });
+          }
+        } else if (type === "session.input_transcript.delta") {
+          appendTranscript("user", event.delta, event, attempt, receivedAt);
+        } else if (type === "session.output_transcript.delta") {
+          appendTranscript("assistant", event.delta, event, attempt, receivedAt);
+        } else if (type === "error" || type.endsWith(".error")) {
+          failAttempt(attempt, eventBrief(type, event), type);
+        }
+      }
+
+      async function readBackendError(response) {
+        let payload = null;
+        try { payload = await response.json(); } catch (_) { /* Error body may be empty or non-JSON. */ }
+        const candidates = [];
+        if (payload && typeof payload === "object") {
+          if (typeof payload.error === "string") candidates.push(payload.error);
+          if (payload.error && typeof payload.error === "object") {
+            if (typeof payload.error.message === "string") candidates.push(payload.error.message);
+            if (typeof payload.error.code === "string") candidates.push(payload.error.code);
+          }
+          if (typeof payload.message === "string") candidates.push(payload.message);
+          if (typeof payload.detail === "string") candidates.push(payload.detail);
+        }
+        for (const candidate of candidates) {
+          const brief = sanitizeBrief(candidate);
+          if (brief) return "后端错误：" + brief;
+        }
+        return "后端返回 HTTP " + response.status;
+      }
+
+      async function connect() {
+        if (currentAttempt) return;
+        if (microphoneTest) stopMicrophoneTest("本机测试已结束，开始连接会话。");
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof RTCPeerConnection === "undefined") {
+          setPhase("error", "当前浏览器不支持麦克风 WebRTC，请使用最新版 Chrome 或 Edge。");
+          addEvent("client.unsupported", "浏览器缺少语音连接能力");
+          return;
+        }
+
+        resetTranscripts();
+        resetEventLog();
+        const selectedConfig = collectConfigFromInputs();
+        const configError = validateSessionConfig(selectedConfig);
+        if (configError) {
+          setPhase("error", configError);
+          addEvent("client.config.error", configError);
+          return;
+        }
+        sessionConfig = selectedConfig;
+        persistConfig(sessionConfig);
+        updateUsageNote(sessionConfig.sessionMinutes);
+        const attempt = {
+          id: ++attemptSequence,
+          abortController: new AbortController(),
+          peer: null,
+          channel: null,
+          stream: null,
+          sessionId: null,
+          sessionStarted: false,
+          channelOpen: false,
+          recovering: false,
+          muted: false,
+          closeSent: false,
+          closedAck: false,
+          closing: false,
+          cancelRequested: false,
+          cleaned: false,
+          closeWaiters: [],
+          config: Object.assign({}, sessionConfig),
+          sessionWallClock: Date.now(),
+          backendTokens: null,
+          backendCloseAttempted: false,
+          iceCleanup: null,
+          connectionTimer: null,
+          closeTimer: null,
+          statusPollTimer: null,
+          statusPollInFlight: false,
+          statusPollStopped: false,
+          statusPollErrorReported: false,
+          statusPollGeneration: 0
+        };
+        currentAttempt = attempt;
+        setPhase("connecting", "正在请求麦克风权限…");
+        addEvent("client.connect", "开始建立语音会话");
+
+        try {
+          const stream = await getMicrophoneStream();
+          attempt.stream = stream;
+          if (isCanceled(attempt)) {
+            stopTracks(stream);
+            return;
+          }
+          startMicrophoneMeter(attempt);
+          void refreshMicrophoneList({ reportStale: true });
+          updateMuteButton();
+
+          const peer = new RTCPeerConnection();
+          attempt.peer = peer;
+          armConnectionTimer(attempt, "语音连接在 30 秒内未完成，请检查网络后重新连接。");
+          peer.ontrack = (event) => {
+            if (!isCurrent(attempt)) return;
+            const streamForAudio = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
+            remoteAudio.srcObject = streamForAudio;
+            remoteAudio.play().catch(() => addEvent("audio.autoplay", "浏览器等待用户手势播放语音"));
+          };
+          peer.onconnectionstatechange = () => {
+            if (!isCurrent(attempt)) return;
+            if (peer.connectionState === "failed") {
+              failAttempt(attempt, "WebRTC 语音连接失败，请检查后端服务和网络。", "peerconnection.failed");
+            } else if (peer.connectionState === "disconnected") {
+              if (!attempt.recovering) {
+                attempt.recovering = true;
+                addEvent("peerconnection.disconnected", "语音链路暂时中断");
+              }
+              armConnectionTimer(attempt, "语音链路在 30 秒内未恢复，请重新连接。");
+              if (!attempt.cancelRequested) setPhase("connecting", "语音链路暂时中断，正在等待恢复…");
+            } else if (peer.connectionState === "connected") {
+              if (attempt.recovering) {
+                attempt.recovering = false;
+                addEvent("peerconnection.recovered", "语音链路已恢复");
+              }
+              if (attempt.sessionStarted && !attempt.cancelRequested) {
+                clearConnectionTimer(attempt);
+                setPhase("connected", "会话已就绪，可以开始说话。");
+              } else if (!attempt.cancelRequested) {
+                armConnectionTimer(attempt, "会话在 30 秒内未完成，请重新连接。");
+              }
+            }
+          };
+          peer.oniceconnectionstatechange = () => {
+            if (!isCurrent(attempt) || peer.iceConnectionState === "failed") return;
+            if (peer.iceConnectionState === "connected" || peer.iceConnectionState === "completed") addEvent("ice.connected", "网络候选已就绪");
+          };
+          stream.getTracks().forEach((track) => peer.addTrack(track, stream));
+
+          const channel = peer.createDataChannel("oai-events");
+          attempt.channel = channel;
+          channel.onopen = () => {
+            if (!isCurrent(attempt)) return;
+            attempt.channelOpen = true;
+            addEvent("datachannel.open", "事件通道已打开");
+            if (attempt.sessionStarted && !attempt.cancelRequested) {
+              clearConnectionTimer(attempt);
+              setPhase("connected", "会话已就绪，可以开始说话。");
+            }
+            else if (!attempt.cancelRequested) setPhase("connecting", "事件通道已打开，等待会话就绪…");
+          };
+          channel.onmessage = (event) => handleServerEvent(attempt, event.data);
+          channel.onerror = () => {
+            if (isCurrent(attempt) && !attempt.cancelRequested) failAttempt(attempt, "事件通道出现错误，请重新连接。", "datachannel.error");
+          };
+          channel.onclose = () => {
+            if (!isCurrent(attempt) || attempt.closing || attempt.cancelRequested) return;
+            addEvent("datachannel.close", "事件通道已关闭");
+            attempt.closing = true;
+            setPhase("disconnecting", "事件通道已关闭，正在释放资源…");
+            void closeAttempt(attempt, { waitForAck: false, finalPhase: "idle", sendProtocolClose: false });
+          };
+
+          setPhase("connecting", "正在创建 WebRTC offer…");
+          const offer = await peer.createOffer();
+          if (isCanceled(attempt)) return;
+          await peer.setLocalDescription(offer);
+          await waitForIceGathering(attempt, 5000);
+          if (isCanceled(attempt)) return;
+          if (!peer.localDescription || typeof peer.localDescription.sdp !== "string") throw new Error("local_description_missing");
+
+          setPhase("connecting", "正在让后端创建 GPT-Live 会话…");
+          attempt.sessionWallClock = Date.now();
+          let response;
+          try {
+            response = await fetch("/api/session", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({ sdp: peer.localDescription.sdp, config: attempt.config }),
+              signal: attempt.abortController.signal
+            });
+          } catch (error) {
+            if (isCanceled(attempt) || (error && error.name === "AbortError")) return;
+            throw new Error("session_request_failed");
+          }
+          if (!response.ok) throw new Error("backend_response:" + await readBackendError(response));
+          let session;
+          try {
+            session = await response.json();
+          } catch (_) {
+            throw new Error("session_response_invalid");
+          }
+          if (!session || typeof session.sessionId !== "string" || !session.sessionId || typeof session.sdp !== "string" || !session.sdp) {
+            if (session && typeof session.sessionId === "string") attempt.sessionId = session.sessionId;
+            if (attempt.sessionId) await closeBackendSession(attempt);
+            throw new Error("session_response_incomplete");
+          }
+          attempt.sessionId = session.sessionId;
+          startBackendStatusPolling(attempt);
+          if (isCanceled(attempt)) {
+            await closeBackendSession(attempt);
+            return;
+          }
+
+          await peer.setRemoteDescription({ type: "answer", sdp: session.sdp });
+          if (isCanceled(attempt)) {
+            await closeBackendSession(attempt);
+            return;
+          }
+          setPhase("connecting", "已收到后端回答，等待会话就绪…");
+        } catch (error) {
+          if (isCanceled(attempt) || (error && error.name === "AbortError")) return;
+          let message = "连接失败，请检查后端服务、麦克风权限和浏览器网络。";
+          if (error && typeof error.message === "string" && error.message.startsWith("backend_response:")) message = error.message.slice("backend_response:".length);
+          else if (error && error.message === "session_response_incomplete") message = "后端返回的会话信息不完整，请查看服务日志。";
+          else if (error && error.message === "session_response_invalid") message = "后端返回格式无法识别，请查看服务日志。";
+          else if (error && error.message === "local_description_missing") message = "浏览器没有生成有效的 WebRTC offer。";
+          failAttempt(attempt, message, "client.connect.error");
+        }
+      }
+
+      async function disconnect() {
+        const attempt = currentAttempt;
+        if (!attempt || attempt.closing) return;
+        attempt.closing = true;
+        await closeAttempt(attempt, { waitForAck: true, finalPhase: "idle", sendProtocolClose: true });
+      }
+
+      function toggleMute() {
+        const attempt = currentAttempt;
+        if (!attempt || !attempt.stream || currentPhase === "disconnecting") return;
+        attempt.muted = !attempt.muted;
+        attempt.stream.getAudioTracks().forEach((track) => { track.enabled = !attempt.muted; });
+        updateMuteButton();
+        addEvent(attempt.muted ? "microphone.muted" : "microphone.unmuted", attempt.muted ? "麦克风已静音" : "麦克风已恢复");
+      }
+
+      function handlePageHide() {
+        stopMicrophoneTest();
+        const attempt = currentAttempt;
+        if (!attempt || attempt.cleaned) return;
+        attempt.cancelRequested = true;
+        try { attempt.abortController.abort(); } catch (_) { /* Already aborted. */ }
+        if (attempt.channel && attempt.channel.readyState === "open" && !attempt.closeSent) {
+          try {
+            attempt.channel.send(JSON.stringify({ type: "session.close" }));
+            attempt.closeSent = true;
+          } catch (_) { /* Page is closing. */ }
+        }
+        sendCloseBeacon(attempt);
+        cleanupAttempt(attempt);
+      }
+
+      connectButton.addEventListener("click", () => { void connect(); });
+      disconnectButton.addEventListener("click", () => { void disconnect(); });
+      muteButton.addEventListener("click", toggleMute);
+      microphoneSelect.addEventListener("change", () => {
+        if (currentAttempt || microphoneTest) {
+          microphoneSelect.value = selectedMicrophoneId;
+          return;
+        }
+        selectedMicrophoneId = microphoneSelect.value || "default";
+        saveMicrophoneSelection();
+        microphoneTestNote.textContent = "已选择设备；可点击“测试麦克风”确认电平。";
+        addEvent("microphone.selected", "已保存麦克风选择");
+      });
+      testMicrophoneButton.addEventListener("click", () => { void testMicrophone(); });
+      stopMicrophoneTestButton.addEventListener("click", () => stopMicrophoneTest("本机测试已停止。"));
+      backendReplayButton.addEventListener("click", () => { void replayLatestBackendAnswer(); });
+      [voiceSelect, languageSelect, timeZoneInput, cityInput, webSearchCheckbox, maxOutputTokensInput, reasoningEffortSelect, sessionMinutesInput].forEach((control) => {
+        if (control) control.addEventListener("change", saveConfigFromInputs);
+      });
+      if (instructionsInput) instructionsInput.addEventListener("input", () => {
+        instructionsCount.textContent = instructionsInput.value.length + " / 1500";
+        saveConfigFromInputs();
+      });
+      transcriptModeSelect.addEventListener("change", () => {
+        transcriptMode = transcriptModeSelect.value === "fragment" ? "fragment" : "sentence";
+        renderTranscript("user");
+        renderTranscript("assistant");
+      });
+      if (reloadConfigButton) reloadConfigButton.addEventListener("click", () => { void loadConfig(); });
+      window.addEventListener("pagehide", handlePageHide);
+
+      renderTranscript("user");
+      renderTranscript("assistant");
+      renderEventLog();
+      setBackendStatus("后端待机", "");
+      updateUsageNote(10);
+      setPhase("idle");
+      void refreshMicrophoneList();
+      void loadConfig();
+    })();
+  </script>
+</body>
+</html>

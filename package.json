@@ -1,0 +1,20 @@
+{
+  "name": "gpt-live-1-demo",
+  "version": "0.1.0",
+  "description": "A self-hosted realtime voice assistant demo with a browser setup wizard.",
+  "private": false,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "node launcher.mjs --open",
+    "start:server": "node server.mjs",
+    "test": "node --test",
+    "build:release": "node scripts/build-release.mjs",
+    "check:release": "node scripts/check-release.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}

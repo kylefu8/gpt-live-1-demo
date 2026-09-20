@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: gpt-live-1-demo
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_MODE
+        value: remote
+      - key: HOST
+        value: 0.0.0.0
+      - key: APP_DATA_DIR
+        value: /data
+      - key: SETUP_TOKEN
+        generateValue: true
+    disk:
+      name: gpt-live-1-demo-data
+      mountPath: /data
+      sizeGB: 1
