@@ -35,7 +35,7 @@ export async function startServer(options={}){
   let creating=false;
   function safeMessage(message){
     let value=String(message||'');const current=store.get();
-    for(const secret of [current.voice.apiKey,current.backend.apiKey,current.search?.apiKey,auth.initialToken])if(secret)value=value.split(secret).join('[REDACTED]');
+    for(const secret of [current.voice.apiKey,current.backend.apiKey,auth.initialToken])if(secret)value=value.split(secret).join('[REDACTED]');
     return value.replace(/https?:\/\/\S+/g,'[service address]').slice(0,400);
   }
   const fingerprint=(kind,settings)=>createHash('sha256').update(JSON.stringify(kind==='voice'?settings.voice:{backend:settings.backend,reasoning:settings.preferences.reasoningEffort})).digest('hex');

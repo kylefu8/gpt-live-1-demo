@@ -1242,7 +1242,6 @@
                     <input id="webSearchCheckbox" type="checkbox" disabled>
                     <span id="webSearchLabel" data-i18n="main.settings.webSearchAllowed">允许后端查询公开信息</span>
                   </label>
-                  <div class="settings-meta" id="webSearchProviderLabel"></div>
                   <button class="button secondary tiny" id="testWebSearchButton" type="button" disabled data-i18n="main.settings.webSearchTest">测试联网查询</button>
                   <div class="settings-meta" id="webSearchTestStatus" role="status" aria-live="polite"></div>
                   <div class="settings-meta" data-i18n="main.settings.webSearchTestHint">测试会发起一次真实联网请求，可能消耗查询服务额度。</div>
@@ -1332,7 +1331,6 @@
       const cityInput = $("#cityInput");
       const webSearchCheckbox = $("#webSearchCheckbox");
       const webSearchLabel = $("#webSearchLabel");
-      const webSearchProviderLabel = $("#webSearchProviderLabel");
       const testWebSearchButton = $("#testWebSearchButton");
       const webSearchTestStatus = $("#webSearchTestStatus");
       const webSearchTestSources = $("#webSearchTestSources");
@@ -1355,7 +1353,6 @@
         if (configCatalog && sessionConfig) {
           webSearchLabel.textContent = configCatalog.webSearchAvailable ? t("main.settings.webSearchAllowed") : t("main.settings.webSearchUnavailable");
         }
-        if (webSearchProviderLabel) webSearchProviderLabel.textContent = searchProviderLabel();
         renderWebSearchTestStatus();
         if (configStatusMessage) setConfigStatus(window.AppI18n.error(configStatusMessage), configStatusTone, configStatusRetry);
         for (const option of voiceSelect.options) option.textContent = window.AppI18n.error(option.textContent);
@@ -1507,16 +1504,6 @@
         };
       }
 
-      function searchProviderLabel() {
-        if (!configCatalog) return "";
-        const provider = configCatalog.searchProvider === "tavily" ? "tavily" : "native";
-        const label = t(provider === "tavily" ? "main.settings.webSearchProviderTavily" : "main.settings.webSearchProviderNative");
-        const keyState = provider === "tavily"
-          ? (configCatalog.searchKeyConfigured ? t("main.settings.webSearchKeyConfigured") : t("main.settings.webSearchKeyMissing"))
-          : "";
-        return t("main.settings.webSearchProvider", { provider: label }) + (keyState ? " · " + keyState : "");
-      }
-
       function renderWebSearchTestStatus() {
         if (!webSearchTestStatus) return;
         webSearchTestStatus.textContent = webSearchTestStatusKey
@@ -1628,7 +1615,6 @@
         sessionMinutesInput.value = String(sessionConfig.sessionMinutes);
         updateUsageNote(sessionConfig.sessionMinutes);
         webSearchLabel.textContent = configCatalog && configCatalog.webSearchAvailable ? t("main.settings.webSearchAllowed") : t("main.settings.webSearchUnavailable");
-        if (webSearchProviderLabel) webSearchProviderLabel.textContent = searchProviderLabel();
         if (configStatus && configCatalog && configCatalog.backendReady === false) {
           configStatus.textContent = t("main.settings.voiceReadyNoBackend");
         }
@@ -1698,9 +1684,7 @@
               voices: serverOptionList(payload.voices),
               webSearchAvailable: Boolean(payload.webSearchAvailable),
               backendReady: payload.backendReady !== false,
-              backendModel: textValue(payload.defaults && payload.defaults.backendModel, "", 120),
-              searchProvider: payload.searchProvider === "tavily" ? "tavily" : "native",
-              searchKeyConfigured: payload.searchKeyConfigured === true
+              backendModel: textValue(payload.defaults && payload.defaults.backendModel, "", 120)
             };
             const stored = readStoredConfig();
             sessionConfig = normalizeConfig(Object.assign({}, defaults, stored), defaults);

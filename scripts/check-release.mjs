@@ -9,7 +9,7 @@ const forbiddenPath = /(?:[A-Za-z]:[\\/]+Users[\\/]|\/Users\/|\/home\/|\\\\Users
 const sourceFiles = [
   'package.json', 'package-lock.json', 'launcher.mjs', 'server.mjs',
   'backend.mjs', 'config.mjs', 'delivery.mjs', 'fast-time.mjs', 'tools.mjs',
-  'auth.mjs', 'connections.mjs', 'settings-store.mjs', 'ui-messages.mjs', 'search.mjs',
+  'auth.mjs', 'connections.mjs', 'settings-store.mjs', 'ui-messages.mjs',
   'README.md', 'README.zh-CN.md', 'LICENSE', '.env.example', 'Dockerfile', 'compose.yml',
   'compose.remote.yml', 'render.yaml'
 ];

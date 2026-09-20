@@ -12,7 +12,7 @@ Choose the path that matches the person using the application:
 
 ## Windows release
 
-The public `v0.3.0` Windows x64 release includes the official Node.js 24 runtime.
+The public `v0.3.1` Windows x64 release includes the official Node.js 24 runtime.
 
 1. Download the complete ZIP from [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest).
 2. Extract it without separating `Start.cmd`, `runtime`, or `app`.

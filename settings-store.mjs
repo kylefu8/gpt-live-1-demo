@@ -9,8 +9,8 @@ export function defaultDataDir(){
   if(process.platform==='darwin')return join(homedir(),'Library','Application Support','GPTLiveDemo');
   return join(process.env.XDG_CONFIG_HOME||join(homedir(),'.config'),'gpt-live-demo');
 }
-export const preferenceDefaults={voice:'marin',language:'auto',instructions:'Be helpful, concise, and natural.',timeZone:'UTC',city:'',webSearch:false,maxOutputTokens:1024,reasoningEffort:'low',sessionMinutes:10};
-export function emptySettings(){return {version:1,voice:{provider:'azure',baseUrl:'',model:'gpt-live-1',apiKey:''},backend:{enabled:false,mode:'custom',baseUrl:'',model:'',auth:'bearer',apiKey:''},search:{provider:'native',apiKey:''},preferences:{...preferenceDefaults}};}
+export const preferenceDefaults={voice:'marin',language:'auto',instructions:'Be helpful, concise, and natural.',timeZone:'UTC',city:'',webSearch:true,maxOutputTokens:1024,reasoningEffort:'low',sessionMinutes:10};
+export function emptySettings(){return {version:1,voice:{provider:'azure',baseUrl:'',model:'gpt-live-1',apiKey:''},backend:{enabled:false,mode:'custom',baseUrl:'',model:'',auth:'bearer',apiKey:''},preferences:{...preferenceDefaults}};}
 export function normalizeBaseUrl(value,provider='compatible'){
   let url;try{url=new URL(String(value||'').trim());}catch{throw new Error('地址格式不正确，请粘贴完整的 https:// 资源地址');}
   if(url.protocol!=='https:'||url.username||url.password)throw new Error('服务地址必须使用 HTTPS，且不能在地址中包含密钥');
@@ -50,16 +50,12 @@ export function mergeSettings(input,previous=emptySettings()){
     if(!key)throw new Error('请输入推理后端 API Key；更换地址后需要重新填写');
     result.backend={enabled:true,mode,baseUrl:backendUrl,auth,model:model(b.model,'推理模型或部署名'),apiKey:key};
   }
-  const search=input.search??previous.search??{provider:'native',apiKey:''};
-  if(!search||typeof search!=='object'||Array.isArray(search)||!['native','tavily'].includes(search.provider))throw new Error('请选择支持的搜索服务');
-  const searchKey=search.apiKey===undefined?'':secret(search.apiKey);
-  result.search={provider:search.provider,apiKey:search.provider==='tavily'?(searchKey||(previous.search?.provider==='tavily'?previous.search.apiKey:'')||''):''};
   if(previous.admin)result.admin=previous.admin;
   return result;
 }
 export function publicSettings(s){
   return {voice:{provider:s.voice.provider,baseUrl:s.voice.baseUrl,model:s.voice.model,keyConfigured:Boolean(s.voice.apiKey)},
-    backend:{enabled:s.backend.enabled,mode:s.backend.mode,baseUrl:s.backend.baseUrl,model:s.backend.model,auth:s.backend.auth,keyConfigured:Boolean(s.backend.apiKey)},search:{provider:s.search?.provider||'native',keyConfigured:Boolean(s.search?.apiKey)},preferences:s.preferences};
+    backend:{enabled:s.backend.enabled,mode:s.backend.mode,baseUrl:s.backend.baseUrl,model:s.backend.model,auth:s.backend.auth,keyConfigured:Boolean(s.backend.apiKey)},preferences:s.preferences};
 }
 export function passwordHash(password){if(typeof password!=='string'||password.length<10||password.length>256)throw new Error('管理员密码至少需要 10 个字符');const salt=randomBytes(16).toString('hex');return {salt,hash:scryptSync(password,salt,64).toString('hex')};}
 export function checkPassword(password,admin){if(typeof password!=='string'||password.length>256||!admin?.salt||!admin.hash)return false;try{return timingSafeEqual(scryptSync(password,admin.salt,64),Buffer.from(admin.hash,'hex'));}catch{return false;}}

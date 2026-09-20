@@ -1,8 +1,7 @@
 import WebSocket from 'ws';
 import {requestResponse,extractSources} from './backend.mjs';
-import {executeWebSearch} from './search.mjs';
 export function voiceHeaders(voice){return voice.provider==='azure'?{'api-key':voice.apiKey}:{Authorization:`Bearer ${voice.apiKey}`};}
-export function backendConnection(settings){const b=settings.backend;return b.enabled?{baseUrl:b.baseUrl,auth:b.auth,key:b.apiKey,model:b.model,search:{provider:settings.search?.provider||'native',apiKey:settings.search?.apiKey||''}}:null;}
+export function backendConnection(settings){const b=settings.backend;return b.enabled?{baseUrl:b.baseUrl,auth:b.auth,key:b.apiKey,model:b.model}:null;}
 export function friendlyApiError(error,{kind='voice'}={}){
  const text=String(error?.message||error||'');
  if(kind==='search'&&error?.searchMessage)return error.searchMessage;
@@ -12,22 +11,15 @@ export function friendlyApiError(error,{kind='voice'}={}){
  if(status===429||/429|quota|rate.limit/i.test(text))return '服务当前额度不足或请求过多，请检查额度并稍后重试。';
  if(/timeout|timed out|abort/i.test(text))return '连接超时，请检查网络和资源地址后重试。';
  if(/fetch failed|ENOTFOUND|ECONN|certificate/i.test(text))return '无法连接服务，请检查地址、网络和 HTTPS 证书。';
- if(kind==='search')return '后端未能执行内置搜索，请检查工具支持情况或改用 Tavily 独立搜索';
+ if(kind==='search')return '后端未能执行原生联网搜索，请检查当前部署的工具支持情况与访问权限';
  return `${kind==='voice'?'语音服务':'推理后端'}测试失败，请检查接口兼容性和模型配置。`;
 }
 function searchFailure(message){const error=new Error(message);error.searchMessage=message;return error;}
-export async function probeSearch(settings,{request=requestResponse,search=executeWebSearch}={}){
+export async function probeSearch(settings,{request=requestResponse}={}){
  const connection=backendConnection(settings);
  if(!connection)throw searchFailure('请先配置推理后端，再测试联网搜索');
- if(settings.search?.provider==='tavily'){
-  if(!settings.search.apiKey)throw searchFailure('请先配置 Tavily 搜索 API Key');
-  const result=await search({query:'OpenAI latest announcements',time_range:'month'},{apiKey:settings.search.apiKey,signal:AbortSignal.timeout(15000)});
-  if(result.error)throw searchFailure(result.error.message);
-  if(!result.sources?.length)throw searchFailure('搜索未返回可用来源，请稍后重试');
-  return {ok:true,message:'联网搜索测试通过，已取得来源',sources:result.sources,retrievedAt:result.retrievedAt};
- }
- const result=await request(connection,{model:connection.model,input:'Search the web for the latest OpenAI announcements and cite one source. Keep the answer brief.',tools:[{type:'web_search',external_web_access:true}],tool_choice:{type:'web_search'},include:['web_search_call.action.sources'],max_output_tokens:512,...(settings.preferences.reasoningEffort==='none'?{}:{reasoning:{effort:'low'}})},AbortSignal.timeout(35000));
- if(!(result.output||[]).some(item=>item.type==='web_search_call'&&item.status==='completed'))throw searchFailure('后端没有执行联网搜索；普通问答通过不代表支持搜索，请改用 Tavily 或支持搜索的后端');
+ const result=await request(connection,{model:connection.model,input:'Search the web for the latest OpenAI announcements and cite one source. Keep the answer brief.',tools:[{type:'web_search'}],tool_choice:{type:'web_search'},include:['web_search_call.action.sources'],max_output_tokens:512,...(settings.preferences.reasoningEffort==='none'?{}:{reasoning:{effort:'low'}})},AbortSignal.timeout(35000));
+ if(!(result.output||[]).some(item=>item.type==='web_search_call'&&item.status==='completed'))throw searchFailure('后端没有执行联网搜索，请检查当前部署的原生搜索支持与访问权限');
  const sources=extractSources(result.output);
  if(!sources.length)throw searchFailure('搜索未返回可用来源，请稍后重试');
  return {ok:true,message:'联网搜索测试通过，已取得来源',sources,retrievedAt:new Date().toISOString()};

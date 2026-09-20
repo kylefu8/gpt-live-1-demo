@@ -89,17 +89,17 @@ test('local mode refuses an accidentally public listening address',async()=>{
 });
 
 test('search tests run independently of chat checks and never cache evidence',async t=>{
- let calls=0;const searchKey='synthetic-search-key-private';
- const app=await fixture(t,{probes:{...probes,search:async settings=>{calls++;assert.equal(settings.search.apiKey,searchKey);return {ok:true,message:'联网搜索测试通过，已取得来源',sources:[{title:'Search source',url:'https://example.com'}]};}}});
- const input={...candidate(),backend:{enabled:true,mode:'same',model:'reasoning'},search:{provider:'tavily',apiKey:searchKey},preferences:{webSearch:true}};
+ let calls=0;
+ const app=await fixture(t,{probes:{...probes,search:async settings=>{calls++;assert.equal(settings.backend.model,'reasoning');return {ok:true,message:'联网搜索测试通过，已取得来源',sources:[{title:'Search source',url:'https://example.com'}]};}}});
+ const input={...candidate(),backend:{enabled:true,mode:'same',model:'reasoning'},preferences:{webSearch:true}};
  assert.equal((await post(app.url,'/api/settings',{settings:input})).status,200);
  assert.equal(calls,0);
  for(let i=0;i<2;i++){
   const r=await post(app.url,'/api/search/test',{}, {'Accept-Language':'en'});assert.equal(r.status,200);
-  const data=await r.json();assert.match(data.message,/Web search passed/);assert.equal(data.sources.length,1);assert.ok(!JSON.stringify(data).includes(searchKey));
+  const data=await r.json();assert.match(data.message,/Web search passed/);assert.equal(data.sources.length,1);assert.ok(!JSON.stringify(data).includes(voice.apiKey));
  }
  assert.equal(calls,2);
- const candidateTest=await post(app.url,'/api/settings/test',{kind:'search',settings:{...input,search:{provider:'tavily',apiKey:''}}});assert.equal(candidateTest.status,200);assert.equal(calls,3);
+ const candidateTest=await post(app.url,'/api/settings/test',{kind:'search',settings:input});assert.equal(candidateTest.status,200);assert.equal(calls,3);
  assert.equal((await post(app.url,'/api/search/test',{}, {Origin:'https://foreign.example'})).status,403);
- const pub=await(await fetch(app.url+'/api/settings')).json();assert.equal(pub.search.keyConfigured,true);assert.equal(pub.search.apiKey,undefined);
+ const pub=await(await fetch(app.url+'/api/settings')).json();assert.equal(pub.search,undefined);
 });

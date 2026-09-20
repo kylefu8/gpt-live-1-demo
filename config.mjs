@@ -14,10 +14,9 @@ export function validateConfig(input={},settings={preferences:preferenceDefaults
   for(const [key,min,max]of[['maxOutputTokens',256,4096],['sessionMinutes',1,30]])if(!Number.isInteger(c[key])||c[key]<min||c[key]>max)throw new Error(`${key} 需要介于 ${min} 和 ${max}`);
   if(!['none','low','medium','high'].includes(c.reasoningEffort))throw new Error('推理强度不正确');
   c.webSearch=c.webSearch&&Boolean(settings.backend?.enabled);
-  if(c.webSearch&&settings.search?.provider==='tavily'&&!settings.search.apiKey)throw new Error('请先配置 Tavily 搜索 API Key');
   return {...c,backendProvider:'configured',backendModel:settings.backend?.model||'',backendReady:Boolean(settings.backend?.enabled)};
 }
-export function publicConfig(settings,configured){return {configured,voices,defaults:validateConfig({},settings),backendReady:Boolean(settings.backend.enabled),backendModels:settings.backend.model?[{id:settings.backend.model,label:settings.backend.model}]:[],backendProviderLabel:settings.backend.enabled?'已配置推理后端':'仅语音与时间工具',webSearchAvailable:Boolean(settings.backend.enabled)&&(settings.search?.provider!=='tavily'||Boolean(settings.search?.apiKey)),searchProvider:settings.search?.provider||'native',searchKeyConfigured:Boolean(settings.search?.apiKey)};}
+export function publicConfig(settings,configured){return {configured,voices,defaults:validateConfig({},settings),backendReady:Boolean(settings.backend.enabled),backendModels:settings.backend.model?[{id:settings.backend.model,label:settings.backend.model}]:[],backendProviderLabel:settings.backend.enabled?'已配置推理后端':'仅语音与时间工具',webSearchAvailable:Boolean(settings.backend.enabled)};}
 export function liveInstructions(c){
  const language=c.language==='zh-CN'?'始终用中文回答，只有用户明确要求时才换语言':c.language==='en-US'?'Answer in English unless the user asks for another language':'使用用户正在使用的语言回答';
  const capabilities=c.backendReady?`推理、精确计算、当前时间、天气${c.webSearch?'、联网搜索':''}`:'当前时间、日期和星期；复杂推理、天气和搜索需要用户先配置推理后端';

@@ -14,7 +14,7 @@ Project: <https://github.com/kylefu8/gpt-live-1-demo>
 
 ## Try it as an end user
 
-The easiest path on Windows is the published Windows x64 ZIP from [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest). The current public release is `v0.3.0`.
+The easiest path on Windows is the published Windows x64 ZIP from [GitHub Releases](https://github.com/kylefu8/gpt-live-1-demo/releases/latest). The current public release is `v0.3.1`.
 
 1. Download the complete ZIP and extract it to a new folder. Keep `Start.cmd`, `runtime`, and `app` together.
 2. Double-click `Start.cmd`.
@@ -99,16 +99,13 @@ The repository includes `render.yaml` for a Docker web service and a `/data` per
 
 The template is a deployment starting point, not a hosted service. This repository does not claim that the Render template has been live deployed. After deployment, verify the generated HTTPS address, health endpoint, setup token, persistent storage, and microphone access yourself.
 
-## Web search
+## Automatic web search
 
-A Responses-compatible chat endpoint does not automatically provide hosted web search. In **Connection setup → Backend → Web search**, choose one of:
+The assistant uses the reasoning service's native Responses API web_search tool when a question needs current information. It reuses the existing service address and API key: there is no separate search provider or search credential. New configurations enable it by default.
 
-- **Backend built-in**: uses the configured reasoning service's hosted web search tool. No extra search key is needed, but the service and model must support it.
-- **Tavily**: the server searches through Tavily, then passes result snippets to the reasoning model. Enter your own Tavily API key; the model only needs function calling support.
+You can turn **Automatic web lookup** off in advanced preferences. Existing saved choices are preserved when upgrading; enable the switch if an older configuration has it off. Save and reconnect to apply the change. Sources appear under **Sources and tool log**.
 
-Run **Test web search** and check the returned source links. This makes a real request and may use your provider quota; a successful chat test alone does not prove search works. Enable web search, save, and reconnect the voice session. You can also test saved search settings from the conversation page.
-
-Search results are subject to the search service's indexing and publication delays; search is not a live data feed. Sources appear in the conversation page's Sources and tool log. Search failures are shown explicitly. Tavily credentials stay in the server's private settings file and are never sent to the reasoning model or returned to the browser.
+For troubleshooting, **Test web lookup** checks for a completed native search and source links. The configured model deployment must support the tool and its administrator must allow access. Azure's native search uses Bing grounding; its current API does not support live page fetching and treats external_web_access as false. [Foundry native web search documentation](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/web-search).
 
 ## Configuration
 

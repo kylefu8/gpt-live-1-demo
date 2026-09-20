@@ -1,5 +1,12 @@
 # Release notes / 发布说明
 
+## v0.3.1 / 简化为原生自动搜索
+
+- Use only the existing reasoning service’s native web search, automatically when needed. New configurations enable it by default; existing saved choices are preserved.
+- Remove the separate search provider and extra key fields. Keep source links and optional diagnostics under advanced preferences.
+- 只使用现有推理服务的原生搜索，按需自动调用；新配置默认开启，升级保留已有选择。
+- 移除额外搜索服务和 Key 配置，仅保留来源及高级偏好中的可选诊断。
+
 ## v0.3.0 / 可配置联网搜索
 
 - Add independent Tavily search alongside backend-hosted search, with server-only credentials.
